@@ -1,0 +1,3 @@
+{% for item in news_list %}
+                <li><a href="http://en.wikipedia.org/wiki/{{item.linktitle}}"> {{ item.title }} </a>,  <a href="http://www.wikitrends.info/infoview/{{item.id}}">info</a></li>
+{% endfor %}
