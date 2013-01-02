@@ -1,4 +1,3 @@
-wikicount
+Wikitrends.info 
 =========
-
-Wikicount
+This code is for the wikitrends.info website.  This readme is blank, for now. 
