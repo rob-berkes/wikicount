@@ -13,11 +13,13 @@ import memcache
 from wsgiref.handlers import format_date_time
 from time import mktime
 import time
+import tweepy 
 
 conn=Connection('10.195.138.15')
 #conn=Connection('10.80.121.190')
 #conn=Connection()
 db=conn.wc
+api=tweepy.api
 RECORDSPERPAGE=50
 mc=memcache.Client(['127.0.0.1:11211'],debug=0)
 #All purpose Functions
@@ -42,7 +44,11 @@ def MapQuery_FindName(id):
 
 
 	return title, utitle
+def GetTimeline():
+	status=api.user_timeline('wikitrendsinfo')
 
+
+	return status
 def Query_NewsFind(FINDQUERY,notedate,notes):
 	findresults=db.news.find(FINDQUERY)
 	for a in findresults:
@@ -173,36 +179,6 @@ def listtop(request,YEAR,MONTH,DAY):
 	rendered=t.render(c)
 	return HttpResponse(rendered)
 
-def index(request):
-	DAY,MONTH,YEAR,HOUR,expiretime=fnReturnTimes()
-	notedate=''
-	notes=''
-	t=get_template('RedTieIndex.html')
-	FINDQUERY={'d':int(DAY),'m':int(MONTH),'y':int(YEAR)}
-	latest_news_list = latestnews()
-	send_list=[]
-	title=''
-	send_list=mc.get('send_list')
-	if send_list:
-		pass
-	else:	
-		latest_hits_list = db.prodtop.find().sort('place',1).limit(50)
-		for p in latest_hits_list:
-			QUERY={'_id':p['id']}
-			Query_NewsFind(QUERY,notedate,notes)
-			mapped_name=db.map.find(QUERY)
-			for name in mapped_name:
-				title=name['title']
-				s_title=string.replace(title,'_',' ')
-				t_title=s_title.encode('utf-8')
-				utitle=urllib2.unquote(t_title)
-			rec={'title':utitle,'place':p['place'],'Hits':p['Hits']%1000,'linktitle':title.encode('utf-8'),'notedate':notedate,'notes':notes,'id':p['id']}
-			send_list.append(rec)
-		mc.set('send_list',send_list,3600)
-	c=Context({'latest_hits_list':send_list,'latest_news_list':latest_news_list,'PageTitle':'WikiTrends.Info - Top Pages','PageDesc':'Wikipedia\'s most popular pages, updated every hour!','expiretime':expiretime})
-	rendered=t.render(c)
-	return HttpResponse(rendered)
-
 def debug(request):
 	DAY, MONTH, YEAR, HOUR,expiretime = fnReturnTimes()
 	t=get_template('RedTieIndex.html')
@@ -234,6 +210,7 @@ def infoview(request,id):
 	INFOVIEW_KEY='infoview_'+str(id)
 	latest_news_list = latestnews()
 	
+	tw_timeline=GetTimeline() 
 	send_list=mc.get(INFOVIEW_KEY)
 	if send_list:
 		pass
@@ -245,7 +222,7 @@ def infoview(request,id):
 		mc.set(INFOVIEW_KEY,send_list,60*24*24)
 	title, utitle = MapQuery_FindName(id)
 	t=get_template('InfoviewIndex.htm')
-	c=Context({'info_find_query':send_list,'latest_news_list':latest_news_list,'PageTitle':utitle,'expiretime':expiretime,'linktitle':title})
+	c=Context({'info_find_query':send_list,'latest_news_list':latest_news_list,'PageTitle':utitle,'expiretime':expiretime,'linktitle':title,'tw_timeline':tw_timeline})
 	rendered=t.render(c)
 	return HttpResponse(rendered)
 def trending(request):
@@ -257,6 +234,7 @@ def trending(request):
 	LATEST_NEWS_LIST=latestnews()
 	title=''
 	send_list=mc.get('TRENDING_LIST_QUERY')
+	tw_timeline=GetTimeline() 
 	if send_list:
 		pass
 	else:	
@@ -266,7 +244,7 @@ def trending(request):
 			rec={'title':p['title'],'place':p['place'],'Hits':p['Hits']%1000,'linktitle':p['linktitle'],'id':p['id']}
 			send_list.append(rec)
 		mc.set('TRENDING_LIST_QUERY',send_list,1800)
-	c=Context({'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':'WikiTrends.Info - Trending','PageDesc':'Today\'s hottest articles','expiretime':expiretime})
+	c=Context({'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':'WikiTrends.Info - Trending','PageDesc':'Today\'s hottest articles','expiretime':expiretime,'tw_timeline':tw_timeline})
 	rendered=t.render(c)
 	return HttpResponse(rendered)	
 
@@ -277,12 +255,13 @@ def cold(request):
 	FQUERY={'d':int(DAY),'m':int(MONTH),'y':int(YEAR)}
 	COLD_LIST_QUERY=db.prodcold.find().sort('delta',1).limit(50)
 	LATEST_NEWS_LIST=latestnews()
+	tw_timeline=GetTimeline() 
  	send_list=[]
 	title=''
 	for p in COLD_LIST_QUERY:
 		rec={'title':p['title'],'place':p['place'],'Hits':p['Hits'],'linktitle':p['linktitle'],'id':p['id']}
 		send_list.append(rec)
-	c=Context({'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':'WikiTrends.Info - Cooling','PageDesc':'The pages with the biggest drop in standings from yesterday to today.','expiretime':expiretime})
+	c=Context({'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':'WikiTrends.Info - Cooling','PageDesc':'The pages with the biggest drop in standings from yesterday to today.','expiretime':expiretime,'tw_timeline':tw_timeline})
 	rendered=t.render(c)
 	return HttpResponse(rendered)
 
@@ -309,6 +288,7 @@ def randPage(request):
 	title=''
 	utitle='<unknown>'
 	send_list=mc.get('RANDOM_ARTICLES')
+	tw_timeline=GetTimeline() 
         if send_list:
                 pass
         else:
@@ -330,7 +310,7 @@ def randPage(request):
 			send_list.append(rec)
 	mc.set('RANDOM_ARTICLES',send_list,60*60)
 	LATEST_NEWS_LIST=db.news.find().sort('date',-1).limit(5)
-	c=Context({'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':'WikiTrends.Info - Random','PageDesc':'A random sampling from a quarter million of Wikipedia\'s most popular pages! Refreshes about every 20 minutes.','expiretime':expiretime})
+	c=Context({'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':'WikiTrends.Info - Random','PageDesc':'A random sampling from a quarter million of Wikipedia\'s most popular pages! Refreshes about every 20 minutes.','expiretime':expiretime,'tw_timeline':tw_timeline})
 	rendered=t.render(c)
 	return HttpResponse(rendered)
 
@@ -350,6 +330,7 @@ def debuts(request):
 	LATEST_NEWS_LIST=db.news.find().sort('date',-1).limit(5)
         TOTALNEW=0
 	send_list=mc.get('DEBUTS_ARTICLES')
+	tw_timeline=GetTimeline() 
 	if send_list:
 		pass
 	else:
@@ -361,30 +342,10 @@ def debuts(request):
 			rec={'title':utitle,'place':item['place'],'Hits':item['Hits'],'linktitle':item['linktitle'],'id':item['id']}
 			send_list.append(rec)
 	mc.set('DEBUTS_ARTICLES',send_list,60*60)
-	c=Context({'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':'Wikipedia\'s Debuting Pages','PageDesc':'Articles that have debuted in the most viewed list today','expiretime':expiretime})
+	c=Context({'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':'Wikipedia\'s Debuting Pages','PageDesc':'Articles that have debuted in the most viewed list today','expiretime':expiretime,'tw_timeline':tw_timeline})
 	rendered=t.render(c)
 	return HttpResponse(rendered)
 
 
 
 
-def indexOld(request):
-	TODAY=date.today()
-	DAY=TODAY.day
-	MONTH=TODAY.month
-	YEAR=TODAY.year
-	FINDQUERY={'d':int(DAY),'m':int(MONTH),'y':int(YEAR)}
-	latest_hits_list = db.prodtop.find(FINDQUERY).sort('place',1)
-	output='<div align="center">'
-	title=''
-	for p in latest_hits_list:
-		QUERY={'_id':p['id']}
-		mapped_name=db.map.find(QUERY)
-		for name in mapped_name:
-			title=name['title']
-		output+=str(p['place'])+'. '+str(title)+'\t\t\t'+str(p['Hits'])+'<br />'
-	output+='</div>'
-	return HttpResponse(output)
-
-def detail(request):
-	return HttpResponse("Yore looking at the detail page!")
