@@ -152,7 +152,7 @@ def dailypage(request,YEAR=2013,MONTH=1):
 	syslog.syslog('wc-dailypage MONTH='+str(MONTH))
 	junk1,junk2,junk3,junk4,expiretime=fnReturnTimes()
 	t=get_template('IndexDaily.html')
-	send_list=mc.get('mcdpDaysList'+str(MONTH)+str(YEAR)))
+	send_list=mc.get('mcdpDaysList'+str(MONTH)+str(YEAR))
 	archive_list=GenArchiveList()
 	if send_list:
 		pass
