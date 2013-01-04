@@ -27,7 +27,7 @@ def ReturnHexDigest(article):
 	hd=hashlib.sha1(article).hexdigest()
 	return hd
 def latestnews():
-	ARTICLELIMIT=10
+	ARTICLELIMIT=5
 	latest_news_list = db.news.find().sort('date',-1).limit(ARTICLELIMIT)
 	return latest_news_list
 def MapQuery_FindName(id):
@@ -45,7 +45,7 @@ def MapQuery_FindName(id):
 
 	return title, utitle
 def GetTimeline():
-	status=api.user_timeline('wikitrendsinfo')
+	status=api.user_timeline('wikitrendsinfo',count=5)
 
 
 	return status
