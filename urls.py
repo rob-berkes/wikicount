@@ -27,7 +27,7 @@ urlpatterns = patterns('',
      url(r'^archives/(\d{4})/(\d{1,2})/index.htm$','polls.views.dailypage'),
      url(r'^archives.htm$','polls.views.dailypage'),
      url(r'^listtop/(\d{4})/(\d{1,2})/index.htm$','polls.views.dailypage'),
-     url(r'^listtop/(\d{4})/(\d{1,2})/(\d{1,2})/index.htm$','polls.views.listtop'),
+     url(r'^archives/(\d{4})/(\d{1,2})/(\d{1,2})/index.htm$','polls.views.listtop'),
      url(r'^infoview/(\w+)$','polls.views.infoview'),
      url(r'^static/(?P<path>.*)$','django.views.static.serve',{'document_root':'/tmp/django/wikicount/static/',}),
     # Uncomment the admin/doc line below to enable admin documentation:
