@@ -88,7 +88,17 @@ def GenArchiveList():
 	return archive_list
 	
 
-
+def adjustHourforLastHour(HOUR):
+	SEARCH_HOUR=int(HOUR)+4
+        if SEARCH_HOUR == 27:
+                SEARCH_HOUR = 3  
+        elif SEARCH_HOUR == 26:
+                SEARCH_HOUR = 2
+        elif SEARCH_HOUR == 25:
+                SEARCH_HOUR = 1
+	elif SEARCH_HOUR == 24:
+		SEARCH_HOUR = 0
+	return SEARCH_HOUR
 
 
 
@@ -96,6 +106,29 @@ def GenArchiveList():
 
 #Begin application functions
 
+def listLastHour(request):
+	DAY,MONTH,YEAR,HOUR,expiretime=fnReturnTimes()
+	tw_timeline=GetTimeline()
+	t=get_template('IndexListLast.html')
+	latest_news_list=latestnews()
+	SEARCH_HOUR=adjustHourforLastHour(HOUR)
+	HOURQUERY=db.hitshourly.find().sort(str(SEARCH_HOUR),-1).limit(50)
+	send_list=[]
+	place=1
+	HOURKEY="SEARCHHOUR_"+str(SEARCH_HOUR)
+	send_list=mc.get(HOURKEY)
+	if send_list:
+		pass
+	else:
+		for row in HOURQUERY:
+			title,utitle=MapQuery_FindName(row['_id'])		 	
+			rec={'place':place,'Hits':row[str(SEARCH_HOUR)],'title':utitle ,'id':str(row['_id']),'linktitle':title.encode('utf-8')}
+			place+=1
+			send_list.append(rec)
+	mc.set(HOURKEY,send_list,30*60)
+	c=Context({'latest_hits_list':send_list,'latest_news_list':latest_news_list,'y':YEAR,'m':MONTH,'d':DAY,'tw_timeline':tw_timeline,'latest_news_list':latest_news_list})
+	rendered=t.render(c)
+	return HttpResponse(rendered)
 	
 def searchResults(request):
 	title=''

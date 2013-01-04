@@ -15,6 +15,7 @@ post_detail=DetailView.as_view(model=hits)
 urlpatterns = patterns('',
     # Examples:
      url(r'^$','polls.views.trending', name='home'),
+     url(r'^listLast.htm$','polls.views.listLastHour'),
      url(r'^index.htm$','polls.views.trending'),
      url(r'^search.htm$','polls.views.searchForm'),
      url(r'^search-results/$','polls.views.searchResults'),
