@@ -50,11 +50,13 @@ def GenInfoPage(id):
 
 
 send_list=[]
-
+print 'daily pages first....'
 for d in DAILYPAGERESULTS['values']:
 	rec={'d':d,'m':MONTH,'y':YEAR,'stry':str(YEAR),'strm':str(MONTH),'strd':str(d)}
         send_list.append(rec)
 mc.set('mcdpDaysList',send_list,60*60*24)
+
+
 
 QUERY={'d':int(DAY),'m':int(MONTH),'y':int(YEAR)}
 send_list=[]
@@ -89,6 +91,7 @@ for p in latest_hits_list:
 mc.set('send_list',send_list,3600)
 
 
+print 'now trending list query....'
 send_list=[]    
 TRENDING_LIST_QUERY=db.prodtrend.find().sort('Hits',-1).limit(50)
 for p in TRENDING_LIST_QUERY:
@@ -97,6 +100,8 @@ for p in TRENDING_LIST_QUERY:
 	GenInfoPage(p['id'])
 mc.set('TRENDING_LIST_QUERY',send_list,1800)
 
+
+print 'random query...'
 send_list=[]
 for a in range(1,50):
 	place=random.randint(1,250000)
@@ -117,6 +122,8 @@ for a in range(1,50):
         	 send_list.append(rec)
 mc.set('RANDOM_ARTICLES',send_list,60*60)
 
+
+print 'debuts query...'
 send_list=[]
 title=''
 utitle=''
@@ -141,10 +148,52 @@ for item in QUERY:
 mc.set('DEBUTS_ARTICLES',send_list,60*60)
 
 
+print 'current month archive...'
+send_list=[]
+RESULTSET=db.command({'distinct':'tophits','key':'d','query':{'m':int(MONTH)}})
+for d in RESULTSET['values']:
+	rec={'d':d,'m':MONTH,'y':YEAR,'stry':str(YEAR),'strm':str(MONTH),'strd':str(d)}
+	QUERY={'d':int(DAY),'m':int(MONTH),'y':int(YEAR)}
+	DAYKEY='toplist'+str(YEAR)+str(MONTH)+str(DAY)
+	page_list=[]
+        PAGERESULTSET=db.tophits.find(QUERY).sort('place',1).limit(100)
+        for row in PAGERESULTSET:
+        	ptitle=''
+                putitle=''
+                pMAPQUERY={'_id':row['id']}
+                pMAPRESULT=db.map.find(pMAPQUERY)
+                for name in pMAPRESULT:
+                	title=name['title']
+                        s_title=string.replace(title,'_',' ')
+                        t_title=s_title.encode('utf-8')
+                        utitle=urllib2.unquote(t_title)
+                prec={'place':row['place'],'Hits':row['Hits'],'title':putitle ,'id':str(row['id']),'linktitle':title.encode('utf-8')}
+                page_list.append(prec)
+                mc.set('DAYKEY',page_list,60*60*24*14)
+        send_list.append(rec)
+mc.set('mcdpDaysList'+str(MONTH)+str(YEAR),send_list,60*60*24)
 
-
-
-
-
-
-
+print 'on to final function, dec 2012 archives...'
+send_list=[]
+RESULTSET=db.command({'distinct':'tophits','key':'d','query':{'m':12}})
+for d in RESULTSET['values']:
+	rec={'d':d,'m':MONTH,'y':YEAR,'stry':str(YEAR),'strm':str(MONTH),'strd':str(d)}
+	QUERY={'d':int(DAY),'m':int(MONTH),'y':int(YEAR)}
+	DAYKEY='toplist'+str(YEAR)+str(MONTH)+str(DAY)
+	page_list=[]
+        PAGERESULTSET=db.tophits.find(QUERY).sort('place',1).limit(100)
+        for row in PAGERESULTSET:
+        	ptitle=''
+                putitle=''
+                pMAPQUERY={'_id':row['id']}
+                pMAPRESULT=db.map.find(pMAPQUERY)
+                for name in pMAPRESULT:
+                	title=name['title']
+                        s_title=string.replace(title,'_',' ')
+                        t_title=s_title.encode('utf-8')
+                        utitle=urllib2.unquote(t_title)
+                prec={'place':row['place'],'Hits':row['Hits'],'title':putitle ,'id':str(row['id']),'linktitle':title.encode('utf-8')}
+                page_list.append(prec)
+                mc.set('DAYKEY',page_list,60*60*24*14)
+        send_list.append(rec)
+mc.set('mcdpDaysList'+str(MONTH)+str(YEAR),send_list,60*60*24)

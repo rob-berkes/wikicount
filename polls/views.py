@@ -14,6 +14,7 @@ from wsgiref.handlers import format_date_time
 from time import mktime
 import time
 import tweepy 
+import syslog
 
 conn=Connection('10.195.138.15')
 #conn=Connection('10.80.121.190')
@@ -22,7 +23,12 @@ db=conn.wc
 api=tweepy.api
 RECORDSPERPAGE=50
 mc=memcache.Client(['127.0.0.1:11211'],debug=0)
+
+
+
+
 #All purpose Functions
+
 def ReturnHexDigest(article):
 	hd=hashlib.sha1(article).hexdigest()
 	return hd
@@ -81,6 +87,13 @@ def GenArchiveList():
 	archive_list.append(dec12)
 	return archive_list
 	
+
+
+
+
+
+
+
 #Begin application functions
 
 	
@@ -110,6 +123,7 @@ def searchResults(request):
 	rendered=t.render(c)
 	return HttpResponse(rendered)
 	
+
 def searchForm(request):
 	DAY,MONTH,YEAR,HOUR,expiretime=fnReturnTimes()
 	t=get_template('IndexSearch.html')
@@ -117,6 +131,8 @@ def searchForm(request):
 	c=Context({expiretime:expiretime})
 	rendered=t.render(c)
 	return HttpResponse(rendered)
+
+
 def blog(request):
 	DAY,MONTH,YEAR,HOUR,expiretime=fnReturnTimes()
 	BLOGQUERY=db.blog.find().sort('date',-1).limit(10)
@@ -131,10 +147,12 @@ def blog(request):
 	rendered=t.render(c)
 	return HttpResponse(rendered)
 
-def dailypage(request):
-	DAY,MONTH,YEAR,HOUR,expiretime=fnReturnTimes()
+
+def dailypage(request,YEAR=2013,MONTH=1):
+	syslog.syslog('wc-dailypage MONTH='+str(MONTH))
+	junk1,junk2,junk3,junk4,expiretime=fnReturnTimes()
 	t=get_template('IndexDaily.html')
-	send_list=mc.get('mcdpDaysList')
+	send_list=mc.get('mcdpDaysList'+str(MONTH)+str(YEAR)))
 	archive_list=GenArchiveList()
 	if send_list:
 		pass
@@ -145,26 +163,33 @@ def dailypage(request):
 			rec={'d':d,'m':MONTH,'y':YEAR,'stry':str(YEAR),'strm':str(MONTH),'strd':str(d)}
 			print rec
 			send_list.append(rec)
-		mc.set('mcdpDaysList',send_list,60*60*24)
+		mc.set('mcdpDaysList'+str(MONTH)+str(YEAR),send_list,60*60*24)
 
 	title=''
 	c=Context({'news_list':send_list,expiretime:expiretime,'archive_list':archive_list})
 	rendered=t.render(c)
 	return HttpResponse(rendered)
+
+
 def listtop(request,YEAR,MONTH,DAY):
 	t=get_template('IndexTopList.html')
 	send_list=[]
 	#print request
 	QUERY={'d':int(DAY),'m':int(MONTH),'y':int(YEAR)}
 	DAYKEY='toplist'+str(YEAR)+str(MONTH)+str(DAY)
+	syslog.syslog('wikicount-views.py-listtop DAYKEY='+DAYKEY)
 	print QUERY
 	send_list=mc.get(DAYKEY)
+	tw_timeline=GetTimeline()
+	latest_news_list=latestnews() 
 	if send_list:
 		pass
 	else:
 		send_list=[]
 		RESULTSET=db.tophits.find(QUERY).sort('place',1).limit(100)
 		for row in RESULTSET:
+			title=''
+			utitle=''
 			MAPQUERY={'_id':row['id']}
 			MAPRESULT=db.map.find(MAPQUERY)
 			for name in MAPRESULT:
@@ -175,9 +200,10 @@ def listtop(request,YEAR,MONTH,DAY):
 			rec={'place':row['place'],'Hits':row['Hits'],'title':utitle ,'id':str(row['id']),'linktitle':title.encode('utf-8')}
 			send_list.append(rec)
 		mc.set('DAYKEY',send_list,7200)
-	c=Context({'latest_hits_list':send_list,'y':YEAR,'m':MONTH,'d':DAY})
+	c=Context({'latest_hits_list':send_list,'y':YEAR,'m':MONTH,'d':DAY,'tw_timeline':tw_timeline,'latest_news_list':latest_news_list})
 	rendered=t.render(c)
 	return HttpResponse(rendered)
+
 
 def debug(request):
 	DAY, MONTH, YEAR, HOUR,expiretime = fnReturnTimes()
@@ -203,6 +229,7 @@ def debug(request):
 	rendered=t.render(c)
 	return HttpResponse(rendered)
 
+
 def infoview(request,id):
 	DAY, MONTH, YEAR, HOUR,expiretime = fnReturnTimes()
         QUERY={'id':id}
@@ -225,6 +252,8 @@ def infoview(request,id):
 	c=Context({'info_find_query':send_list,'latest_news_list':latest_news_list,'PageTitle':utitle,'expiretime':expiretime,'linktitle':title,'tw_timeline':tw_timeline})
 	rendered=t.render(c)
 	return HttpResponse(rendered)
+
+
 def trending(request):
 	DAY, MONTH, YEAR, HOUR,expiretime = fnReturnTimes()
 	mcHour=mc.get('trendingHour')
