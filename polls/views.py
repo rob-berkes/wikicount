@@ -158,7 +158,7 @@ def dailypage(request,YEAR=2013,MONTH=1):
 		pass
 	else:
 		send_list=[]
-		RESULTSET=db.command({'distinct':'tophits','key':'d','query':{'m':int(MONTH)}})
+		RESULTSET=db.command({'distinct':'tophits','key':'d','query':{'m':int(MONTH),'y':int(YEAR)}})
 		for d in RESULTSET['values']:
 			rec={'d':d,'m':MONTH,'y':YEAR,'stry':str(YEAR),'strm':str(MONTH),'strd':str(d)}
 			print rec

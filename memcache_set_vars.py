@@ -150,7 +150,7 @@ mc.set('DEBUTS_ARTICLES',send_list,60*60)
 
 print 'current month archive...'
 send_list=[]
-RESULTSET=db.command({'distinct':'tophits','key':'d','query':{'m':int(MONTH)}})
+RESULTSET=db.command({'distinct':'tophits','key':'d','query':{'m':int(MONTH),'y':int(YEAR)}})
 for d in RESULTSET['values']:
 	rec={'d':d,'m':MONTH,'y':YEAR,'stry':str(YEAR),'strm':str(MONTH),'strd':str(d)}
 	QUERY={'d':int(DAY),'m':int(MONTH),'y':int(YEAR)}
@@ -177,9 +177,9 @@ print 'on to final function, dec 2012 archives...'
 send_list=[]
 RESULTSET=db.command({'distinct':'tophits','key':'d','query':{'m':12}})
 for d in RESULTSET['values']:
-	rec={'d':d,'m':MONTH,'y':YEAR,'stry':str(YEAR),'strm':str(MONTH),'strd':str(d)}
-	QUERY={'d':int(DAY),'m':int(MONTH),'y':int(YEAR)}
-	DAYKEY='toplist'+str(YEAR)+str(MONTH)+str(DAY)
+	rec={'d':d,'m':12,'y':2012,'stry':str(2012),'strm':str(12),'strd':str(d)}
+	QUERY={'d':int(DAY),'m':int(12),'y':int(2012)}
+	DAYKEY='toplist'+str(2012)+str(12)+str(DAY)
 	page_list=[]
         PAGERESULTSET=db.tophits.find(QUERY).sort('place',1).limit(100)
         for row in PAGERESULTSET:
@@ -196,4 +196,4 @@ for d in RESULTSET['values']:
                 page_list.append(prec)
                 mc.set('DAYKEY',page_list,60*60*24*14)
         send_list.append(rec)
-mc.set('mcdpDaysList'+str(MONTH)+str(YEAR),send_list,60*60*24)
+mc.set('mcdpDaysList'+str(12)+str(2012),send_list,60*60*24)
