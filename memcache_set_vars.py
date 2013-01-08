@@ -173,7 +173,7 @@ for d in RESULTSET['values']:
         send_list.append(rec)
 mc.set('mcdpDaysList'+str(MONTH)+str(YEAR),send_list,60*60*24)
 
-print 'on to final function, dec 2012 archives...'
+print 'on to dec 2012 archives...'
 send_list=[]
 RESULTSET=db.command({'distinct':'tophits','key':'d','query':{'m':12}})
 for d in RESULTSET['values']:
@@ -197,3 +197,12 @@ for d in RESULTSET['values']:
                 mc.set('DAYKEY',page_list,60*60*24*14)
         send_list.append(rec)
 mc.set('mcdpDaysList'+str(12)+str(2012),send_list,60*60*24)
+
+print 'lastly, 3hr rolling average'
+send_list=[]
+THREEHOUR_LIST_QUERY=db.threehour.find().sort('place',1)
+for p in THREEHOUR_LIST_QUERY:
+	rec={'title':p['title'],'place':p['place'],'Avg':p['rollavg'],'linktitle':p['title'],'id':p['_id']}
+        send_list.append(rec)
+mc.set('THREEHOUR_LIST_QUERY',send_list,60*60) 
+
