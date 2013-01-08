@@ -326,7 +326,7 @@ def top3hr(request):
 		send_list=[]	
 		THREEHOUR_LIST_QUERY=db.threehour.find().sort('place',1)
 		for p in THREEHOUR_LIST_QUERY:
-			rec={'title':p['title'],'place':p['place'],'Avg':p['rollavg'],'linktitle':p['title'],'id':p['_id']}
+			rec={'title':p['title'],'place':p['place'],'Avg':p['rollavg'],'linktitle':p['title'],'id':p['id']}
 			send_list.append(rec)
 		mc.set('THREEHOUR_LIST_QUERY',send_list,1800)
 	c=Context({'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':'WikiTrends.Info - Top','PageDesc':'A three hour rolling average showing the most puopular articles currently','expiretime':expiretime,'tw_timeline':tw_timeline})

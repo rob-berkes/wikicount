@@ -202,7 +202,7 @@ print 'lastly, 3hr rolling average'
 send_list=[]
 THREEHOUR_LIST_QUERY=db.threehour.find().sort('place',1)
 for p in THREEHOUR_LIST_QUERY:
-	rec={'title':p['title'],'place':p['place'],'Avg':p['rollavg'],'linktitle':p['title'],'id':p['_id']}
+	rec={'title':p['title'],'place':p['place'],'Avg':p['rollavg'],'linktitle':p['title'],'id':p['id']}
         send_list.append(rec)
 mc.set('THREEHOUR_LIST_QUERY',send_list,60*60) 
 
