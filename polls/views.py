@@ -310,6 +310,29 @@ def trending(request):
 	rendered=t.render(c)
 	return HttpResponse(rendered)	
 
+def top3hr(request):
+	DAY, MONTH, YEAR, HOUR,expiretime = fnReturnTimes()
+	mcHour=mc.get('trendingHour')
+	t=get_template('RedTieIndex.html')
+	FQUERY={'d':int(DAY),'m':int(MONTH),'y':int(YEAR)}
+	print FQUERY
+	LATEST_NEWS_LIST=latestnews()
+	title=''
+	send_list=mc.get('THREEHOUR_LIST_QUERY')
+	tw_timeline=GetTimeline() 
+	if send_list:
+		pass
+	else:	
+		send_list=[]	
+		THREEHOUR_LIST_QUERY=db.threehour.find().sort('place',1)
+		for p in THREEHOUR_LIST_QUERY:
+			rec={'title':p['title'],'place':p['place'],'Hits':p['Hits']%1000,'linktitle':p['title'],'id':p['id']}
+			send_list.append(rec)
+		mc.set('THREEHOUR_LIST_QUERY',send_list,1800)
+	c=Context({'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':'WikiTrends.Info - Top','PageDesc':'A three hour rolling average showing the most puopular articles currently','expiretime':expiretime,'tw_timeline':tw_timeline})
+	rendered=t.render(c)
+	return HttpResponse(rendered)
+
 
 def cold(request):
 	DAY, MONTH, YEAR, HOUR,expiretime = fnReturnTimes()
