@@ -16,7 +16,7 @@ import time
 import tweepy 
 import syslog
 
-conn=Connection('10.84.71.193')
+conn=Connection('10.115.126.7')
 #conn=Connection('10.80.121.190')
 #conn=Connection()
 db=conn.wc

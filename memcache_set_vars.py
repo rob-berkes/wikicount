@@ -7,7 +7,7 @@ from pymongo import Connection
 from datetime import date
 
 #conn=Connection('10.245.145.84')
-conn=Connection('10.195.138.15')
+conn=Connection('10.115.126.7')
 db=conn.wc
 mc=memcache.Client(['127.0.0.1:11211'],debug=0)
 TODAY=date.today()
