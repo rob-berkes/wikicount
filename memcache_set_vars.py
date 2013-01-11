@@ -25,7 +25,7 @@ def Query_NewsFind(FINDQUERY,notedate,notes):
         return
 def MapQuery_FindName(id):
         QUERY={'id':id}
-        MAPQ=db.map.find({'_id':id})
+        MAPQ=db.hits.find({'_id':id})
         latest_news_list = latestnews()
         title=''
         utitle=''
@@ -37,6 +37,13 @@ def MapQuery_FindName(id):
 
 
         return title, utitle
+def FormatName(title):
+	title=name['title']
+        s_title=string.replace(title,'_',' ')
+        t_title=s_title.encode('utf-8')
+        utitle=urllib2.unquote(t_title)
+        return title, utitle
+
 def GenInfoPage(id):
 	QUERY={'id':id}
 	FINDQ=db.tophits.find(QUERY).sort([('y',1),('m',1),('d',1)])
@@ -62,31 +69,18 @@ QUERY={'d':int(DAY),'m':int(MONTH),'y':int(YEAR)}
 send_list=[]
 RESULTSET=db.tophits.find(QUERY).sort('place',1).limit(100)
 for row in RESULTSET:
-	MAPQUERY={'_id':row['id']}
-	MAPRESULT=db.map.find(MAPQUERY)
 	GenInfoPage(row['id'])
-	for name in MAPRESULT:
-		title=name['title']
-                s_title=string.replace(title,'_',' ')
-                t_title=s_title.encode('utf-8')
-                utitle=urllib2.unquote(t_title)
-                rec={'place':row['place'],'Hits':row['Hits'],'title':utitle ,'id':str(row['id']),'linktitle':title.encode('utf-8')}
-                send_list.append(rec)
+	title,utitle=FormatName(row['title'])
+        rec={'place':row['place'],'Hits':row['Hits'],'title':utitle ,'id':str(row['id']),'linktitle':title.encode('utf-8')}
+        send_list.append(rec)
 mc.set('DAYKEY',send_list,7200)
 notedate=''
 notes=''
-latest_hits_list = db.prodtop.find().sort('place',1).limit(50)
+latest_hits_list = db.tophits.find().sort('place',1).limit(50)
 for p in latest_hits_list:
-	QUERY={'_id':p['id']}
-        Query_NewsFind(QUERY,notedate,notes)
-        mapped_name=db.map.find(QUERY)
 	GenInfoPage(p['id'])
-        for name in mapped_name:
-		title=name['title']
-                s_title=string.replace(title,'_',' ')
-                t_title=s_title.encode('utf-8')
-                utitle=urllib2.unquote(t_title)
-        rec={'title':utitle,'place':p['place'],'Hits':p['Hits']%1000,'linktitle':title.encode('utf-8'),'notedate':notedate,'notes':notes,'id':p['id']}
+        title,utitle=FormatName(p['title'])
+	rec={'title':utitle,'place':p['place'],'Hits':p['Hits']%1000,'linktitle':title.encode('utf-8'),'notedate':notedate,'notes':notes,'id':p['id']}
         send_list.append(rec)
 mc.set('send_list',send_list,3600)
 
@@ -110,14 +104,7 @@ for a in range(1,50):
         for item in RANDOM_LIST_QUERY:
         	 id=item['id']
 		 GenInfoPage(item['id'])
-                 QUERY={'_id':id}
-                 NAMEQ=db.map.find(QUERY)
-                 for b in NAMEQ:
-                	 title=b['title']
-                         s_title=string.replace(title,'_',' ')
-                         t_title=s_title.encode('utf-8')
-                         utitle=urllib2.unquote(t_title)
-        
+       		 title,utitle=FormatName(item['title']) 
         	 rec={'title':utitle,'place':item['place'],'Hits':item['Hits'],'linktitle':title.encode('utf-8'),'id':item['id']}
         	 send_list.append(rec)
 mc.set('RANDOM_ARTICLES',send_list,60*60)
@@ -131,17 +118,8 @@ QUERY=db.proddebuts.find({'d':int(DAY),'m':int(MONTH),'y':int(YEAR)}).limit(100)
 for item in QUERY:
 	COUNT=0
         TITLE=''
-        QUERY={'id':item['id']}
 	GenInfoPage(item['id'])
-        MAPQ=db.map.find({'_id':item['id']})
-        title=''
-        utitle=''
-        for name in MAPQ:
-                        title=name['title']
-                        s_title=string.replace(title,'_',' ')
-                        t_title=s_title.encode('utf-8')
-                        utitle=urllib2.unquote(t_title)
-
+	title,utitle=FormatName(item['title'])
 
 	rec={'title':utitle,'place':item['place'],'Hits':item['Hits'],'linktitle':item['linktitle'],'id':item['id']}
         send_list.append(rec)
@@ -158,16 +136,8 @@ for d in RESULTSET['values']:
 	page_list=[]
         PAGERESULTSET=db.tophits.find(QUERY).sort('place',1).limit(100)
         for row in PAGERESULTSET:
-        	ptitle=''
-                putitle=''
-                pMAPQUERY={'_id':row['id']}
-                pMAPRESULT=db.map.find(pMAPQUERY)
-                for name in pMAPRESULT:
-                	title=name['title']
-                        s_title=string.replace(title,'_',' ')
-                        t_title=s_title.encode('utf-8')
-                        utitle=urllib2.unquote(t_title)
-                prec={'place':row['place'],'Hits':row['Hits'],'title':putitle ,'id':str(row['id']),'linktitle':title.encode('utf-8')}
+		title, utitle=FormatName(row['title'])
+                prec={'place':row['place'],'Hits':row['Hits'],'title':title ,'id':str(row['id']),'linktitle':utitle}
                 page_list.append(prec)
                 mc.set('DAYKEY',page_list,60*60*24*14)
         send_list.append(rec)
@@ -183,16 +153,8 @@ for d in RESULTSET['values']:
 	page_list=[]
         PAGERESULTSET=db.tophits.find(QUERY).sort('place',1).limit(100)
         for row in PAGERESULTSET:
-        	ptitle=''
-                putitle=''
-                pMAPQUERY={'_id':row['id']}
-                pMAPRESULT=db.map.find(pMAPQUERY)
-                for name in pMAPRESULT:
-                	title=name['title']
-                        s_title=string.replace(title,'_',' ')
-                        t_title=s_title.encode('utf-8')
-                        utitle=urllib2.unquote(t_title)
-                prec={'place':row['place'],'Hits':row['Hits'],'title':putitle ,'id':str(row['id']),'linktitle':title.encode('utf-8')}
+		title, utitle=FormatName(row['title'])
+                prec={'place':row['place'],'Hits':row['Hits'],'title':title ,'id':str(row['id']),'linktitle':utitle}
                 page_list.append(prec)
                 mc.set('DAYKEY',page_list,60*60*24*14)
         send_list.append(rec)

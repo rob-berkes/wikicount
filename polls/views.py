@@ -38,7 +38,7 @@ def latestnews():
 	return latest_news_list
 def MapQuery_FindName(id):
 	QUERY={'id':id}
-        MAPQ=db.map.find({'_id':id})
+        MAPQ=db.hits.find({'_id':id})
         latest_news_list = latestnews()
 	title=''
 	utitle=''
@@ -50,6 +50,13 @@ def MapQuery_FindName(id):
 
 
 	return title, utitle
+def FormatName(title):
+	title=name['title']
+        s_title=string.replace(title,'_',' ')
+        t_title=s_title.encode('utf-8')
+        utitle=urllib2.unquote(t_title)
+        return title, utitle
+
 def GetTimeline():
 	status=api.user_timeline('wikitrendsinfo',count=5)
 
@@ -144,12 +151,12 @@ def searchResults(request):
 	title,utitle=MapQuery_FindName(hd)
 	t=get_template('IndexSearchResults.html')
 	MAPQ={'_id': str(hd)}
-	MAPQUERY=db.map.find(MAPQ).limit(20)
+	MAPQUERY=db.hits.find(MAPQ).limit(20)
 	send_list=[]
 	print MAPQ
 	infoview(request,hd)
 	for item in MAPQUERY:
-		rec={'id':str(item['_id']),'title':str(item['title']),'linktitle':utitle}
+		rec={'id':str(item['_id']),'title':str(item['title']),'linktitle':utitle,'Hits':item['Hits']}
 		print rec
 		send_list.append(rec)
 	c=Context({'news_list':send_list,'expiretime':expiretime})
@@ -223,13 +230,7 @@ def listtop(request,YEAR,MONTH,DAY):
 		for row in RESULTSET:
 			title=''
 			utitle=''
-			MAPQUERY={'_id':row['id']}
-			MAPRESULT=db.map.find(MAPQUERY)
-			for name in MAPRESULT:
-	                                title=name['title']
-	                                s_title=string.replace(title,'_',' ')
-	                                t_title=s_title.encode('utf-8')
-	                                utitle=urllib2.unquote(t_title)
+			title, utitle=FormatName(row['title'])
 			rec={'place':row['place'],'Hits':row['Hits'],'title':utitle ,'id':str(row['id']),'linktitle':title.encode('utf-8')}
 			send_list.append(rec)
 		mc.set('DAYKEY',send_list,7200)
@@ -239,28 +240,7 @@ def listtop(request,YEAR,MONTH,DAY):
 
 
 def debug(request):
-	DAY, MONTH, YEAR, HOUR,expiretime = fnReturnTimes()
-	t=get_template('RedTieIndex.html')
-	notedate=''
-	notes=''
-	FINDQUERY={'d':int(DAY),'m':int(MONTH),'y':int(YEAR)}
-	print FINDQUERY
-	latest_hits_list = db.prodtop.find().sort('place',1).limit(50)
-	send_list=[]
-	title=''
-	for p in latest_hits_list:
-		mapped_name=db.map.find(QUERY)
-		for name in mapped_name:
-			title=name['title']
-			s_title=string.replace(title,'_',' ')
-			t_title=s_title.encode('utf-8')
-			utitle=urllib2.unquote(t_title)
-		rec={'title':utitle,'place':p['place'],'Hits':p['Hits'],'linktitle':title.encode('utf-8'),'notedate':notedate,'notes':notes,'id':p['id']}
-			
-		send_list.append(rec)
-	c=Context({'latest_hits_list':send_list,'latest_news_list':latest_news_list,'PageTitle':'WikiTrends.Info - Top Pages','PageDesc':'Wikipedia\'s most popular pages, updated every 2 hours or so.','expiretime':expiretime})
-	rendered=t.render(c)
-	return HttpResponse(rendered)
+	return 
 
 
 def infoview(request,id):
@@ -383,14 +363,7 @@ def randPage(request):
 			FQUERY={'d':int(DAY),'m':int(MONTH),'y':int(YEAR),'place':place}
 			RANDOM_LIST_QUERY=db.tophits.find(FQUERY)
 			for item in RANDOM_LIST_QUERY:
-				id=item['id']
-				QUERY={'_id':id}
-				NAMEQ=db.map.find(QUERY)
-				for b in NAMEQ:
-					title=b['title']
-					s_title=string.replace(title,'_',' ')
-	    		                t_title=s_title.encode('utf-8')
-	       	               		utitle=urllib2.unquote(t_title)
+				title, utitle=FormatName(item['title'])
 			rec={'title':utitle,'place':item['place'],'Hits':item['Hits'],'linktitle':title.encode('utf-8'),'id':item['id']}
 			send_list.append(rec)
 	mc.set('RANDOM_ARTICLES',send_list,60*60)
