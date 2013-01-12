@@ -38,7 +38,6 @@ def MapQuery_FindName(id):
 
         return title, utitle
 def FormatName(title):
-	title=name['title']
         s_title=string.replace(title,'_',' ')
         t_title=s_title.encode('utf-8')
         utitle=urllib2.unquote(t_title)
@@ -76,7 +75,7 @@ for row in RESULTSET:
 mc.set('DAYKEY',send_list,7200)
 notedate=''
 notes=''
-latest_hits_list = db.tophits.find().sort('place',1).limit(50)
+latest_hits_list = db.tophits.find(QUERY).sort('place',1).limit(100)
 for p in latest_hits_list:
 	GenInfoPage(p['id'])
         title,utitle=FormatName(p['title'])
@@ -143,22 +142,22 @@ for d in RESULTSET['values']:
         send_list.append(rec)
 mc.set('mcdpDaysList'+str(MONTH)+str(YEAR),send_list,60*60*24)
 
-print 'on to dec 2012 archives...'
-send_list=[]
-RESULTSET=db.command({'distinct':'tophits','key':'d','query':{'m':12}})
-for d in RESULTSET['values']:
-	rec={'d':d,'m':12,'y':2012,'stry':str(2012),'strm':str(12),'strd':str(d)}
-	QUERY={'d':int(DAY),'m':int(12),'y':int(2012)}
-	DAYKEY='toplist'+str(2012)+str(12)+str(DAY)
-	page_list=[]
-        PAGERESULTSET=db.tophits.find(QUERY).sort('place',1).limit(100)
-        for row in PAGERESULTSET:
-		title, utitle=FormatName(row['title'])
-                prec={'place':row['place'],'Hits':row['Hits'],'title':title ,'id':str(row['id']),'linktitle':utitle}
-                page_list.append(prec)
-                mc.set('DAYKEY',page_list,60*60*24*14)
-        send_list.append(rec)
-mc.set('mcdpDaysList'+str(12)+str(2012),send_list,60*60*24)
+#print 'on to dec 2012 archives...'
+#send_list=[]
+#RESULTSET=db.command({'distinct':'tophits','key':'d','query':{'m':12}})
+#for d in RESULTSET['values']:
+#	rec={'d':d,'m':12,'y':2012,'stry':str(2012),'strm':str(12),'strd':str(d)}
+#	QUERY={'d':int(DAY),'m':int(12),'y':int(2012)}
+#	DAYKEY='toplist'+str(2012)+str(12)+str(DAY)
+#	page_list=[]
+ #       PAGERESULTSET=db.tophits.find(QUERY).sort('place',1).limit(100)
+#$        for row in PAGERESULTSET:
+#		title, utitle=FormatName(row['title'])
+ #               prec={'place':row['place'],'Hits':row['Hits'],'title':title ,'id':str(row['id']),'linktitle':utitle}
+#                page_list.append(prec)
+#                mc.set('DAYKEY',page_list,60*60*24*14)
+#        send_list.append(rec)
+#mc.set('mcdpDaysList'+str(12)+str(2012),send_list,60*60*24)
 
 print 'lastly, 3hr rolling average'
 send_list=[]

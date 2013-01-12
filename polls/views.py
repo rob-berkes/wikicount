@@ -51,7 +51,6 @@ def MapQuery_FindName(id):
 
 	return title, utitle
 def FormatName(title):
-	title=name['title']
         s_title=string.replace(title,'_',' ')
         t_title=s_title.encode('utf-8')
         utitle=urllib2.unquote(t_title)
