@@ -239,7 +239,12 @@ def listtop(request,YEAR,MONTH,DAY):
 
 
 def debug(request):
-	return 
+	t=get_template('DebugIndex.html')
+	send_list=[]
+	current=datetime.datetime.now()
+	c=Context({'dvalue':current})
+	rendered=t.render(c)
+	return HttpResponse(rendered)
 
 
 def infoview(request,id):
