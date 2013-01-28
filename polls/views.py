@@ -242,7 +242,9 @@ def debug(request):
 	t=get_template('DebugIndex.html')
 	send_list=[]
 	current=datetime.datetime.now()
-	c=Context({'dvalue':current})
+	lmonth=datetime.timedelta(days=30)
+	newtime=current-lmonth
+	c=Context({'dvalue':newtime})
 	rendered=t.render(c)
 	return HttpResponse(rendered)
 
