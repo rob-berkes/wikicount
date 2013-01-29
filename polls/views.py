@@ -229,7 +229,10 @@ def listtop(request,YEAR,MONTH,DAY):
 		for row in RESULTSET:
 			title=''
 			utitle=''
-			title, utitle=FormatName(row['title'])
+			try:
+				title, utitle=FormatName(row['title'])
+			except KeyError:
+				pass
 			rec={'place':row['place'],'Hits':row['Hits'],'title':utitle ,'id':str(row['id']),'linktitle':title.encode('utf-8')}
 			send_list.append(rec)
 		mc.set('DAYKEY',send_list,7200)
