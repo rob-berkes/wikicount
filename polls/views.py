@@ -214,7 +214,7 @@ def listtop(request,YEAR,MONTH,DAY):
 	t=get_template('IndexTopList.html')
 	send_list=[]
 	#print request
-	QUERY={'d':int(DAY),'m':int(MONTH),'y':int(YEAR)}
+	QUERY={'d':int(DAY),'m':int(MONTH),'y':int(YEAR),'title':{'$exists':True}}
 	DAYKEY='toplist'+str(YEAR)+str(MONTH)+str(DAY)
 	syslog.syslog('wikicount-views.py-listtop DAYKEY='+DAYKEY)
 	print QUERY
@@ -271,7 +271,7 @@ def infoview(request,id):
 		mc.set(INFOVIEW_KEY,send_list,60*24*24)
 	title, utitle = MapQuery_FindName(id)
 	t=get_template('InfoviewIndex.htm')
-	c=Context({'info_find_query':send_list,'latest_news_list':latest_news_list,'PageTitle':utitle,'expiretime':expiretime,'linktitle':title,'tw_timeline':tw_timeline})
+	c=Context({'PageDesc':'Click above to go the Wikipedia page.','info_find_query':send_list,'latest_news_list':latest_news_list,'PageTitle':utitle,'expiretime':expiretime,'linktitle':title,'tw_timeline':tw_timeline})
 	rendered=t.render(c)
 	return HttpResponse(rendered)
 
@@ -392,7 +392,7 @@ def debuts(request):
 	stamp=mktime(half.timetuple())
 	expiretime=format_date_time(stamp)
 	t=get_template('RedTieIndex.html')
-	QUERY=db.proddebuts.find({'d':int(DAY),'m':int(MONTH),'y':int(YEAR)}).limit(100)
+	QUERY=db.proddebuts.find({'d':int(DAY),'m':int(MONTH),'y':int(YEAR)}).sort({'place':1}).limit(300)
 	RECPERTABSET=50
 	LATEST_NEWS_LIST=db.news.find().sort('date',-1).limit(5)
         TOTALNEW=0
