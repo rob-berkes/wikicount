@@ -152,11 +152,10 @@ def searchResults(request):
 	MAPQ={'_id': str(hd)}
 	MAPQUERY=db.hits.find(MAPQ).limit(20)
 	send_list=[]
-	print MAPQ
 	infoview(request,hd)
 	for item in MAPQUERY:
 		rec={'id':str(item['_id']),'title':str(item['title']),'linktitle':utitle,'Hits':item['Hits']}
-		print rec
+		syslog.syslog("wikitrends-searchResults-Search for "+str(rec))
 		send_list.append(rec)
 	c=Context({'news_list':send_list,'expiretime':expiretime})
 	rendered=t.render(c)
