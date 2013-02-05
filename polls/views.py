@@ -244,9 +244,10 @@ def listtop(request,YEAR,MONTH,DAY):
 def debug(request):
 	send_list={}
 	SEARCHID='e2cb5591b6e7663f2a5f2d27667c18d96187e01a'
+	PageDesc='All times are GMT. Article Hash: '+str(SEARCHID)
 	HOUR_RS=db.hitshourly.find_one({'_id':SEARCHID})
 	t=get_template('IndexHourly.html')
-	c=Context({'ArticleTitle':'1169 Sicily Earthquake','ArticleHash':SEARCHID,'send_list':sorted(HOUR_RS.iteritems())})
+	c=Context({'ArticleTitle':'1169 Sicily Earthquake','ArticleHash':SEARCHID,'PageDesc':PageDesc,'send_list':sorted(HOUR_RS.iteritems())})
 	rendered=t.render(c)
 	return HttpResponse(rendered)
 
