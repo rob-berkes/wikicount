@@ -1,0 +1,5 @@
+{% for key,value in send_list %}
+	{% if key != '_id' %}
+		<li> {{key}} :  Visits: {{ value }}</li> 
+	{% endif %}
+{% endfor %}

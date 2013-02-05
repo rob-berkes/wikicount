@@ -242,12 +242,11 @@ def listtop(request,YEAR,MONTH,DAY):
 
 
 def debug(request):
-	t=get_template('DebugIndex.html')
-	send_list=[]
-	current=datetime.datetime.now()
-	lmonth=datetime.timedelta(days=30)
-	newtime=current-lmonth
-	c=Context({'dvalue':newtime})
+	send_list={}
+	SEARCHID='e2cb5591b6e7663f2a5f2d27667c18d96187e01a'
+	HOUR_RS=db.hitshourly.find_one({'_id':SEARCHID})
+	t=get_template('IndexHourly.html')
+	c=Context({'ArticleTitle':'1169 Sicily Earthquake','ArticleHash':SEARCHID,'send_list':sorted(HOUR_RS.iteritems())})
 	rendered=t.render(c)
 	return HttpResponse(rendered)
 
@@ -290,7 +289,7 @@ def trending(request):
 		pass
 	else:	
 		send_list=[]	
-		TRENDING_LIST_QUERY=db.prodtrend.find().sort('Hits',-1).limit(50)
+		TRENDING_LIST_QUERY=db.prodtrend.find().sort('Hits',-1).limit(100)
 		for p in TRENDING_LIST_QUERY:
 			rec={'title':p['title'],'place':p['place'],'Hits':p['Hits']%1000,'linktitle':p['linktitle'],'id':p['id']}
 			send_list.append(rec)
