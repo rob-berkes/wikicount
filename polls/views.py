@@ -392,8 +392,7 @@ def debuts(request):
 	stamp=mktime(half.timetuple())
 	expiretime=format_date_time(stamp)
 	t=get_template('RedTieIndex.html')
-	QUERY=db.proddebuts.find({'d':int(DAY),'m':int(MONTH),'y':int(YEAR)}).sort({'place':1}).limit(300)
-	RECPERTABSET=50
+	QUERY=db.proddebuts.find({'d':int(DAY),'m':int(MONTH),'y':int(YEAR)}).sort('place',1).limit(300)
 	LATEST_NEWS_LIST=db.news.find().sort('date',-1).limit(5)
         TOTALNEW=0
 	send_list=mc.get('DEBUTS_ARTICLES')
