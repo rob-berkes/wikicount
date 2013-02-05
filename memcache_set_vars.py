@@ -113,7 +113,7 @@ print 'debuts query...'
 send_list=[]
 title=''
 utitle=''
-QUERY=db.proddebuts.find({'d':int(DAY),'m':int(MONTH),'y':int(YEAR)}).sort([('place',1)]).limit(300)
+QUERY=db.proddebuts.find({'d':int(DAY),'m':int(MONTH),'y':int(YEAR)}).sort('place',1).limit(300)
 for item in QUERY:
 	COUNT=0
         TITLE=''
