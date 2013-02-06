@@ -261,6 +261,7 @@ def infoview(request,id):
         QUERY={'id':id}
 	FINDQ=db.tophits.find(QUERY).sort([('y',1),('m',1),('d',1)])
 	INFOVIEW_KEY='infoview_'+str(id)
+	HOUR_RS=db.hitshourly.find_one({'_id':id})
 	latest_news_list = latestnews()
 	
 	tw_timeline=GetTimeline() 
@@ -275,7 +276,7 @@ def infoview(request,id):
 		mc.set(INFOVIEW_KEY,send_list,60*24*24)
 	title, utitle = MapQuery_FindName(id)
 	t=get_template('InfoviewIndex.htm')
-	c=Context({'PageDesc':'Click above to go the Wikipedia page.','info_find_query':send_list,'latest_news_list':latest_news_list,'PageTitle':utitle,'expiretime':expiretime,'linktitle':title,'tw_timeline':tw_timeline})
+	c=Context({'PageDesc':'Click above to go the Wikipedia page.','info_find_query':send_list,'latest_news_list':latest_news_list,'PageTitle':utitle,'expiretime':expiretime,'linktitle':title,'tw_timeline':tw_timeline,'hour_send_list':sorted(HOUR_RS.iteritems())})
 	rendered=t.render(c)
 	return HttpResponse(rendered)
 

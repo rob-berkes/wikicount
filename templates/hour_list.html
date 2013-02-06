@@ -1,5 +1,7 @@
-{% for key,value in send_list %}
+<div class="bodytext">
+{% for key,value in hour_send_list %}
 	{% if key != '_id' %}
-		<li> {{key}} :  Visits: {{ value }}</li> 
+		<li> Hour(GMT):{{key}} ,  Visits: {{ value }}</li> 
 	{% endif %}
 {% endfor %}
+</div>

@@ -31,10 +31,10 @@ urlpatterns = patterns('',
      url(r'^listtop/(\d{4})/(\d{1,2})/index.htm$','polls.views.dailypage'),
      url(r'^archives/(\d{4})/(\d{1,2})/(\d{1,2})/index.htm$','polls.views.listtop'),
      url(r'^infoview/(\w+)$','polls.views.infoview'),
-     url(r'^hourly/(\w+)$','polls.views.hourly'),
+#     url(r'^hourly/(\w+)$','polls.views.hourly'),
      url(r'^static/(?P<path>.*)$','django.views.static.serve',{'document_root':'/tmp/django/wikicount/static/',}),
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
     # Uncomment the next line to enable the admin:
-    # url(r'^admin/', include(admin.site.urls)),
+#     url(r'^admin/', include(admin.site.urls)),
 ) +static(settings.STATIC_URL,document_root=settings.STATIC_ROOT)
