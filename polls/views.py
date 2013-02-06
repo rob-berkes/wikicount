@@ -249,14 +249,21 @@ def debug(request):
 
 def infoview(request,id):
 	DAY, MONTH, YEAR, HOUR,expiretime = fnReturnTimes()
+
         QUERY={'id':id}
+	LTQUERY={'id':id,'place':{$lt:50001}}
 	FINDQ=db.tophits.find(QUERY).sort([('y',1),('m',1),('d',1)])
+        LT50KQ=db.tophits.find(LTQUERY)
+
 	INFOVIEW_KEY='infoview_'+str(id)
+	INFOVIEWLT_KEY='infoviewlt_'+str(id)
+
 	HOUR_RS=db.hitshourly.find_one({'_id':id})
 	latest_news_list = latestnews()
 	
 	tw_timeline=GetTimeline() 
 	send_list=mc.get(INFOVIEW_KEY)
+	info_lt50k_list=mc.get(INFOVIEWLT_KEY)	
 	if send_list:
 		pass
 	else:
@@ -264,7 +271,17 @@ def infoview(request,id):
 		for result in FINDQ:
 			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
 			send_list.append(rec)
-		mc.set(INFOVIEW_KEY,send_list,60*24*24)
+		mc.set(INFOVIEW_KEY,send_list,60*60*24)
+	if info_lt50k_list:
+		pass
+	else:
+		info_lt50k_list=[]
+		for result in LT50KQ:
+			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
+			info_lt50k_list.append(rec)
+		mc.set(INFOVIEWLT_KEY,info_lt50k_list,60*60*24)
+
+
 	title, utitle = MapQuery_FindName(id)
 	t=get_template('InfoviewIndex.htm')
 	c=Context({'PageDesc':'Click above to go the Wikipedia page.','info_find_query':send_list,'latest_news_list':latest_news_list,'PageTitle':utitle,'expiretime':expiretime,'linktitle':title,'tw_timeline':tw_timeline,'hour_send_list':sorted(HOUR_RS.iteritems())})
