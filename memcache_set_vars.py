@@ -47,7 +47,6 @@ def GenInfoPage(id):
 	QUERY={'id':id}
 	Q50K={'id':id,'place':{'$lt':50001}}
 	FINDQ=db.tophits.find(QUERY).sort([('y',1),('m',1),('d',1)])
-	LT50KQ=db.tophits.find(Q50K).sort([('y',1),('m',1),('d',1)])
 	INFOVIEW_KEY='infoview_'+str(id)
 	INFOVIEWLT_KEY='infoviewlt_'+str(id)
 	send_list=[]
@@ -55,11 +54,12 @@ def GenInfoPage(id):
         for result in FINDQ:
 	        rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
         	send_list.append(rec)
+	LT50KQ=db.tophits.find(Q50K).sort([('y',1),('m',1),('d',1)])
         for result in LT50KQ:
 	        rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
         	info_lt50k_list.append(rec)
         mc.set(INFOVIEW_KEY,send_list,60*60*12)
-	mc.set(INFOVIEWLT_KEY,send_list,60*60*12)
+	mc.set(INFOVIEWLT_KEY,info_lt50k_list,60*60*12)
 	return
 
 

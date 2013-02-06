@@ -261,7 +261,7 @@ def infoview(request,id):
 	tw_timeline=GetTimeline() 
 	send_list=mc.get(INFOVIEW_KEY)
 	info_lt50k_list=mc.get(INFOVIEWLT_KEY)	
-	if len(send_list)>0:
+	if send_list:
 		pass
 	else:
 		send_list=[]
@@ -270,7 +270,7 @@ def infoview(request,id):
 			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
 			send_list.append(rec)
 		mc.set(INFOVIEW_KEY,send_list,60*60*24)
-	if len(info_lt50k_list) > 0:
+	if info_lt50k_list:
 		pass
 	else:
 		info_lt50k_list=[]
