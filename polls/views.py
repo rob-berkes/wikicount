@@ -246,15 +246,6 @@ def debug(request):
 	rendered=t.render(c)
 	return HttpResponse(rendered)
 
-def hourly(request,SEARCHID):
-	send_list={}
-	PageDesc='All times are GMT. Article Hash: '+str(SEARCHID)
-	HOUR_RS=db.hitshourly.find_one({'_id':SEARCHID})
-	TITLE_RS=db.hits.find_one({'_id':SEARCHID})
-	t=get_template('IndexHourly.html')
-	c=Context({'ArticleTitle':TITLE_RS['title'],'ArticleHash':SEARCHID,'PageDesc':PageDesc,'send_list':sorted(HOUR_RS.iteritems())})
-	rendered=t.render(c)
-	return HttpResponse(rendered)
 
 def infoview(request,id):
 	DAY, MONTH, YEAR, HOUR,expiretime = fnReturnTimes()
