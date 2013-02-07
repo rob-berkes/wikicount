@@ -52,9 +52,14 @@ def GenInfoPage(id):
 	FINDQ=db.tophits.find(QUERY).sort([('y',1),('m',1),('d',1)])
 	INFOVIEW_KEY='infoview_'+str(id)
 	INFOVIEWLT_KEY='infoviewlt_'+str(id)
+	INFOVIEWLT5K_KEY='infoviewlt5k_'+str(id)
+	INFOVIEWLT500_KEY='infoviewlt500_'+str(id)
+	INFOVIEWLT50_KEY='infoviewlt50_'+str(id)
 	send_list=[]
 	info_lt50k_list=[]
 	info_lt5k_list=[]
+	info_lt500_list=[]
+	info_lt50_list=[]
         for result in FINDQ:
 	        rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
         	send_list.append(rec)
