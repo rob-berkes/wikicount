@@ -252,8 +252,14 @@ def infoview(request,id):
 
         QUERY={'id':id}
 	LTQUERY={'id':id,'place':{'$lt':50001}}
+	LT5KQ={'id':id,'place':{'$lt':5001}}
+	LT500Q={'id':id,'place':{'$lt':501}}
+	LT50Q={'id':id,'place':{'$lt':51}}
 	INFOVIEW_KEY='infoview_'+str(id)
 	INFOVIEWLT_KEY='infoviewlt_'+str(id)
+	INFOVIEWLT5K_KEY='infoviewlt5k_'+str(id)
+	INFOVIEWLT500_KEY='infoviewlt500_'+str(id)
+	INFOVIEWLT50_KEY='infoviewlt50_'+str(id)
 
 	HOUR_RS=db.hitshourly.find_one({'_id':id})
 	latest_news_list = latestnews()
@@ -261,6 +267,9 @@ def infoview(request,id):
 	tw_timeline=GetTimeline() 
 	send_list=mc.get(INFOVIEW_KEY)
 	info_lt50k_list=mc.get(INFOVIEWLT_KEY)	
+	info_lt5k_list=mc.get(INFOVIEWLT5K_KEY)	
+	info_lt500_list=mc.get(INFOVIEWLT500_KEY)	
+	info_lt50_list=mc.get(INFOVIEWLT50_KEY)	
 	if send_list:
 		pass
 	else:
@@ -279,11 +288,38 @@ def infoview(request,id):
 			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
 			info_lt50k_list.append(rec)
 		mc.set(INFOVIEWLT_KEY,info_lt50k_list,60*60*24)
+	if info_lt500_list:
+		pass
+	else:
+		info_lt500_list=[]
+        	LT500Q=db.tophits.find(LT500Q)
+		for result in LT500Q:
+			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
+			info_lt500_list.append(rec)
+		mc.set(INFOVIEWLT500_KEY,info_lt500_list,60*60*24)
+	if info_lt5k_list:
+		pass
+	else:
+		info_lt5k_list=[]
+        	LT5KQ=db.tophits.find(LT5KQ)
+		for result in LT5KQ:
+			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
+			info_lt5k_list.append(rec)
+		mc.set(INFOVIEWLT5K_KEY,info_lt5k_list,60*60*24)
+	if info_lt50_list:
+		pass
+	else:
+		info_lt50_list=[]
+        	LT50Q=db.tophits.find(LT50Q)
+		for result in LT50Q:
+			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
+			info_lt50_list.append(rec)
+		mc.set(INFOVIEWLT50_KEY,info_lt50_list,60*60*24)
 
 
 	title, utitle = MapQuery_FindName(id)
 	t=get_template('InfoviewIndex.htm')
-	c=Context({'PageDesc':'Click above to go the Wikipedia page.','info_find_query':send_list,'latest_news_list':latest_news_list,'PageTitle':utitle,'expiretime':expiretime,'linktitle':title,'tw_timeline':tw_timeline,'hour_send_list':sorted(HOUR_RS.iteritems()),'info_lt50k_list':info_lt50k_list})
+	c=Context({'PageDesc':'Click above to go the Wikipedia page.','info_find_query':send_list,'latest_news_list':latest_news_list,'PageTitle':utitle,'expiretime':expiretime,'linktitle':title,'tw_timeline':tw_timeline,'hour_send_list':sorted(HOUR_RS.iteritems()),'info_lt50k_list':info_lt50k_list,'info_lt5k_list':info_lt5k_list,'info_lt500_list':info_lt500_list,'info_lt50_list':info_lt50_list})
 	rendered=t.render(c)
 	return HttpResponse(rendered)
 
