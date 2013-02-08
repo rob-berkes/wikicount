@@ -347,6 +347,25 @@ def trending(request):
 	rendered=t.render(c)
 	return HttpResponse(rendered)	
 
+
+def imageMain(request):
+	DAY, MONTH, YEAR, HOUR,expiretime = fnReturnTimes()
+	t=get_template('RedTieIndex.html')
+	LATEST_NEWS_LIST=latestnews()
+	title=''
+	tw_timeline=GetTimeline() 
+	send_list=[]	
+	dateKey=str(YEAR)+"_"+str(MONTH)+"_"+str(DAY)
+	TRENDING_LIST_QUERY=db.imagedaily.find({dateKey:{'$exists':True}}).sort(dateKey,-1).limit(100)
+	for p in TRENDING_LIST_QUERY:
+		print p
+		rec={'title':p['title'],'Hits':p[datekey],'linktitle':p['title'],'id':p['_id']}
+		send_list.append(rec)
+#	mc.set('IMAGE_LIST_QUERY',send_list,1800)
+	c=Context({'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':'Wikipedias most popular Images','PageDesc':'Tracking direct links to images','expiretime':expiretime,'tw_timeline':tw_timeline})
+	rendered=t.render(c)
+	return HttpResponse(rendered)	
+
 def top3hr(request):
 	DAY, MONTH, YEAR, HOUR,expiretime = fnReturnTimes()
 	mcHour=mc.get('trendingHour')
