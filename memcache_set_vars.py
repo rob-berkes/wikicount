@@ -25,7 +25,7 @@ def Query_NewsFind(FINDQUERY,notedate,notes):
         return
 def MapQuery_FindName(id):
         QUERY={'id':id}
-        MAPQ=db.hits.find({'_id':id})
+        MAPQ=db.hitsdaily.find({'_id':id})
         latest_news_list = latestnews()
         title=''
         utitle=''

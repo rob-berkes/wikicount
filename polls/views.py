@@ -38,7 +38,7 @@ def latestnews():
 	return latest_news_list
 def MapQuery_FindName(id):
 	QUERY={'id':id}
-        MAPQ=db.hits.find({'_id':id})
+        MAPQ=db.hitsdaily.find({'_id':id})
         latest_news_list = latestnews()
 	title=''
 	utitle=''
@@ -150,7 +150,7 @@ def searchResults(request):
 	title,utitle=MapQuery_FindName(hd)
 	t=get_template('IndexSearchResults.html')
 	MAPQ={'_id': str(hd)}
-	MAPQUERY=db.hits.find(MAPQ).limit(20)
+	MAPQUERY=db.hitsdaily.find(MAPQ).limit(20)
 	send_list=[]
 	infoview(request,hd)
 	for item in MAPQUERY:
@@ -343,6 +343,7 @@ def trending(request):
 			rec={'title':p['title'],'place':p['place'],'Hits':p['Hits']%1000,'linktitle':p['linktitle'],'id':p['id']}
 			send_list.append(rec)
 		mc.set('TRENDING_LIST_QUERY',send_list,1800)
+	syslog.syslog("wikitrends datadebug:"+str(send_list))
 	c=Context({'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':'WikiTrends.Info - Trending','PageDesc':'Today\'s hottest articles','expiretime':expiretime,'tw_timeline':tw_timeline})
 	rendered=t.render(c)
 	return HttpResponse(rendered)	
@@ -440,8 +441,8 @@ def randPage(request):
 			RANDOM_LIST_QUERY=db.tophits.find(FQUERY)
 			for item in RANDOM_LIST_QUERY:
 				title, utitle=FormatName(item['title'])
-			rec={'title':utitle,'place':item['place'],'Hits':item['Hits'],'linktitle':title.encode('utf-8'),'id':item['id']}
-			send_list.append(rec)
+				rec={'title':utitle,'place':item['place'],'Hits':item['Hits'],'linktitle':title.encode('utf-8'),'id':item['id']}
+				send_list.append(rec)
 	mc.set('RANDOM_ARTICLES',send_list,60*60)
 	LATEST_NEWS_LIST=db.news.find().sort('date',-1).limit(5)
 	c=Context({'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':'WikiTrends.Info - Random','PageDesc':'A random sampling from a quarter million of Wikipedia\'s most popular pages! Refreshes about every 20 minutes.','expiretime':expiretime,'tw_timeline':tw_timeline})
