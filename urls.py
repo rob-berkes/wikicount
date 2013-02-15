@@ -14,7 +14,7 @@ post_detail=DetailView.as_view(model=hits)
 
 urlpatterns = patterns('',
     # Examples:
-     url(r'^$','polls.views.trending', name='home'),
+     url(r'^$','polls.views.top3hr', name='home'),
      url(r'^listLast.htm$','polls.views.listLastHour'),
      url(r'^index.htm$','polls.views.trending'),
      url(r'^search.htm$','polls.views.searchForm'),
@@ -32,7 +32,7 @@ urlpatterns = patterns('',
      url(r'^archives/(\d{4})/(\d{1,2})/(\d{1,2})/index.htm$','polls.views.listtop'),
      url(r'^infoview/(\w+)$','polls.views.infoview'),
 #     url(r'^hourly/(\w+)$','polls.views.hourly'),
-     url(r'^debug.htm$','polls.views.imageMain'),
+     url(r'^debug.htm$','polls.views.trending'),
      url(r'^static/(?P<path>.*)$','django.views.static.serve',{'document_root':'/tmp/django/wikicount/static/',}),
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),

@@ -85,7 +85,8 @@ def fnReturnTimes():
            MONTH=12
            YEAR-=1
 	HOUR=time.strftime('%H')
-	return DAY, MONTH, YEAR,HOUR, expiretime
+	MONTHNAME=datetime.datetime.now().strftime("%B")
+	return DAY, MONTH, YEAR,HOUR, expiretime,MONTHNAME
 
 def GenArchiveList():
 	archive_list=[]
@@ -106,14 +107,40 @@ def adjustHourforLastHour(HOUR):
 		SEARCH_HOUR = 0
 	return SEARCH_HOUR
 
-
+def fnCaseMonthName(MONTH):
+	if MONTH==1:
+		return 'January'
+	elif MONTH==2:
+		return 'February'
+	elif MONTH==3:
+		return 'March'
+	elif MONTH==4:
+		return 'April'
+	elif MONTH==5:
+		return 'May'
+	elif MONTH==6:
+		return 'June'
+	elif MONTH==7:
+		return 'July'
+	elif MONTH==8:
+		return 'August'
+	elif MONTH==9:
+		return 'September'
+	elif MONTH==10:
+		return 'October'
+	elif MONTH==11:
+		return 'November'
+	elif MONTH==12:
+		return 'December'
+	else:
+		return 'Unknown'
 
 
 
 #Begin application functions
 
 def listLastHour(request):
-	DAY,MONTH,YEAR,HOUR,expiretime=fnReturnTimes()
+	DAY,MONTH,YEAR,HOUR,expiretime,MONTHNAME=fnReturnTimes()
 	tw_timeline=GetTimeline()
 	t=get_template('IndexListLast.html')
 	latest_news_list=latestnews()
@@ -163,7 +190,7 @@ def searchResults(request):
 	
 
 def searchForm(request):
-	DAY,MONTH,YEAR,HOUR,expiretime=fnReturnTimes()
+	DAY,MONTH,YEAR,HOUR,expiretime,MONTHNAME=fnReturnTimes()
 	t=get_template('IndexSearch.html')
 	send_list=[]
 	c=Context({expiretime:expiretime})
@@ -172,7 +199,7 @@ def searchForm(request):
 
 
 def blog(request):
-	DAY,MONTH,YEAR,HOUR,expiretime=fnReturnTimes()
+	DAY,MONTH,YEAR,HOUR,expiretime,MONTHNAME=fnReturnTimes()
 	BLOGQUERY=db.blog.find().sort('date',-1).limit(10)
 	t=get_template('IndexBlog.html')
 	send_list=[]
@@ -187,6 +214,7 @@ def blog(request):
 
 
 def dailypage(request,YEAR=2013,MONTH=1):
+	DAY,MONTH,YEAR,HOUR,expiretime,MONTHNAME=fnReturnTimes()
 	syslog.syslog('wc-dailypage MONTH='+str(MONTH))
 	junk1,junk2,junk3,junk4,expiretime=fnReturnTimes()
 	t=get_template('IndexDaily.html')
@@ -196,7 +224,7 @@ def dailypage(request,YEAR=2013,MONTH=1):
 		pass
 	else:
 		send_list=[]
-		RESULTSET=db.command({'distinct':'tophits','key':'d','query':{'m':int(MONTH),'y':int(YEAR)}})
+		RESULTSET=db.command({'distinct':'tophits'+str(YEAR)+MONTHNAME,'key':'d','query':{'m':int(MONTH),'y':int(YEAR)}})
 		for d in RESULTSET['values']:
 			rec={'d':d,'m':MONTH,'y':YEAR,'stry':str(YEAR),'strm':str(MONTH),'strd':str(d)}
 			print rec
@@ -210,10 +238,11 @@ def dailypage(request,YEAR=2013,MONTH=1):
 
 
 def listtop(request,YEAR,MONTH,DAY):
+	MONTHNAME=fnCaseMonthName(int(MONTH))
 	t=get_template('IndexTopList.html')
 	send_list=[]
 	#print request
-	QUERY={'d':int(DAY),'m':int(MONTH),'y':int(YEAR),'title':{'$exists':True}}
+	QUERY={'d':int(DAY),'m':int(MONTH),'y':int(YEAR)}
 	DAYKEY='toplist'+str(YEAR)+str(MONTH)+str(DAY)
 	syslog.syslog('wikicount-views.py-listtop DAYKEY='+DAYKEY)
 	print QUERY
@@ -224,7 +253,7 @@ def listtop(request,YEAR,MONTH,DAY):
 		pass
 	else:
 		send_list=[]
-		RESULTSET=db.tophits.find(QUERY).sort('place',1).limit(100)
+		RESULTSET=db['tophits'+str(YEAR)+MONTHNAME].find(QUERY).sort('place',1).limit(100)
 		for row in RESULTSET:
 			title=''
 			utitle=''
@@ -248,7 +277,7 @@ def debug(request):
 
 
 def infoview(request,id):
-	DAY, MONTH, YEAR, HOUR,expiretime = fnReturnTimes()
+	DAY, MONTH, YEAR, HOUR,expiretime,MONTHNAME = fnReturnTimes()
 
         QUERY={'id':id}
 	LTQUERY={'id':id,'place':{'$lt':50001}}
@@ -274,7 +303,7 @@ def infoview(request,id):
 		pass
 	else:
 		send_list=[]
-		FINDQ=db.tophits.find(QUERY).sort([('y',1),('m',1),('d',1)])
+		FINDQ=db['tophits'+str(YEAR)+MONTHNAME].find(QUERY).sort([('y',1),('m',1),('d',1)])
 		for result in FINDQ:
 			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
 			send_list.append(rec)
@@ -283,7 +312,7 @@ def infoview(request,id):
 		pass
 	else:
 		info_lt50k_list=[]
-        	LT50KQ=db.tophits.find(LTQUERY)
+        	LT50KQ=db['tophits'+str(YEAR)+MONTHNAME].find(LTQUERY)
 		for result in LT50KQ:
 			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
 			info_lt50k_list.append(rec)
@@ -292,7 +321,7 @@ def infoview(request,id):
 		pass
 	else:
 		info_lt500_list=[]
-        	LT500Q=db.tophits.find(LT500Q)
+        	LT500Q=db['tophits'+str(YEAR)+MONTHNAME].find(LT500Q)
 		for result in LT500Q:
 			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
 			info_lt500_list.append(rec)
@@ -301,7 +330,7 @@ def infoview(request,id):
 		pass
 	else:
 		info_lt5k_list=[]
-        	LT5KQ=db.tophits.find(LT5KQ)
+        	LT5KQ=db['tophits'+str(YEAR)+MONTHNAME].find(LT5KQ)
 		for result in LT5KQ:
 			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
 			info_lt5k_list.append(rec)
@@ -310,7 +339,7 @@ def infoview(request,id):
 		pass
 	else:
 		info_lt50_list=[]
-        	LT50Q=db.tophits.find(LT50Q)
+        	LT50Q=db['tophits'+str(YEAR)+MONTHNAME].find(LT50Q)
 		for result in LT50Q:
 			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
 			info_lt50_list.append(rec)
@@ -325,7 +354,7 @@ def infoview(request,id):
 
 
 def trending(request):
-	DAY, MONTH, YEAR, HOUR,expiretime = fnReturnTimes()
+	DAY, MONTH, YEAR, HOUR,expiretime,MONTHNAME = fnReturnTimes()
 	mcHour=mc.get('trendingHour')
 	t=get_template('RedTieIndex.html')
 	FQUERY={'d':int(DAY),'m':int(MONTH),'y':int(YEAR)}
@@ -350,7 +379,7 @@ def trending(request):
 
 
 def imageMain(request):
-	DAY, MONTH, YEAR, HOUR,expiretime = fnReturnTimes()
+	DAY, MONTH, YEAR, HOUR,expiretime,MONTHNAME = fnReturnTimes()
 	t=get_template('RedTieIndex.html')
 	LATEST_NEWS_LIST=latestnews()
 	title=''
@@ -368,7 +397,7 @@ def imageMain(request):
 	return HttpResponse(rendered)	
 
 def top3hr(request):
-	DAY, MONTH, YEAR, HOUR,expiretime = fnReturnTimes()
+	DAY, MONTH, YEAR, HOUR,expiretime,MONTHNAME = fnReturnTimes()
 	mcHour=mc.get('trendingHour')
 	t=get_template('RedTieIndex.html')
 	FQUERY={'d':int(DAY),'m':int(MONTH),'y':int(YEAR)}
@@ -386,13 +415,13 @@ def top3hr(request):
 			rec={'title':p['title'],'place':p['place'],'Avg':p['rollavg'],'linktitle':p['title'],'id':p['id']}
 			send_list.append(rec)
 		mc.set('THREEHOUR_LIST_QUERY',send_list,1800)
-	c=Context({'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':'WikiTrends.Info - Top','PageDesc':'A three hour rolling average showing the most puopular articles currently','expiretime':expiretime,'tw_timeline':tw_timeline})
+	c=Context({'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':'WikiTrends.Info - Top','PageDesc':'A three hour rolling average showing the most popular articles currently','expiretime':expiretime,'tw_timeline':tw_timeline})
 	rendered=t.render(c)
 	return HttpResponse(rendered)
 
 
 def cold(request):
-	DAY, MONTH, YEAR, HOUR,expiretime = fnReturnTimes()
+	DAY, MONTH, YEAR, HOUR,expiretime,MONTHNAME = fnReturnTimes()
 	t=get_template('RedTieIndex.html')
 	FQUERY={'d':int(DAY),'m':int(MONTH),'y':int(YEAR)}
 	COLD_LIST_QUERY=db.prodcold.find().sort('delta',1).limit(50)
@@ -409,14 +438,11 @@ def cold(request):
 
 
 def randPage(request):
+	DAY, MONTH, YEAR, HOUR,expiretime,MONTHNAME = fnReturnTimes()
 	TODAY=date.today()
-	YEAR=TODAY.year
-	DAY=TODAY.day
-	MONTH=TODAY.month
 	now=datetime.datetime.now()
 	half=now+datetime.timedelta(minutes=45)
 	stamp=mktime(half.timetuple())
-	expiretime=format_date_time(stamp)
 	DAY-=1
 	if DAY==0:
 	   DAY=30
@@ -438,7 +464,7 @@ def randPage(request):
 		for a in range(1,50):
 			place=random.randint(1,250000)
 			FQUERY={'d':int(DAY),'m':int(MONTH),'y':int(YEAR),'place':place}
-			RANDOM_LIST_QUERY=db.tophits.find(FQUERY)
+			RANDOM_LIST_QUERY=db['tophits'+str(YEAR)+MONTHNAME].find(FQUERY)
 			for item in RANDOM_LIST_QUERY:
 				title, utitle=FormatName(item['title'])
 				rec={'title':utitle,'place':item['place'],'Hits':item['Hits'],'linktitle':title.encode('utf-8'),'id':item['id']}
@@ -451,16 +477,13 @@ def randPage(request):
 
 
 def debuts(request):
+	DAY, MONTH, YEAR, HOUR,expiretime,MONTHNAME = fnReturnTimes()
 	TODAY=date.today()
-	DAY=TODAY.day
-	MONTH=TODAY.month
-	YEAR=TODAY.year
 	now=datetime.datetime.now()
 	half=now+datetime.timedelta(minutes=45)
 	stamp=mktime(half.timetuple())
-	expiretime=format_date_time(stamp)
 	t=get_template('RedTieIndex.html')
-	QUERY=db.proddebuts.find({'d':int(DAY),'m':int(MONTH),'y':int(YEAR)}).sort('place',1).limit(300)
+	QUERY=db['proddebuts'+str(YEAR)+MONTHNAME].find({'d':int(DAY),'m':int(MONTH),'y':int(YEAR)}).sort('place',1).limit(300)
 	LATEST_NEWS_LIST=db.news.find().sort('date',-1).limit(5)
         TOTALNEW=0
 	send_list=mc.get('DEBUTS_ARTICLES')

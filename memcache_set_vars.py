@@ -5,7 +5,7 @@ import urllib2
 import random
 from pymongo import Connection
 from datetime import date
-
+import datetime
 #conn=Connection('10.245.145.84')
 conn=Connection('10.115.126.7')
 db=conn.wc
@@ -14,8 +14,10 @@ TODAY=date.today()
 DAY=TODAY.day
 MONTH=TODAY.month
 YEAR=TODAY.year
-
-DAILYPAGERESULTS=db.command({'distinct':'tophits','key':'d','query':{'m':int(MONTH)}})
+MONTHNAME=datetime.datetime.now().strftime("%B")
+thCN='tophits'+str(YEAR)+MONTHNAME
+dbCN='proddebuts'+str(YEAR)+str(MONTHNAME)
+DAILYPAGERESULTS=db.command({'distinct':thCN,'key':'d','query':{'m':int(MONTH)}})
 def Query_NewsFind(FINDQUERY,notedate,notes):
         findresults=db.news.find(FINDQUERY)
         for a in findresults:
@@ -49,7 +51,7 @@ def GenInfoPage(id):
 	Q5K={'id':id,'place':{'$lt':5001}}
 	Q500={'id':id,'place':{'$lt':501}}
 	Q50={'id':id,'place':{'$lt':51}}
-	FINDQ=db.tophits.find(QUERY).sort([('y',1),('m',1),('d',1)])
+	FINDQ=db[thCN].find(QUERY).sort([('y',1),('m',1),('d',1)])
 	INFOVIEW_KEY='infoview_'+str(id)
 	INFOVIEWLT_KEY='infoviewlt_'+str(id)
 	INFOVIEWLT5K_KEY='infoviewlt5k_'+str(id)
@@ -63,19 +65,19 @@ def GenInfoPage(id):
         for result in FINDQ:
 	        rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
         	send_list.append(rec)
-	LT50KQ=db.tophits.find(Q50K).sort([('y',1),('m',1),('d',1)])
+	LT50KQ=db[thCN].find(Q50K).sort([('y',1),('m',1),('d',1)])
         for result in LT50KQ:
 	        rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
         	info_lt50k_list.append(rec)
-	LT5KQ=db.tophits.find(Q5K).sort([('y',1),('m',1),('d',1)])
+	LT5KQ=db[thCN].find(Q5K).sort([('y',1),('m',1),('d',1)])
         for result in LT5KQ:
 	        rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
         	info_lt5k_list.append(rec)
-	LT500=db.tophits.find(Q500).sort([('y',1),('m',1),('d',1)])
+	LT500=db[thCN].find(Q500).sort([('y',1),('m',1),('d',1)])
         for result in LT500:
 	        rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
         	info_lt500_list.append(rec)
-	LT50=db.tophits.find(Q50).sort([('y',1),('m',1),('d',1)])
+	LT50=db[thCN].find(Q50).sort([('y',1),('m',1),('d',1)])
         for result in LT50:
 	        rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
         	info_lt50_list.append(rec)
@@ -98,7 +100,7 @@ mc.set('mcdpDaysList',send_list,60*60*24)
 
 QUERY={'d':int(DAY),'m':int(MONTH),'y':int(YEAR)}
 send_list=[]
-RESULTSET=db.tophits.find(QUERY).sort('place',1).limit(100)
+RESULTSET=db[thCN].find(QUERY).sort('place',1).limit(100)
 for row in RESULTSET:
 	GenInfoPage(row['id'])
 	title,utitle=FormatName(row['title'])
@@ -107,7 +109,7 @@ for row in RESULTSET:
 mc.set('DAYKEY',send_list,7200)
 notedate=''
 notes=''
-latest_hits_list = db.tophits.find(QUERY).sort('place',1).limit(100)
+latest_hits_list = db[thCN].find(QUERY).sort('place',1).limit(100)
 for p in latest_hits_list:
 	GenInfoPage(p['id'])
         title,utitle=FormatName(p['title'])
@@ -118,7 +120,7 @@ mc.set('send_list',send_list,3600)
 
 print 'now trending list query....'
 send_list=[]    
-TRENDING_LIST_QUERY=db.prodtrend.find().sort('Hits',-1).limit(50)
+TRENDING_LIST_QUERY=db.prodtrend.find().sort('Hits',-1).limit(150)
 for p in TRENDING_LIST_QUERY:
 	rec={'title':p['title'],'place':p['place'],'Hits':p['Hits']%1000,'linktitle':p['linktitle'],'id':p['id']}
         send_list.append(rec)
@@ -131,7 +133,7 @@ send_list=[]
 for a in range(1,50):
 	place=random.randint(1,250000)
         FQUERY={'d':int(DAY),'m':int(MONTH),'y':int(YEAR),'place':place}
-        RANDOM_LIST_QUERY=db.tophits.find(FQUERY)
+        RANDOM_LIST_QUERY=db[thCN].find(FQUERY)
         for item in RANDOM_LIST_QUERY:
         	 id=item['id']
 		 GenInfoPage(item['id'])
@@ -145,7 +147,7 @@ print 'debuts query...'
 send_list=[]
 title=''
 utitle=''
-QUERY=db.proddebuts.find({'d':int(DAY),'m':int(MONTH),'y':int(YEAR)}).sort('place',1).limit(300)
+QUERY=db[dbCN].find({'d':int(DAY),'m':int(MONTH),'y':int(YEAR)}).sort('place',1).limit(300)
 for item in QUERY:
 	COUNT=0
         TITLE=''
@@ -159,13 +161,13 @@ mc.set('DEBUTS_ARTICLES',send_list,60*60)
 
 print 'current month archive...'
 send_list=[]
-RESULTSET=db.command({'distinct':'tophits','key':'d','query':{'m':int(MONTH),'y':int(YEAR)}})
+RESULTSET=db.command({'distinct':thCN,'key':'d','query':{'m':int(MONTH),'y':int(YEAR)}})
 for d in RESULTSET['values']:
 	rec={'d':d,'m':MONTH,'y':YEAR,'stry':str(YEAR),'strm':str(MONTH),'strd':str(d)}
 	QUERY={'d':int(DAY),'m':int(MONTH),'y':int(YEAR)}
 	DAYKEY='toplist'+str(YEAR)+str(MONTH)+str(DAY)
 	page_list=[]
-        PAGERESULTSET=db.tophits.find(QUERY).sort('place',1).limit(100)
+        PAGERESULTSET=db[thCN].find(QUERY).sort('place',1).limit(100)
         for row in PAGERESULTSET:
 		title, utitle=FormatName(row['title'])
                 prec={'place':row['place'],'Hits':row['Hits'],'title':title ,'id':str(row['id']),'linktitle':utitle}
@@ -176,13 +178,13 @@ mc.set('mcdpDaysList'+str(MONTH)+str(YEAR),send_list,60*60*24)
 
 #print 'on to dec 2012 archives...'
 #send_list=[]
-#RESULTSET=db.command({'distinct':'tophits','key':'d','query':{'m':12}})
+#RESULTSET=db.command({'distinct':thCN,'key':'d','query':{'m':12}})
 #for d in RESULTSET['values']:
 #	rec={'d':d,'m':12,'y':2012,'stry':str(2012),'strm':str(12),'strd':str(d)}
 #	QUERY={'d':int(DAY),'m':int(12),'y':int(2012)}
 #	DAYKEY='toplist'+str(2012)+str(12)+str(DAY)
 #	page_list=[]
- #       PAGERESULTSET=db.tophits.find(QUERY).sort('place',1).limit(100)
+ #       PAGERESULTSET=db[thCN].find(QUERY).sort('place',1).limit(100)
 #$        for row in PAGERESULTSET:
 #		title, utitle=FormatName(row['title'])
  #               prec={'place':row['place'],'Hits':row['Hits'],'title':title ,'id':str(row['id']),'linktitle':utitle}
