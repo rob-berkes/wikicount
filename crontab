@@ -1,2 +1,1 @@
-#58 */2 * * * /bin/bash -c "rsync -av -e 'ssh -i /root/RobWikiCountWork.pem' ec2-user@ec2-75-101-246-82.compute-1.amazonaws.com:/var/www/html/* /var/www/html/"
-40 * * * * /bin/bash -c "/usr/bin/python /tmp/django/wikicount/memcache_set_vars.py"
+58 * * * * /bin/bash -c "/usr/bin/python /tmp/django/wikicount/memcache_set_vars.py"
