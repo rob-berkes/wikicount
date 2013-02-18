@@ -17,8 +17,6 @@ import tweepy
 import syslog
 
 conn=Connection('10.115.126.7')
-#conn=Connection('10.80.121.190')
-#conn=Connection()
 db=conn.wc
 api=tweepy.api
 RECORDSPERPAGE=50
@@ -145,12 +143,13 @@ def listLastHour(request):
 	t=get_template('IndexListLast.html')
 	latest_news_list=latestnews()
 	SEARCH_HOUR=adjustHourforLastHour(HOUR)
-	HOURQUERY=db.hitshourly.find().sort(str(SEARCH_HOUR),-1).limit(50)
+	SEARCH_HOUR='%02d' % (SEARCH_HOUR,)
+	HOURQUERY=db.hitshourlydaily.find({str(SEARCH_HOUR):{'$gt':1}}).sort(str(SEARCH_HOUR),-1).limit(50)
 	send_list=[]
 	place=1
 	HOURKEY="SEARCHHOUR_"+str(SEARCH_HOUR)
 	send_list=mc.get(HOURKEY)
-	if send_list:
+	if len(send_list)>0:
 		pass
 	else:
 		for row in HOURQUERY:
@@ -220,7 +219,7 @@ def dailypage(request,YEAR=2013,MONTH=1):
 	t=get_template('IndexDaily.html')
 	send_list=mc.get('mcdpDaysList'+str(MONTH)+str(YEAR))
 	archive_list=GenArchiveList()
-	if send_list:
+	if len(send_list)>0:
 		pass
 	else:
 		send_list=[]
@@ -249,7 +248,7 @@ def listtop(request,YEAR,MONTH,DAY):
 	send_list=mc.get(DAYKEY)
 	tw_timeline=GetTimeline()
 	latest_news_list=latestnews() 
-	if send_list:
+	if len(send_list)>0:
 		pass
 	else:
 		send_list=[]
@@ -299,7 +298,7 @@ def infoview(request,id):
 	info_lt5k_list=mc.get(INFOVIEWLT5K_KEY)	
 	info_lt500_list=mc.get(INFOVIEWLT500_KEY)	
 	info_lt50_list=mc.get(INFOVIEWLT50_KEY)	
-	if send_list:
+	if len(send_list)>0:
 		pass
 	else:
 		send_list=[]
@@ -308,7 +307,7 @@ def infoview(request,id):
 			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
 			send_list.append(rec)
 		mc.set(INFOVIEW_KEY,send_list,60*60*24)
-	if info_lt50k_list:
+	if len(info_lt50k_list)>0:
 		pass
 	else:
 		info_lt50k_list=[]
@@ -317,7 +316,7 @@ def infoview(request,id):
 			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
 			info_lt50k_list.append(rec)
 		mc.set(INFOVIEWLT_KEY,info_lt50k_list,60*60*24)
-	if info_lt500_list:
+	if len(info_lt500_list):
 		pass
 	else:
 		info_lt500_list=[]
@@ -326,7 +325,7 @@ def infoview(request,id):
 			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
 			info_lt500_list.append(rec)
 		mc.set(INFOVIEWLT500_KEY,info_lt500_list,60*60*24)
-	if info_lt5k_list:
+	if len(info_lt5k_list)>0:
 		pass
 	else:
 		info_lt5k_list=[]
@@ -335,7 +334,7 @@ def infoview(request,id):
 			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
 			info_lt5k_list.append(rec)
 		mc.set(INFOVIEWLT5K_KEY,info_lt5k_list,60*60*24)
-	if info_lt50_list:
+	if len(info_lt50_list)>0:
 		pass
 	else:
 		info_lt50_list=[]
@@ -363,7 +362,7 @@ def trending(request):
 	title=''
 	send_list=mc.get('TRENDING_LIST_QUERY')
 	tw_timeline=GetTimeline() 
-	if send_list:
+	if len(send_list)>0:
 		pass
 	else:	
 		send_list=[]	
@@ -377,6 +376,26 @@ def trending(request):
 	rendered=t.render(c)
 	return HttpResponse(rendered)	
 
+def category_trending(request):
+	DAY, MONTH, YEAR, HOUR,expiretime,MONTHNAME = fnReturnTimes()
+	mcHour=mc.get('trendingHour')
+	t=get_template('RedTieIndex.html')
+	FQUERY={'d':int(DAY),'m':int(MONTH),'y':int(YEAR)}
+	LATEST_NEWS_LIST=latestnews()
+	title=''
+	send_list=mc.get('CATEGORY_TRENDING_LIST_QUERY')
+	tw_timeline=GetTimeline()
+	DAYKEY=str(YEAR)+"_"+str(MONTH)+"_"+str(DAY) 
+	send_list=[]	
+	CATEGORY_TRENDING_LIST_QUERY=db.prodcattrend.find().sort('Hits',-1).limit(100)
+	for p in CATEGORY_TRENDING_LIST_QUERY:
+		rec={'title':p['title'],'place':p['place'],'Hits':p['Hits']%1000,'linktitle':p['linktitle'],'id':p['id']}
+		send_list.append(rec)
+	mc.set('CATEGORY_TRENDING_LIST_QUERY',send_list,1800)
+	syslog.syslog("wikitrends datadebug:"+str(send_list))
+	c=Context({'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':'WikiTrends.Info - Trending Categories','PageDesc':'Today\'s hottest categories','expiretime':expiretime,'tw_timeline':tw_timeline})
+	rendered=t.render(c)
+	return HttpResponse(rendered)	
 
 def imageMain(request):
 	DAY, MONTH, YEAR, HOUR,expiretime,MONTHNAME = fnReturnTimes()
@@ -406,7 +425,7 @@ def top3hr(request):
 	title=''
 	send_list=mc.get('THREEHOUR_LIST_QUERY')
 	tw_timeline=GetTimeline() 
-	if send_list:
+	if len(send_list)>0:
 		pass
 	else:	
 		send_list=[]	
@@ -457,7 +476,7 @@ def randPage(request):
 	utitle='<unknown>'
 	send_list=mc.get('RANDOM_ARTICLES')
 	tw_timeline=GetTimeline() 
-        if send_list:
+        if len(send_list)>0:
                 pass
         else:
 
@@ -488,7 +507,7 @@ def debuts(request):
         TOTALNEW=0
 	send_list=mc.get('DEBUTS_ARTICLES')
 	tw_timeline=GetTimeline() 
-	if send_list:
+	if len(send_list)>0:
 		pass
 	else:
 		send_list=[]

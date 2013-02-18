@@ -5,6 +5,7 @@ import urllib2
 import random
 from pymongo import Connection
 from datetime import date
+from datetime import time
 import datetime
 #conn=Connection('10.245.145.84')
 conn=Connection('10.115.126.7')
@@ -18,6 +19,13 @@ MONTHNAME=datetime.datetime.now().strftime("%B")
 thCN='tophits'+str(YEAR)+MONTHNAME
 dbCN='proddebuts'+str(YEAR)+str(MONTHNAME)
 DAILYPAGERESULTS=db.command({'distinct':thCN,'key':'d','query':{'m':int(MONTH)}})
+
+def latestnews():
+        ARTICLELIMIT=5
+        latest_news_list = db.news.find().sort('date',-1).limit(ARTICLELIMIT)
+        return latest_news_list
+
+
 def Query_NewsFind(FINDQUERY,notedate,notes):
         findresults=db.news.find(FINDQUERY)
         for a in findresults:
@@ -143,6 +151,7 @@ for a in range(1,50):
 mc.set('RANDOM_ARTICLES',send_list,60*60)
 
 
+HOUR=datetime.datetime.now().strftime('%H')
 print 'debuts query...'
 send_list=[]
 title=''
@@ -200,4 +209,18 @@ for p in THREEHOUR_LIST_QUERY:
 	rec={'title':p['title'],'place':p['place'],'Avg':p['rollavg'],'linktitle':p['title'],'id':p['id']}
         send_list.append(rec)
 mc.set('THREEHOUR_LIST_QUERY',send_list,60*60) 
+
+
+
+SEARCH_HOUR='%02d' % (int(HOUR),)
+HOURQUERY=db.hitshourlydaily.find({str(SEARCH_HOUR):{'$gt':1}}).sort(str(SEARCH_HOUR),-1).limit(50)
+send_list=[]
+place=1
+HOURKEY="SEARCHHOUR_"+str(SEARCH_HOUR)
+for row in HOURQUERY:
+    title,utitle=MapQuery_FindName(row['_id'])
+    rec={'place':place,'Hits':row[str(SEARCH_HOUR)],'title':utitle ,'id':str(row['_id']),'linktitle':title.encode('utf-8')}
+    place+=1
+    send_list.append(rec)
+mc.set(HOURKEY,send_list,30*60)
 
