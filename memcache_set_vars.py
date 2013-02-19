@@ -128,7 +128,7 @@ mc.set('send_list',send_list,3600)
 
 print 'now trending list query....'
 send_list=[]    
-TRENDING_LIST_QUERY=db.prodtrend.find().sort('Hits',-1).limit(150)
+TRENDING_LIST_QUERY=db.prodtrend.find({'d':int(DAY),'m':int(MONTH),'y':int(YEAR)}).sort('Hits',-1).limit(150)
 for p in TRENDING_LIST_QUERY:
 	rec={'title':p['title'],'place':p['place'],'Hits':p['Hits']%1000,'linktitle':p['linktitle'],'id':p['id']}
         send_list.append(rec)
