@@ -48,6 +48,34 @@ def MapQuery_FindName(id):
 
 
 	return title, utitle
+def MapQuery_FindCategory(id):
+	QUERY={'id':id}
+        MAPQ=db.category.find({'_id':id})
+        latest_news_list = latestnews()
+	title=''
+	utitle=''
+        for name in MAPQ:
+                        title=name['title']
+                        s_title=string.replace(title,'_',' ')
+                        t_title=s_title.encode('utf-8')
+                        utitle=urllib2.unquote(t_title)
+
+
+	return title, utitle
+def MapQuery_FindImage(id):
+	QUERY={'id':id}
+        MAPQ=db.image.find({'_id':id})
+        latest_news_list = latestnews()
+	title=''
+	utitle=''
+        for name in MAPQ:
+                        title=name['title']
+                        s_title=string.replace(title,'_',' ')
+                        t_title=s_title.encode('utf-8')
+                        utitle=urllib2.unquote(t_title)
+
+
+	return title, utitle
 def FormatName(title):
         s_title=string.replace(title,'_',' ')
         t_title=s_title.encode('utf-8')
@@ -85,6 +113,11 @@ def fnReturnTimes():
 	HOUR=time.strftime('%H')
 	MONTHNAME=datetime.datetime.now().strftime("%B")
 	return DAY, MONTH, YEAR,HOUR, expiretime,MONTHNAME
+def fnReturnStringDate(DAY,MONTH,YEAR):
+	DAY='%02d' % (DAY,)	
+	MONTH='%02d' % (MONTH,)	
+	RETSTR=str(YEAR)+"_"+str(MONTH)+"_"+str(DAY)
+	return RETSTR
 
 def GenArchiveList():
 	archive_list=[]
@@ -290,53 +323,50 @@ def infoview(request,id):
 	INFOVIEWLT50_KEY='infoviewlt50_'+str(id)
 
 	HOUR_RS=db.hitshourly.find_one({'_id':id})
+	if HOUR_RS==None:
+		HOUR_RS=db.categoryhourly.find_one({'_id':id})
+	if HOUR_RS==None:
+		HOUR_RS=db.imagehourly.find_one({'_id':id})
 	latest_news_list = latestnews()
 	
-	tw_timeline=GetTimeline() 
+	tw_timeline=GetTimeline()
+	send_list=[] 
 	send_list=mc.get(INFOVIEW_KEY)
-	info_lt50k_list=mc.get(INFOVIEWLT_KEY)	
+	info_lt50k_list=mc.get(INFOVIEWLT_KEY)
 	info_lt5k_list=mc.get(INFOVIEWLT5K_KEY)	
 	info_lt500_list=mc.get(INFOVIEWLT500_KEY)	
 	info_lt50_list=mc.get(INFOVIEWLT50_KEY)	
-	if len(send_list)>0:
-		pass
-	else:
+	if send_list==None:
+		send_list=[]
+	if send_list==None:
 		send_list=[]
 		FINDQ=db['tophits'+str(YEAR)+MONTHNAME].find(QUERY).sort([('y',1),('m',1),('d',1)])
 		for result in FINDQ:
 			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
 			send_list.append(rec)
 		mc.set(INFOVIEW_KEY,send_list,60*60*24)
-	if len(info_lt50k_list)>0:
-		pass
-	else:
+	if info_lt50k_list==None:
 		info_lt50k_list=[]
         	LT50KQ=db['tophits'+str(YEAR)+MONTHNAME].find(LTQUERY)
 		for result in LT50KQ:
 			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
 			info_lt50k_list.append(rec)
 		mc.set(INFOVIEWLT_KEY,info_lt50k_list,60*60*24)
-	if len(info_lt500_list):
-		pass
-	else:
+	if info_lt500_list==None:
 		info_lt500_list=[]
         	LT500Q=db['tophits'+str(YEAR)+MONTHNAME].find(LT500Q)
 		for result in LT500Q:
 			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
 			info_lt500_list.append(rec)
 		mc.set(INFOVIEWLT500_KEY,info_lt500_list,60*60*24)
-	if len(info_lt5k_list)>0:
-		pass
-	else:
+	if info_lt5k_list==None:
 		info_lt5k_list=[]
         	LT5KQ=db['tophits'+str(YEAR)+MONTHNAME].find(LT5KQ)
 		for result in LT5KQ:
 			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
 			info_lt5k_list.append(rec)
 		mc.set(INFOVIEWLT5K_KEY,info_lt5k_list,60*60*24)
-	if len(info_lt50_list)>0:
-		pass
-	else:
+	if info_lt50_list==None:
 		info_lt50_list=[]
         	LT50Q=db['tophits'+str(YEAR)+MONTHNAME].find(LT50Q)
 		for result in LT50Q:
@@ -346,6 +376,10 @@ def infoview(request,id):
 
 
 	title, utitle = MapQuery_FindName(id)
+	if title=='':
+		title,utitle = MapQuery_FindCategory(id)
+	if title=='':
+		title,utitle = MapQuery_FindImage(id)
 	t=get_template('InfoviewIndex.htm')
 	c=Context({'PageDesc':'Click above to go the Wikipedia page.','info_find_query':send_list,'latest_news_list':latest_news_list,'PageTitle':utitle,'expiretime':expiretime,'linktitle':title,'tw_timeline':tw_timeline,'hour_send_list':sorted(HOUR_RS.iteritems()),'info_lt50k_list':info_lt50k_list,'info_lt5k_list':info_lt5k_list,'info_lt500_list':info_lt500_list,'info_lt50_list':info_lt50_list})
 	rendered=t.render(c)
@@ -389,9 +423,27 @@ def category_trending(request):
 	send_list=[]	
 	CATEGORY_TRENDING_LIST_QUERY=db.prodcattrend.find().sort('Hits',-1).limit(100)
 	for p in CATEGORY_TRENDING_LIST_QUERY:
-		rec={'title':p['title'],'place':p['place'],'Hits':p['Hits']%1000,'linktitle':p['linktitle'],'id':p['id']}
+		rec={'title':p['title'],'place':p['place'],'Hits':p['Hits'],'linktitle':p['linktitle'],'id':p['id']}
 		send_list.append(rec)
 	mc.set('CATEGORY_TRENDING_LIST_QUERY',send_list,1800)
+	syslog.syslog("wikitrends datadebug:"+str(send_list))
+	c=Context({'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':'WikiTrends.Info - Trending Categories','PageDesc':'Today\'s hottest categories','expiretime':expiretime,'tw_timeline':tw_timeline})
+	rendered=t.render(c)
+	return HttpResponse(rendered)	
+def file_trending(request):
+	DAY, MONTH, YEAR, HOUR,expiretime,MONTHNAME = fnReturnTimes()
+	t=get_template('RedTieIndex.html')
+	FQUERY={'d':int(DAY),'m':int(MONTH),'y':int(YEAR)}
+	LATEST_NEWS_LIST=latestnews()
+	title=''
+	tw_timeline=GetTimeline()
+	DAYKEY=str(YEAR)+"_"+str(MONTH)+"_"+str(DAY) 
+	send_list=[]	
+	FILE_TRENDING_LIST_QUERY=db.prodimagetrend.find().sort('Hits',-1).limit(100)
+	for p in FILE_TRENDING_LIST_QUERY:
+		rec={'title':p['title'],'place':p['place'],'Hits':p['Hits'],'linktitle':p['linktitle'],'id':p['id']}
+		send_list.append(rec)
+	mc.set('FILE_TRENDING_LIST_QUERY',send_list,1800)
 	syslog.syslog("wikitrends datadebug:"+str(send_list))
 	c=Context({'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':'WikiTrends.Info - Trending Categories','PageDesc':'Today\'s hottest categories','expiretime':expiretime,'tw_timeline':tw_timeline})
 	rendered=t.render(c)

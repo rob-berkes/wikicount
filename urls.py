@@ -34,6 +34,7 @@ urlpatterns = patterns('',
 #     url(r'^hourly/(\w+)$','polls.views.hourly'),
      url(r'^debug.htm$','polls.views.category_trending'),
      url(r'^cat_top.htm$','polls.views.category_trending'),
+     url(r'^files.htm$','polls.views.file_trending'),
      url(r'^static/(?P<path>.*)$','django.views.static.serve',{'document_root':'/tmp/django/wikicount/static/',}),
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
