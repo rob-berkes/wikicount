@@ -405,7 +405,6 @@ def trending(request):
 			rec={'title':p['title'],'place':p['place'],'Hits':p['Hits']%1000,'linktitle':p['linktitle'],'id':p['id']}
 			send_list.append(rec)
 		mc.set('TRENDING_LIST_QUERY',send_list,1800)
-	syslog.syslog("wikitrends datadebug:"+str(send_list))
 	c=Context({'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':'WikiTrends.Info - Trending','PageDesc':'Today\'s hottest articles','expiretime':expiretime,'tw_timeline':tw_timeline})
 	rendered=t.render(c)
 	return HttpResponse(rendered)	
@@ -426,7 +425,6 @@ def category_trending(request):
 		rec={'title':p['title'],'place':p['place'],'Hits':p['Hits'],'linktitle':p['linktitle'],'id':p['id']}
 		send_list.append(rec)
 	mc.set('CATEGORY_TRENDING_LIST_QUERY',send_list,1800)
-	syslog.syslog("wikitrends datadebug:"+str(send_list))
 	c=Context({'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':'WikiTrends.Info - Trending Categories','PageDesc':'Today\'s hottest categories','expiretime':expiretime,'tw_timeline':tw_timeline})
 	rendered=t.render(c)
 	return HttpResponse(rendered)	
@@ -444,7 +442,6 @@ def file_trending(request):
 		rec={'title':p['title'],'place':p['place'],'Hits':p['Hits'],'linktitle':p['linktitle'],'id':p['id']}
 		send_list.append(rec)
 	mc.set('FILE_TRENDING_LIST_QUERY',send_list,1800)
-	syslog.syslog("wikitrends datadebug:"+str(send_list))
 	c=Context({'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':'WikiTrends.Info - Trending Categories','PageDesc':'Today\'s hottest categories','expiretime':expiretime,'tw_timeline':tw_timeline})
 	rendered=t.render(c)
 	return HttpResponse(rendered)	
