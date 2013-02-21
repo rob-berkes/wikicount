@@ -311,7 +311,8 @@ def debug(request):
 def infoview(request,id):
 	DAY, MONTH, YEAR, HOUR,expiretime,MONTHNAME = fnReturnTimes()
 
-        QUERY={'id':id}
+        QUERY={'id':str(id)}
+	print QUERY
 	LTQUERY={'id':id,'place':{'$lt':50001}}
 	LT5KQ={'id':id,'place':{'$lt':5001}}
 	LT500Q={'id':id,'place':{'$lt':501}}
@@ -341,6 +342,10 @@ def infoview(request,id):
 	if send_list==None:
 		send_list=[]
 		FINDQ=db['tophits'+str(YEAR)+MONTHNAME].find(QUERY).sort([('y',1),('m',1),('d',1)])
+		DFINDQ=db.tophits.find(QUERY).sort([('y',1),('m',1),('d',1)])
+		for result in DFINDQ:
+			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
+			send_list.append(rec)
 		for result in FINDQ:
 			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
 			send_list.append(rec)
@@ -348,6 +353,10 @@ def infoview(request,id):
 	if info_lt50k_list==None:
 		info_lt50k_list=[]
         	LT50KQ=db['tophits'+str(YEAR)+MONTHNAME].find(LTQUERY)
+		D50KFINDQ=db.tophits.find(LTQUERY).sort([('y',1),('m',1),('d',1)])
+		for result in D50KFINDQ:
+			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
+			send_list.append(rec)
 		for result in LT50KQ:
 			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
 			info_lt50k_list.append(rec)
@@ -355,6 +364,10 @@ def infoview(request,id):
 	if info_lt500_list==None:
 		info_lt500_list=[]
         	LT500Q=db['tophits'+str(YEAR)+MONTHNAME].find(LT500Q)
+		D500FINDQ=db.tophits.find(LT500Q).sort([('y',1),('m',1),('d',1)])
+		for result in D500FINDQ:
+			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
+			send_list.append(rec)
 		for result in LT500Q:
 			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
 			info_lt500_list.append(rec)
@@ -362,6 +375,10 @@ def infoview(request,id):
 	if info_lt5k_list==None:
 		info_lt5k_list=[]
         	LT5KQ=db['tophits'+str(YEAR)+MONTHNAME].find(LT5KQ)
+		D5KINDQ=db.tophits.find(LT5KQ).sort([('y',1),('m',1),('d',1)])
+		for result in D5KFINDQ:
+			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
+			send_list.append(rec)
 		for result in LT5KQ:
 			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
 			info_lt5k_list.append(rec)
@@ -369,6 +386,10 @@ def infoview(request,id):
 	if info_lt50_list==None:
 		info_lt50_list=[]
         	LT50Q=db['tophits'+str(YEAR)+MONTHNAME].find(LT50Q)
+		D50FINDQ=db.tophits.find(LT50Q).sort([('y',1),('m',1),('d',1)])
+		for result in D50FINDQ:
+			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
+			send_list.append(rec)
 		for result in LT50Q:
 			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
 			info_lt50_list.append(rec)
