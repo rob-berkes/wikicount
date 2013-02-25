@@ -7,6 +7,7 @@ from pymongo import Connection
 from datetime import date
 from datetime import time
 import datetime
+import subprocess
 #conn=Connection('10.245.145.84')
 conn=Connection('10.115.126.7')
 db=conn.wc
@@ -53,7 +54,26 @@ def FormatName(title):
         utitle=urllib2.unquote(t_title)
         return title, utitle
 
+def returnHourString(hour):
+	HOUR='%02d' % (hour,)
+	return HOUR
+def GenHourlyGraph(id):
+	RESULT1=db.hitshourly.find_one({"_id":str(id)})
+	OFILE=open('output.log','w')
+	try:
+		for i in range(0,24):
+			HOUR=returnHourString(i)	
+			OFILE.write(str(HOUR)+' '+str(RESULT1[HOUR])+'\n')
+	except KeyError:
+		pass
+	OFILE.close()
+	subprocess.call(["gnuplot","gnuplot.plot"])
+	OUTFILENAME='/tmp/django/wikicount/static/images/'+str(id)+'.png'
+	SFILE='/tmp/django/wikicount/introduction.png'
+	subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
+	return
 def GenInfoPage(id):
+	GenHourlyGraph(id)
 	MONTHNAME=datetime.datetime.now().strftime("%B")
 	thCN='tophits'+str(YEAR)+MONTHNAME
 	QUERY={'id':id}
@@ -233,6 +253,7 @@ send_list=[]
 THREEHOUR_LIST_QUERY=db.threehour.find().sort('place',1)
 for p in THREEHOUR_LIST_QUERY:
 	rec={'title':p['title'],'place':p['place'],'Avg':p['rollavg'],'linktitle':p['title'],'id':p['id']}
+	GenInfoPage(p['id'])
         send_list.append(rec)
 mc.set('THREEHOUR_LIST_QUERY',send_list,60*60) 
 
@@ -245,6 +266,7 @@ place=1
 HOURKEY="SEARCHHOUR_"+str(SEARCH_HOUR)
 for row in HOURQUERY:
     title,utitle=MapQuery_FindName(row['_id'])
+    GenInfoPage(row['_id'])
     rec={'place':place,'Hits':row[str(SEARCH_HOUR)],'title':utitle ,'id':str(row['_id']),'linktitle':title.encode('utf-8')}
     place+=1
     send_list.append(rec)
