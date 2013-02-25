@@ -403,7 +403,8 @@ def infoview(request,id):
 		title,utitle = MapQuery_FindImage(id)
 	t=get_template('InfoviewIndex.htm')
 	HOURGRAPHFILENAME='http://www.wikitrends.info/static/images/'+str(id)+'.png'
-	c=Context({'PageDesc':'Click above to go the Wikipedia page.','info_find_query':send_list,'latest_news_list':latest_news_list,'PageTitle':utitle,'expiretime':expiretime,'linktitle':title,'tw_timeline':tw_timeline,'hour_send_list':sorted(HOUR_RS.iteritems()),'info_lt50k_list':info_lt50k_list,'info_lt5k_list':info_lt5k_list,'info_lt500_list':info_lt500_list,'info_lt50_list':info_lt50_list,'HOURGRAPHFILENAME':HOURGRAPHFILENAME})
+	500GRAPHFILENAME='http://www.wikitrends.info/static/images/t500_'+str(id)+'.png'
+	c=Context({'PageDesc':'Click above to go the Wikipedia page.','info_find_query':send_list,'latest_news_list':latest_news_list,'PageTitle':utitle,'expiretime':expiretime,'linktitle':title,'tw_timeline':tw_timeline,'hour_send_list':sorted(HOUR_RS.iteritems()),'info_lt50k_list':info_lt50k_list,'info_lt5k_list':info_lt5k_list,'info_lt500_list':info_lt500_list,'info_lt50_list':info_lt50_list,'HOURGRAPHFILENAME':HOURGRAPHFILENAME,'500GRAPHFILENAME':500GRAPHFILENAME})
 	rendered=t.render(c)
 	return HttpResponse(rendered)
 

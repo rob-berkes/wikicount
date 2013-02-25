@@ -63,7 +63,10 @@ def GenHourlyGraph(id):
 	try:
 		for i in range(0,24):
 			HOUR=returnHourString(i)	
-			OFILE.write(str(HOUR)+' '+str(RESULT1[HOUR])+'\n')
+			try:
+				OFILE.write(str(HOUR)+' '+str(RESULT1[HOUR])+'\n')
+			except TypeError:
+				pass 
 	except KeyError:
 		pass
 	OFILE.close()
@@ -121,13 +124,21 @@ def GenInfoPage(id):
         	info_lt5k_list.append(rec)
 	
 	LT500=db[thCN].find(Q500)
+	OFILE500=open("/tmp/top500.log","w")
         for result in D500FINDQ:
 	        rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
+		OFILE500.write(str(rec['y'])+'/'+str(rec['m'])+'/'+str(rec['d'])+' '+str(rec['place'])+'\n')
         	info_lt500_list.append(rec)
         for result in LT500:
 	        rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
+		OFILE500.write(str(rec['y'])+'/'+str(rec['m'])+'/'+str(rec['d'])+' '+str(rec['place'])+'\n')
         	info_lt500_list.append(rec)
-	
+	OFILE500.close()	
+	subprocess.call(["gnuplot","gnuplot.500"])
+	OUTFILENAME='/tmp/django/wikicount/static/images/t500_'+str(id)+'.png'
+	SFILE='/tmp/top500.png'
+	subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
+
 	LT50=db[thCN].find(Q50)
         for result in D50FINDQ:
 	        rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
