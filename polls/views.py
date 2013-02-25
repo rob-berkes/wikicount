@@ -342,7 +342,7 @@ def infoview(request,id):
 	if send_list==None:
 		send_list=[]
 		FINDQ=db['tophits'+str(YEAR)+MONTHNAME].find(QUERY).sort([('y',1),('m',1),('d',1)])
-		DFINDQ=db.tophits.find(QUERY).sort([('y',1),('m',1),('d',1)])
+		DFINDQ=db.tophits.find(QUERY)
 		for result in DFINDQ:
 			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
 			send_list.append(rec)
@@ -353,7 +353,7 @@ def infoview(request,id):
 	if info_lt50k_list==None:
 		info_lt50k_list=[]
         	LT50KQ=db['tophits'+str(YEAR)+MONTHNAME].find(LTQUERY)
-		D50KFINDQ=db.tophits.find(LTQUERY).sort([('y',1),('m',1),('d',1)])
+		D50KFINDQ=db.tophits.find(LTQUERY)
 		for result in D50KFINDQ:
 			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
 			info_lt50k_list.append(rec)
@@ -363,34 +363,34 @@ def infoview(request,id):
 		mc.set(INFOVIEWLT_KEY,info_lt50k_list,60*60*24)
 	if info_lt500_list==None:
 		info_lt500_list=[]
-        	LT500Q=db['tophits'+str(YEAR)+MONTHNAME].find(LT500Q)
-		D500FINDQ=db.tophits.find(LT500Q).sort([('y',1),('m',1),('d',1)])
+        	resLT500Q=db['tophits'+str(YEAR)+MONTHNAME].find(LT500Q)
+		D500FINDQ=db.tophits.find(LT500Q)
 		for result in D500FINDQ:
 			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
 			info_lt500_list.append(rec)
-		for result in LT500Q:
+		for result in resLT500Q:
 			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
 			info_lt500_list.append(rec)
 		mc.set(INFOVIEWLT500_KEY,info_lt500_list,60*60*24)
 	if info_lt5k_list==None:
 		info_lt5k_list=[]
-        	LT5KQ=db['tophits'+str(YEAR)+MONTHNAME].find(LT5KQ)
-		D5KINDQ=db.tophits.find(LT5KQ).sort([('y',1),('m',1),('d',1)])
+        	resLT5KQ=db['tophits'+str(YEAR)+MONTHNAME].find(LT5KQ)
+		D5KFINDQ=db.tophits.find(LT5KQ)
 		for result in D5KFINDQ:
 			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
 			info_lt5k_list.append(rec)
-		for result in LT5KQ:
+		for result in resLT5KQ:
 			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
 			info_lt5k_list.append(rec)
 		mc.set(INFOVIEWLT5K_KEY,info_lt5k_list,60*60*24)
 	if info_lt50_list==None:
 		info_lt50_list=[]
-        	LT50Q=db['tophits'+str(YEAR)+MONTHNAME].find(LT50Q)
-		D50FINDQ=db.tophits.find(LT50Q).sort({'d',1})
+        	resLT50Q=db['tophits'+str(YEAR)+MONTHNAME].find(LT50Q)
+		D50FINDQ=db.tophits.find(LT50Q)
 		for result in D50FINDQ:
 			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
 			info_lt50_list.append(rec)
-		for result in LT50Q:
+		for result in resLT50Q:
 			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
 			info_lt50_list.append(rec)
 		mc.set(INFOVIEWLT50_KEY,info_lt50_list,60*60*24)

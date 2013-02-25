@@ -54,17 +54,19 @@ def FormatName(title):
         return title, utitle
 
 def GenInfoPage(id):
+	MONTHNAME=datetime.datetime.now().strftime("%B")
+	thCN='tophits'+str(YEAR)+MONTHNAME
 	QUERY={'id':id}
 	Q50K={'id':id,'place':{'$lt':50001}}
 	Q5K={'id':id,'place':{'$lt':5001}}
 	Q500={'id':id,'place':{'$lt':501}}
 	Q50={'id':id,'place':{'$lt':51}}
-	FINDQ=db[thCN].find(QUERY).sort([('y',1),('m',1),('d',1)])
+	FINDQ=db[thCN].find(QUERY)
 	DFINDQ=db.tophits.find(QUERY)
-	D50KFINDQ=db.tophits.find(Q50K).sort([('y',1),('m',1),('d',1)])
-	D5KFINDQ=db.tophits.find(Q5K).sort([('y',1),('m',1),('d',1)])
-	D500FINDQ=db.tophits.find(Q500).sort([('y',1),('m',1),('d',1)])
-	D50FINDQ=db.tophits.find(Q50).sort([('y',1),('m',1),('d',1)])
+	D50KFINDQ=db.tophits.find(Q50K)
+	D5KFINDQ=db.tophits.find(Q5K)
+	D500FINDQ=db.tophits.find(Q500)
+	D50FINDQ=db.tophits.find(Q50)
 	INFOVIEW_KEY='infoview_'+str(id)
 	INFOVIEWLT_KEY='infoviewlt_'+str(id)
 	INFOVIEWLT5K_KEY='infoviewlt5k_'+str(id)
@@ -81,28 +83,32 @@ def GenInfoPage(id):
         for result in FINDQ:
 	        rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
         	send_list.append(rec)
-	LT50KQ=db[thCN].find(Q50K).sort([('y',1),('m',1),('d',1)])
+	
+	LT50KQ=db[thCN].find(Q50K)
         for result in D50KFINDQ:
 	        rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
         	info_lt50k_list.append(rec)
         for result in LT50KQ:
 	        rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
         	info_lt50k_list.append(rec)
-	LT5KQ=db[thCN].find(Q5K).sort([('y',1),('m',1),('d',1)])
+	
+	LT5KQ=db[thCN].find(Q5K)
         for result in D5KFINDQ:
 	        rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
         	info_lt5k_list.append(rec)
         for result in LT5KQ:
 	        rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
         	info_lt5k_list.append(rec)
-	LT500=db[thCN].find(Q500).sort([('y',1),('m',1),('d',1)])
+	
+	LT500=db[thCN].find(Q500)
         for result in D500FINDQ:
 	        rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
         	info_lt500_list.append(rec)
         for result in LT500:
 	        rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
         	info_lt500_list.append(rec)
-	LT50=db[thCN].find(Q50).sort({'d':1})
+	
+	LT50=db[thCN].find(Q50)
         for result in D50FINDQ:
 	        rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
         	info_lt50_list.append(rec)
