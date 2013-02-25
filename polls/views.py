@@ -368,8 +368,8 @@ def infoview(request,id):
 		for result in D500FINDQ:
 			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
 			info_lt500_list.append(rec)
-		for result in resLT500Q:
-			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
+		for res in resLT500Q:
+			rec={'d':str(res['d']),'m':str(res['m']),'y':str(res['y']),'place':str(res['place'])}
 			info_lt500_list.append(rec)
 		mc.set(INFOVIEWLT500_KEY,info_lt500_list,60*60*24)
 	if info_lt5k_list==None:
@@ -403,8 +403,8 @@ def infoview(request,id):
 		title,utitle = MapQuery_FindImage(id)
 	t=get_template('InfoviewIndex.htm')
 	HOURGRAPHFILENAME='http://www.wikitrends.info/static/images/'+str(id)+'.png'
-	500GRAPHFILENAME='http://www.wikitrends.info/static/images/t500_'+str(id)+'.png'
-	c=Context({'PageDesc':'Click above to go the Wikipedia page.','info_find_query':send_list,'latest_news_list':latest_news_list,'PageTitle':utitle,'expiretime':expiretime,'linktitle':title,'tw_timeline':tw_timeline,'hour_send_list':sorted(HOUR_RS.iteritems()),'info_lt50k_list':info_lt50k_list,'info_lt5k_list':info_lt5k_list,'info_lt500_list':info_lt500_list,'info_lt50_list':info_lt50_list,'HOURGRAPHFILENAME':HOURGRAPHFILENAME,'500GRAPHFILENAME':500GRAPHFILENAME})
+	T500GRAPHFILENAME='http://www.wikitrends.info/static/images/t500_'+str(id)+'.png'
+	c=Context({'PageDesc':'Click above to go the Wikipedia page.','info_find_query':send_list,'latest_news_list':latest_news_list,'PageTitle':utitle,'expiretime':expiretime,'linktitle':title,'tw_timeline':tw_timeline,'hour_send_list':sorted(HOUR_RS.iteritems()),'info_lt50k_list':info_lt50k_list,'info_lt5k_list':info_lt5k_list,'info_lt500_list':info_lt500_list,'info_lt50_list':info_lt50_list,'HOURGRAPHFILENAME':HOURGRAPHFILENAME,'T500GRAPHFILENAME':T500GRAPHFILENAME})
 	rendered=t.render(c)
 	return HttpResponse(rendered)
 

@@ -2,8 +2,8 @@ set yrange[500:0]
 #set xrange["2012/12/1":"2013/3/1"]
 set xdata time
 set timefmt "%Y/%m/%d"
-set terminal png
-set output "/tmp/top500.png"
+set terminal png size 350,262
+set output "/tmp/top500.png" 
 set xtics format "%b %d"
 set xtics "2012/12/06", 1209600,"2013/03/01"
-plot "/tmp/top500.log" using 1:2 with lines
+plot "/tmp/top500.log" using 1:2 with linespoints
