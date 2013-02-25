@@ -114,15 +114,23 @@ def GenInfoPage(id):
         for result in LT50KQ:
 	        rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
         	info_lt50k_list.append(rec)
-	
+
+	OFILE5K=open("/tmp/t5k.log","w")	
 	LT5KQ=db[thCN].find(Q5K)
         for result in D5KFINDQ:
 	        rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
+		OFILE5K.write(str(rec['y'])+'/'+str(rec['m'])+'/'+str(rec['d'])+' '+str(rec['place'])+'\n')
         	info_lt5k_list.append(rec)
         for result in LT5KQ:
 	        rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
+		OFILE5K.write(str(rec['y'])+'/'+str(rec['m'])+'/'+str(rec['d'])+' '+str(rec['place'])+'\n')
         	info_lt5k_list.append(rec)
-	
+	OFILE5K.close()
+	subprocess.call(["gnuplot","gnuplot.5k"])
+	OUTFILENAME='/tmp/django/wikicount/static/images/t5k_'+str(id)+'.png'
+	SFILE='/tmp/t5k.png'
+	subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
+
 	LT500=db[thCN].find(Q500)
 	OFILE500=open("/tmp/top500.log","w")
         for result in D500FINDQ:
