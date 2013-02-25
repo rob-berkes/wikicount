@@ -84,28 +84,28 @@ def GenInfoPage(id):
 	LT50KQ=db[thCN].find(Q50K).sort([('y',1),('m',1),('d',1)])
         for result in D50KFINDQ:
 	        rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
-        	send_list.append(rec)
+        	info_lt50k_list.append(rec)
         for result in LT50KQ:
 	        rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
         	info_lt50k_list.append(rec)
 	LT5KQ=db[thCN].find(Q5K).sort([('y',1),('m',1),('d',1)])
         for result in D5KFINDQ:
 	        rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
-        	send_list.append(rec)
+        	info_lt5k_list.append(rec)
         for result in LT5KQ:
 	        rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
         	info_lt5k_list.append(rec)
 	LT500=db[thCN].find(Q500).sort([('y',1),('m',1),('d',1)])
         for result in D500FINDQ:
 	        rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
-        	send_list.append(rec)
+        	info_lt500_list.append(rec)
         for result in LT500:
 	        rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
         	info_lt500_list.append(rec)
-	LT50=db[thCN].find(Q50).sort([('y',1),('m',1),('d',1)])
+	LT50=db[thCN].find(Q50).sort({'d':1})
         for result in D50FINDQ:
 	        rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
-        	send_list.append(rec)
+        	info_lt50_list.append(rec)
         for result in LT50:
 	        rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
         	info_lt50_list.append(rec)

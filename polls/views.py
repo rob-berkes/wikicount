@@ -356,7 +356,7 @@ def infoview(request,id):
 		D50KFINDQ=db.tophits.find(LTQUERY).sort([('y',1),('m',1),('d',1)])
 		for result in D50KFINDQ:
 			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
-			send_list.append(rec)
+			info_lt50k_list.append(rec)
 		for result in LT50KQ:
 			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
 			info_lt50k_list.append(rec)
@@ -367,7 +367,7 @@ def infoview(request,id):
 		D500FINDQ=db.tophits.find(LT500Q).sort([('y',1),('m',1),('d',1)])
 		for result in D500FINDQ:
 			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
-			send_list.append(rec)
+			info_lt500_list.append(rec)
 		for result in LT500Q:
 			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
 			info_lt500_list.append(rec)
@@ -378,7 +378,7 @@ def infoview(request,id):
 		D5KINDQ=db.tophits.find(LT5KQ).sort([('y',1),('m',1),('d',1)])
 		for result in D5KFINDQ:
 			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
-			send_list.append(rec)
+			info_lt5k_list.append(rec)
 		for result in LT5KQ:
 			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
 			info_lt5k_list.append(rec)
@@ -386,10 +386,10 @@ def infoview(request,id):
 	if info_lt50_list==None:
 		info_lt50_list=[]
         	LT50Q=db['tophits'+str(YEAR)+MONTHNAME].find(LT50Q)
-		D50FINDQ=db.tophits.find(LT50Q).sort([('y',1),('m',1),('d',1)])
+		D50FINDQ=db.tophits.find(LT50Q).sort({'d',1})
 		for result in D50FINDQ:
 			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
-			send_list.append(rec)
+			info_lt50_list.append(rec)
 		for result in LT50Q:
 			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
 			info_lt50_list.append(rec)
@@ -463,7 +463,7 @@ def file_trending(request):
 		rec={'title':p['title'],'place':p['place'],'Hits':p['Hits'],'linktitle':p['linktitle'],'id':p['id']}
 		send_list.append(rec)
 	mc.set('FILE_TRENDING_LIST_QUERY',send_list,1800)
-	c=Context({'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':'WikiTrends.Info - Trending Categories','PageDesc':'Today\'s hottest categories','expiretime':expiretime,'tw_timeline':tw_timeline})
+	c=Context({'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':'WikiTrends.Info - Trending Files/Images','PageDesc':'The most popular image files of the day','expiretime':expiretime,'tw_timeline':tw_timeline})
 	rendered=t.render(c)
 	return HttpResponse(rendered)	
 
