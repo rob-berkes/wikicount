@@ -60,26 +60,7 @@ def FormatName(title):
 def returnHourString(hour):
 	HOUR='%02d' % (hour,)
 	return HOUR
-def GenHourlyGraph(id):
-	RESULT1=db.hitshourly.find_one({"_id":str(id)})
-	OFILE=open('output.log','w')
-	try:
-		for i in range(0,24):
-			HOUR=returnHourString(i)	
-			try:
-				OFILE.write(str(HOUR)+' '+str(RESULT1[HOUR])+'\n')
-			except TypeError:
-				pass 
-	except KeyError:
-		pass
-	OFILE.close()
-	subprocess.call(["gnuplot","gnuplot.plot"])
-	OUTFILENAME='/tmp/django/wikicount/static/images/hourly/'+str(id)+'.png'
-	SFILE='/tmp/django/wikicount/introduction.png'
-	subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
-	return
 def GenInfoPage(id):
-	GenHourlyGraph(id)
 	MONTHNAME=datetime.datetime.now().strftime("%B")
 	thCN='tophits'+str(YEAR)+MONTHNAME
 	QUERY={'id':id}
@@ -104,109 +85,44 @@ def GenInfoPage(id):
 	info_lt500_list=[]
 	info_lt50_list=[]
         
-	OFILE250K=open("/tmp/t250k.log","w")	
 	for result in DFINDQ:
 	        rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
-		OFILE250K.write(str(rec['y'])+'/'+str(rec['m'])+'/'+str(rec['d'])+' '+str(rec['place'])+'\n')
         	send_list.append(rec)
         for result in FINDQ:
 	        rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
-		OFILE250K.write(str(rec['y'])+'/'+str(rec['m'])+'/'+str(rec['d'])+' '+str(rec['place'])+'\n')
         	send_list.append(rec)
-	OFILE250K.close()
-	OUTFILENAME='/tmp/django/wikicount/static/images/t250k/'+str(id)+'.png'
-	if os.path.lexists(OUTFILENAME) and random.randint(0,20)==10:
-		subprocess.call(["gnuplot","gnuplot.250k"])
-		SFILE='/tmp/t250k.png'
-		subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
-	elif not os.path.lexists(OUTFILENAME):
-		subprocess.call(["gnuplot","gnuplot.250k"])
-		SFILE='/tmp/t250k.png'
-		subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
 			
-	OFILE50K=open("/tmp/t50k.log","w")	
 	LT50KQ=db[thCN].find(Q50K)
         for result in D50KFINDQ:
 	        rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
-		OFILE50K.write(str(rec['y'])+'/'+str(rec['m'])+'/'+str(rec['d'])+' '+str(rec['place'])+'\n')
         	info_lt50k_list.append(rec)
         for result in LT50KQ:
 	        rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
-		OFILE50K.write(str(rec['y'])+'/'+str(rec['m'])+'/'+str(rec['d'])+' '+str(rec['place'])+'\n')
         	info_lt50k_list.append(rec)
-	OFILE50K.close()
-	OUTFILENAME='/tmp/django/wikicount/static/images/t50k/'+str(id)+'.png'
-	if os.path.lexists(OUTFILENAME) and random.randint(0,20)==10:
-		subprocess.call(["gnuplot","gnuplot.50k"])
-		SFILE='/tmp/t50k.png'
-		subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
-	elif not os.path.lexists(OUTFILENAME):
-		subprocess.call(["gnuplot","gnuplot.50k"])
-		SFILE='/tmp/t50k.png'
-		subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
 
-	OFILE5K=open("/tmp/t5k.log","w")	
 	LT5KQ=db[thCN].find(Q5K)
         for result in D5KFINDQ:
 	        rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
-		OFILE5K.write(str(rec['y'])+'/'+str(rec['m'])+'/'+str(rec['d'])+' '+str(rec['place'])+'\n')
         	info_lt5k_list.append(rec)
         for result in LT5KQ:
 	        rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
-		OFILE5K.write(str(rec['y'])+'/'+str(rec['m'])+'/'+str(rec['d'])+' '+str(rec['place'])+'\n')
         	info_lt5k_list.append(rec)
-	OFILE5K.close()
-	OUTFILENAME='/tmp/django/wikicount/static/images/t5k/'+str(id)+'.png'
-	if os.path.lexists(OUTFILENAME) and random.randint(0,20)==10:
-		subprocess.call(["gnuplot","gnuplot.5k"])
-		SFILE='/tmp/t5k.png'
-		subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
-	elif not os.path.lexists(OUTFILENAME):
-		subprocess.call(["gnuplot","gnuplot.5k"])
-		SFILE='/tmp/t5k.png'
-		subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
 
 	LT500=db[thCN].find(Q500)
-	OFILE500=open("/tmp/top500.log","w")
         for result in D500FINDQ:
 	        rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
-		OFILE500.write(str(rec['y'])+'/'+str(rec['m'])+'/'+str(rec['d'])+' '+str(rec['place'])+'\n')
         	info_lt500_list.append(rec)
         for result in LT500:
 	        rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
-		OFILE500.write(str(rec['y'])+'/'+str(rec['m'])+'/'+str(rec['d'])+' '+str(rec['place'])+'\n')
         	info_lt500_list.append(rec)
-	OFILE500.close()	
-	OUTFILENAME='/tmp/django/wikicount/static/images/t500/'+str(id)+'.png'
-	if os.path.lexists(OUTFILENAME) and random.randint(0,20)==10:
-		subprocess.call(["gnuplot","gnuplot.500"])
-		SFILE='/tmp/top500.png'
-		subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
-	elif not os.path.lexists(OUTFILENAME):
-		subprocess.call(["gnuplot","gnuplot.500"])
-		SFILE='/tmp/top500.png'
-		subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
 
 	LT50=db[thCN].find(Q50)
-	OFILE50=open("/tmp/top50.log","w")
         for result in D50FINDQ:
 	        rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
-		OFILE50.write(str(rec['y'])+'/'+str(rec['m'])+'/'+str(rec['d'])+' '+str(rec['place'])+'\n')
         	info_lt50_list.append(rec)
         for result in LT50:
 	        rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
-		OFILE50.write(str(rec['y'])+'/'+str(rec['m'])+'/'+str(rec['d'])+' '+str(rec['place'])+'\n')
         	info_lt50_list.append(rec)
-	OFILE50.close()	
-	OUTFILENAME='/tmp/django/wikicount/static/images/t50/'+str(id)+'.png'
-	if os.path.lexists(OUTFILENAME) and random.randint(0,20)==10:
-		subprocess.call(["gnuplot","gnuplot.50"])
-		SFILE='/tmp/top50.png'
-		subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
-	elif not os.path.lexists(OUTFILENAME):
-		subprocess.call(["gnuplot","gnuplot.50"])
-		SFILE='/tmp/top50.png'
-		subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
 
 
         mc.set(INFOVIEW_KEY,send_list,60*60*12)
@@ -257,6 +173,17 @@ for p in TRENDING_LIST_QUERY:
         send_list.append(rec)
 	GenInfoPage(p['id'])
 mc.set('TRENDING_LIST_QUERY',send_list,1800)
+
+print 'cold list query'
+send_list=[]    
+COLD_LIST_QUERY=db.prodcold.find().sort('Hits',1).limit(100)
+syslog.syslog('memcache-cold: '+str(QUERY)+' count: '+str(COLD_LIST_QUERY.count()))
+print COLD_LIST_QUERY.count()
+for p in COLD_LIST_QUERY:
+	rec={'title':p['title'],'place':p['place'],'Hits':p['Hits']%1000,'linktitle':p['linktitle'],'id':p['id']}
+        send_list.append(rec)
+	GenInfoPage(p['id'])
+mc.set('COLD_LIST_QUERY',send_list,1800)
 
 
 print 'random query...'
@@ -330,9 +257,9 @@ mc.set('mcdpDaysList'+str(MONTH)+str(YEAR),send_list,60*60*24)
 
 print 'lastly, 3hr rolling average'
 send_list=[]
-THREEHOUR_LIST_QUERY=db.threehour.find().sort('place',1)
-syslog.syslog('memcache-threehour:  count: '+str(THREEHOUR_LIST_QUERY.count()))
-for p in THREEHOUR_LIST_QUERY:
+THREEHOUR_QUERY=db.threehour.find().sort('place',1)
+syslog.syslog('memcache-threehour:  count: '+str(THREEHOUR_QUERY.count()))
+for p in THREEHOUR_QUERY:
 	rec={'title':p['title'],'place':p['place'],'Avg':p['rollavg'],'linktitle':p['title'],'id':p['id']}
 	GenInfoPage(p['id'])
         send_list.append(rec)

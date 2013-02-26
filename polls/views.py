@@ -512,13 +512,11 @@ def top3hr(request):
 	DAY, MONTH, YEAR, HOUR,expiretime,MONTHNAME = fnReturnTimes()
 	mcHour=mc.get('trendingHour')
 	t=get_template('RedTieIndex.html')
-	FQUERY={'d':int(DAY),'m':int(MONTH),'y':int(YEAR)}
-	print FQUERY
 	LATEST_NEWS_LIST=latestnews()
 	title=''
 	send_list=mc.get('THREEHOUR_LIST_QUERY')
 	tw_timeline=GetTimeline() 
-	if len(send_list)>0:
+	if len(send_list) > 0:
 		pass
 	else:	
 		send_list=[]	
@@ -536,7 +534,7 @@ def cold(request):
 	DAY, MONTH, YEAR, HOUR,expiretime,MONTHNAME = fnReturnTimes()
 	t=get_template('RedTieIndex.html')
 	FQUERY={'d':int(DAY),'m':int(MONTH),'y':int(YEAR)}
-	COLD_LIST_QUERY=db.prodcold.find().sort('delta',1).limit(50)
+	COLD_LIST_QUERY=mc.get('COLD_LIST_QUERY')
 	LATEST_NEWS_LIST=latestnews()
 	tw_timeline=GetTimeline() 
  	send_list=[]
