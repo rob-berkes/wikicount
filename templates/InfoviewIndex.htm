@@ -49,16 +49,22 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 					<div class="graypanel" style="padding:12px;" align="justify">
 					<div align="center">Hits by Hour</div>
 					{% include 'hour_graph.html'%}
+					{% if T50GRAPHFILESIZE > 0 %}
 					<div align="center">Days in the top 50</div>
-					{% include 'info_lt50.html' %}
+					{% include '50_graph.html' %}
+					{% endif %}
+					{% if T500GRAPHFILESIZE > 0 %}
 					<div align="center">Days in the top 500</div>
 					{% include '500_graph.html' %}
+					{% endif %}
+					{% if T5KGRAPHFILESIZE > 0 %}
 					<div align="center">Days in the top 5000</div>
 					{% include '5k_graph.html' %}
+					{% endif %}
 					<div align="center">Days in the top 50,000</div>
-					{% include 'info_lt50k.html' %}
+					{% include '50k_graph.html' %}
 					<div align="center">Days in the top 250,000</div>
-					{% include 'info_list.html' %}	
+					{% include '250k_graph.html' %}
 					</div>	
 				</div>
 			</div>

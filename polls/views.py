@@ -15,6 +15,7 @@ from time import mktime
 import time
 import tweepy 
 import syslog
+import os
 
 conn=Connection('10.115.126.7')
 db=conn.wc
@@ -402,10 +403,25 @@ def infoview(request,id):
 	if title=='':
 		title,utitle = MapQuery_FindImage(id)
 	t=get_template('InfoviewIndex.htm')
-	HOURGRAPHFILENAME='http://www.wikitrends.info/static/images/'+str(id)+'.png'
-	T500GRAPHFILENAME='http://www.wikitrends.info/static/images/t500_'+str(id)+'.png'
-	T5KGRAPHFILENAME='http://www.wikitrends.info/static/images/t5k_'+str(id)+'.png'
-	c=Context({'PageDesc':'Click above to go the Wikipedia page.','info_find_query':send_list,'latest_news_list':latest_news_list,'PageTitle':utitle,'expiretime':expiretime,'linktitle':title,'tw_timeline':tw_timeline,'hour_send_list':sorted(HOUR_RS.iteritems()),'info_lt50k_list':info_lt50k_list,'info_lt5k_list':info_lt5k_list,'info_lt500_list':info_lt500_list,'info_lt50_list':info_lt50_list,'HOURGRAPHFILENAME':HOURGRAPHFILENAME,'T500GRAPHFILENAME':T500GRAPHFILENAME,'T5KGRAPHFILENAME':T5KGRAPHFILENAME})
+	HOURGRAPHFILENAME='http://www.wikitrends.info/static/images/hourly/'+str(id)+'.png'
+	T500GRAPHFILENAME='http://www.wikitrends.info/static/images/t500/'+str(id)+'.png'
+	T5KGRAPHFILENAME='http://www.wikitrends.info/static/images/t5k/'+str(id)+'.png'
+	T50KGRAPHFILENAME='http://www.wikitrends.info/static/images/t50k/'+str(id)+'.png'
+	T250KGRAPHFILENAME='http://www.wikitrends.info/static/images/t250k/'+str(id)+'.png'
+	T50GRAPHFILENAME='http://www.wikitrends.info/static/images/t50/'+str(id)+'.png'
+	try:
+		T50GRAPHFILESIZE=os.path.getsize(T50GRAPHFILENAME)
+	except OSError:
+		T50GRAPHFILESIZE=0
+	try:
+		T5KGRAPHFILESIZE=os.path.getsize(T5KGRAPHFILENAME)
+	except OSError:
+		T5KGRAPHFILESIZE=0
+	try:
+		T500GRAPHFILESIZE=os.path.getsize(T500GRAPHFILENAME)
+	except OSError:
+		T500GRAPHFILESIZE=0
+	c=Context({'PageDesc':'Click above to go the Wikipedia page.','info_find_query':send_list,'latest_news_list':latest_news_list,'PageTitle':utitle,'expiretime':expiretime,'linktitle':title,'tw_timeline':tw_timeline,'hour_send_list':sorted(HOUR_RS.iteritems()),'info_lt50k_list':info_lt50k_list,'info_lt5k_list':info_lt5k_list,'info_lt500_list':info_lt500_list,'info_lt50_list':info_lt50_list,'HOURGRAPHFILENAME':HOURGRAPHFILENAME,'T500GRAPHFILENAME':T500GRAPHFILENAME,'T5KGRAPHFILENAME':T5KGRAPHFILENAME,'T50KGRAPHFILENAME':T50KGRAPHFILENAME,'T250KGRAPHFILENAME':T250KGRAPHFILENAME,'T50GRAPHFILENAME':T50GRAPHFILENAME,'T50GRAPHFILESIZE':T50GRAPHFILESIZE,'T5KGRAPHFILESIZE':T5KGRAPHFILESIZE,'T500GRAPHFILESIZE':T500GRAPHFILESIZE})
 	rendered=t.render(c)
 	return HttpResponse(rendered)
 
@@ -420,7 +436,11 @@ def trending(request):
 	title=''
 	send_list=mc.get('TRENDING_LIST_QUERY')
 	tw_timeline=GetTimeline() 
-	if len(send_list)>0:
+	try:
+		LENGTH_SEND=len(send_list)
+	except TypeError:
+		LENGTH_SEND=0
+	if LENGTH_SEND > 0:
 		pass
 	else:	
 		send_list=[]	
