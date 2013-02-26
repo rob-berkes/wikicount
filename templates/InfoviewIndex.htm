@@ -61,8 +61,10 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 					<div align="center">Days in the top 5000</div>
 					{% include '5k_graph.html' %}
 					{% endif %}
+					{% if T50KGRAPHFILESIZE > 0 %}
 					<div align="center">Days in the top 50,000</div>
 					{% include '50k_graph.html' %}
+					{% endif %}
 					<div align="center">Days in the top 250,000</div>
 					{% include '250k_graph.html' %}
 					</div>	
