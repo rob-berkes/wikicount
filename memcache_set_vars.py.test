@@ -189,21 +189,13 @@ def GenInfoPage(id):
 
 
 
-print 'now trending list query....'
 send_list=[]   
 DAY=date.today().day
 MONTH=date.today().month
 YEAR=date.today().year
 #DAY-=1
-print DAY,MONTH,YEAR 
-TRENDING_LIST_QUERY=db.prodtrend.find({u'd':DAY,u'm':MONTH,u'y':YEAR}).sort('Hits',-1).limit(150)
-#TRENDING_LIST_QUERY=db.prodtrend.find().sort('Hits',-1).limit(150)
-print TRENDING_LIST_QUERY.count()
-for p in TRENDING_LIST_QUERY:
-	print p
-	rec={'title':p['title'],'place':p['place'],'Hits':p['Hits'],'linktitle':p['linktitle'],'id':p['id']}
-        send_list.append(rec)
-	GenInfoPage(p['id'])
-mc.set('TRENDING_LIST_QUERY',send_list,1800)
+FILEPTR=open('/tmp/t500.png','r')
+VAR=FILEPTR.read()
+mc.set('IMAGE1',VAR,1800)
 
 

@@ -11,7 +11,7 @@
 <body>
 	{% include 'analytics.html' %}
 	<div id="page" align="center">
-		<div id="content" style="width:800px">
+		<div id="content" style="width:960px">
 			<div id="logo">
 				<div style="margin-top:70px" class="whitetitle">Wikitrends.Info</div>
 			</div>
@@ -41,32 +41,52 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 			<div id="submenu">
 					{% include 'menu_list.html' %}
 			</div>
-			<div id="contenttext">
+			<div id="contenttext2">
 				<div style="padding:10px">
 					<span class="titletext">{% include 'Infotitletext.html' %}</span>
 					<span class="bodytext">{% include 'titledesc.html' %}</span>
 				</div>
 					<div class="graypanel" style="padding:12px;" align="justify">
+					<table>
+					<tr>
+					<td>
 					<div align="center">Hits by Hour</div>
 					{% include 'hour_graph.html'%}
+					</td>
+					<td>
 					{% if T50GRAPHFILESIZE > 0 %}
 					<div align="center">Days in the top 50</div>
 					{% include '50_graph.html' %}
 					{% endif %}
+					</td>
+					</tr>
+					<tr>
+					<td>
 					{% if T500GRAPHFILESIZE > 0 %}
 					<div align="center">Days in the top 500</div>
 					{% include '500_graph.html' %}
 					{% endif %}
+					</td>
+					<td>
 					{% if T5KGRAPHFILESIZE > 0 %}
 					<div align="center">Days in the top 5000</div>
 					{% include '5k_graph.html' %}
 					{% endif %}
+					</td>
+					</tr>
+					<tr>
+					<td>
 					{% if T50KGRAPHFILESIZE > 0 %}
 					<div align="center">Days in the top 50,000</div>
 					{% include '50k_graph.html' %}
 					{% endif %}
+					</td>
+					<td>
 					<div align="center">Days in the top 250,000</div>
 					{% include '250k_graph.html' %}
+					</td>
+					</tr>
+					</table>
 					</div>	
 				</div>
 			</div>

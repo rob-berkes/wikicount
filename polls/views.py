@@ -15,6 +15,7 @@ from time import mktime
 import time
 import tweepy 
 import syslog
+import subprocess
 import os
 
 conn=Connection('10.115.126.7')
@@ -31,10 +32,14 @@ mc=memcache.Client(['127.0.0.1:11211'],debug=0)
 def ReturnHexDigest(article):
 	hd=hashlib.sha1(article).hexdigest()
 	return hd
+
+
 def latestnews():
 	ARTICLELIMIT=5
 	latest_news_list = db.news.find().sort('date',-1).limit(ARTICLELIMIT)
 	return latest_news_list
+
+
 def MapQuery_FindName(id):
 	QUERY={'id':id}
         MAPQ=db.hitsdaily.find({'_id':id})
@@ -46,9 +51,9 @@ def MapQuery_FindName(id):
                         s_title=string.replace(title,'_',' ')
                         t_title=s_title.encode('utf-8')
                         utitle=urllib2.unquote(t_title)
-
-
 	return title, utitle
+
+
 def MapQuery_FindCategory(id):
 	QUERY={'id':id}
         MAPQ=db.category.find({'_id':id})
@@ -60,9 +65,9 @@ def MapQuery_FindCategory(id):
                         s_title=string.replace(title,'_',' ')
                         t_title=s_title.encode('utf-8')
                         utitle=urllib2.unquote(t_title)
-
-
 	return title, utitle
+
+
 def MapQuery_FindImage(id):
 	QUERY={'id':id}
         MAPQ=db.image.find({'_id':id})
@@ -85,16 +90,15 @@ def FormatName(title):
 
 def GetTimeline():
 	status=api.user_timeline('wikitrendsinfo',count=5)
-
-
 	return status
+
 def Query_NewsFind(FINDQUERY,notedate,notes):
 	findresults=db.news.find(FINDQUERY)
 	for a in findresults:
 		notedate=a['date']
 		notes=a['text']
-
 	return
+
 def fnReturnTimes():
         TODAY=date.today()
         YEAR=TODAY.year
@@ -114,6 +118,7 @@ def fnReturnTimes():
 	HOUR=time.strftime('%H')
 	MONTHNAME=datetime.datetime.now().strftime("%B")
 	return DAY, MONTH, YEAR,HOUR, expiretime,MONTHNAME
+
 def fnReturnStringDate(DAY,MONTH,YEAR):
 	DAY='%02d' % (DAY,)	
 	MONTH='%02d' % (MONTH,)	
@@ -126,9 +131,62 @@ def GenArchiveList():
 	archive_list.append(dec12)
 	return archive_list
 	
+def returnHourString(hour):
+        HOUR='%02d' % (hour,)
+        return HOUR
 
+def GenHourlyGraph(id):
+        RESULT1=db.hitshourly.find_one({"_id":str(id)})
+        OFILE=open('output.log','w')
+        try:
+                for i in range(0,24):
+                        HOUR=returnHourString(i)
+                        try:
+                                OFILE.write(str(HOUR)+' '+str(RESULT1[HOUR])+'\n')
+                        except TypeError:
+                                pass
+        except KeyError:
+                pass
+        OFILE.close()
+        subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.plot"])
+        OUTFILENAME='/tmp/django/wikicount/static/images/hourly/'+str(id)+'.png'
+        SFILE='/tmp/django/wikicount/introduction.png'
+        subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
+        return
+def fnDrawGraph(type,id):
+	if type==250:
+		OUTFILENAME='/tmp/django/wikicount/static/images/t250k/'+str(id)+'.png' 
+		if not os.path.lexists(OUTFILENAME):
+	                subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.250k"])
+	                SFILE='/tmp/t250k.png'
+	                subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
+	elif type==50000:
+		OUTFILENAME='/tmp/django/wikicount/static/images/t50k/'+str(id)+'.png' 
+		if not os.path.lexists(OUTFILENAME):
+	                subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.50k"])
+	                SFILE='/tmp/t50k.png'
+	                subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
+	elif type==5000:
+		OUTFILENAME='/tmp/django/wikicount/static/images/t5k/'+str(id)+'.png' 
+		if not os.path.lexists(OUTFILENAME):
+	                subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.5k"])
+	                SFILE='/tmp/t5k.png'
+	                subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
+	elif type==500:
+		OUTFILENAME='/tmp/django/wikicount/static/images/t500/'+str(id)+'.png' 
+		if not os.path.lexists(OUTFILENAME):
+	                subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.500"])
+	                SFILE='/tmp/t500.png'
+	                subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
+	elif type==50:
+		OUTFILENAME='/tmp/django/wikicount/static/images/t50/'+str(id)+'.png' 
+		if not os.path.lexists(OUTFILENAME):
+	                subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.50"])
+	                SFILE='/tmp/t50.png'
+	                subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
+	return
 def adjustHourforLastHour(HOUR):
-	SEARCH_HOUR=int(HOUR)+4
+#	SEARCH_HOUR=int(HOUR)+4
         if SEARCH_HOUR == 27:
                 SEARCH_HOUR = 3  
         elif SEARCH_HOUR == 26:
@@ -205,7 +263,7 @@ def searchResults(request):
 		stitle=string.replace(etitle,' ','_')
 	else:
 		message="You submitted an empty query"
-	DAY,MONTH,YEAR,HOUR,expiretime=fnReturnTimes()
+	DAY,MONTH,YEAR,HOUR,expiretime,MONTHNAME=fnReturnTimes()
 	hd=ReturnHexDigest(stitle)
 	title,utitle=MapQuery_FindName(hd)
 	t=get_template('IndexSearchResults.html')
@@ -214,7 +272,7 @@ def searchResults(request):
 	send_list=[]
 	infoview(request,hd)
 	for item in MAPQUERY:
-		rec={'id':str(item['_id']),'title':str(item['title']),'linktitle':utitle,'Hits':item['Hits']}
+		rec={'id':str(item['_id']),'title':str(item['title']),'linktitle':utitle,'Hits':0}
 		syslog.syslog("wikitrends-searchResults-Search for "+str(rec))
 		send_list.append(rec)
 	c=Context({'news_list':send_list,'expiretime':expiretime})
@@ -246,10 +304,9 @@ def blog(request):
 	return HttpResponse(rendered)
 
 
-def dailypage(request,YEAR=2013,MONTH=1):
+def dailypage(request,YEAR=2013,MONTH=2):
 	DAY,MONTH,YEAR,HOUR,expiretime,MONTHNAME=fnReturnTimes()
 	syslog.syslog('wc-dailypage MONTH='+str(MONTH))
-	junk1,junk2,junk3,junk4,expiretime=fnReturnTimes()
 	t=get_template('IndexDaily.html')
 	send_list=mc.get('mcdpDaysList'+str(MONTH)+str(YEAR))
 	archive_list=GenArchiveList()
@@ -309,7 +366,10 @@ def debug(request):
 	return HttpResponse(rendered)
 
 
+
+
 def infoview(request,id):
+	GenHourlyGraph(id)
 	DAY, MONTH, YEAR, HOUR,expiretime,MONTHNAME = fnReturnTimes()
 
         QUERY={'id':str(id)}
@@ -337,65 +397,87 @@ def infoview(request,id):
 	info_lt50k_list=mc.get(INFOVIEWLT_KEY)
 	info_lt5k_list=mc.get(INFOVIEWLT5K_KEY)	
 	info_lt500_list=mc.get(INFOVIEWLT500_KEY)	
-	info_lt50_list=mc.get(INFOVIEWLT50_KEY)	
-	if send_list==None:
-		send_list=[]
+	info_lt50_list=mc.get(INFOVIEWLT50_KEY)
+	OFILE250K=open("/tmp/t250k.log","w")	
 	if send_list==None:
 		send_list=[]
 		FINDQ=db['tophits'+str(YEAR)+MONTHNAME].find(QUERY).sort([('y',1),('m',1),('d',1)])
 		DFINDQ=db.tophits.find(QUERY)
 		for result in DFINDQ:
 			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
+			OFILE250K.write(str(result['y'])+'/'+str(result['m'])+'/'+str(result['d'])+' '+str(result['place'])+'\n')
 			send_list.append(rec)
 		for result in FINDQ:
 			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
+			OFILE250K.write(str(result['y'])+'/'+str(result['m'])+'/'+str(result['d'])+' '+str(result['place'])+'\n')
 			send_list.append(rec)
 		mc.set(INFOVIEW_KEY,send_list,60*60*24)
+	OFILE250K.close()
+	fnDrawGraph(250,id)
 	if info_lt50k_list==None:
 		info_lt50k_list=[]
         	LT50KQ=db['tophits'+str(YEAR)+MONTHNAME].find(LTQUERY)
 		D50KFINDQ=db.tophits.find(LTQUERY)
+		OFILE50K=open("/tmp/t50k.log","w")
 		for result in D50KFINDQ:
 			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
+			OFILE50K.write(str(rec['y'])+'/'+str(rec['m'])+'/'+str(rec['d'])+' '+str(rec['place'])+'\n')
 			info_lt50k_list.append(rec)
 		for result in LT50KQ:
 			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
+			OFILE50K.write(str(rec['y'])+'/'+str(rec['m'])+'/'+str(rec['d'])+' '+str(rec['place'])+'\n')
 			info_lt50k_list.append(rec)
 		mc.set(INFOVIEWLT_KEY,info_lt50k_list,60*60*24)
+		OFILE50K.close()
+	fnDrawGraph(50000,id)
 	if info_lt500_list==None:
 		info_lt500_list=[]
         	resLT500Q=db['tophits'+str(YEAR)+MONTHNAME].find(LT500Q)
 		D500FINDQ=db.tophits.find(LT500Q)
+		OFILE500=open("/tmp/t500.log","w")
 		for result in D500FINDQ:
 			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
+			OFILE500.write(str(result['y'])+'/'+str(result['m'])+'/'+str(result['d'])+' '+str(result['place'])+'\n')
 			info_lt500_list.append(rec)
 		for res in resLT500Q:
 			rec={'d':str(res['d']),'m':str(res['m']),'y':str(res['y']),'place':str(res['place'])}
+			OFILE500.write(str(res['y'])+'/'+str(res['m'])+'/'+str(res['d'])+' '+str(res['place'])+'\n')
 			info_lt500_list.append(rec)
+		OFILE500.close()
 		mc.set(INFOVIEWLT500_KEY,info_lt500_list,60*60*24)
+	fnDrawGraph(500,id)
 	if info_lt5k_list==None:
 		info_lt5k_list=[]
         	resLT5KQ=db['tophits'+str(YEAR)+MONTHNAME].find(LT5KQ)
 		D5KFINDQ=db.tophits.find(LT5KQ)
+		OFILE5K=open("/tmp/t5k.log","w")
 		for result in D5KFINDQ:
-			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
+			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}	
+			OFILE5K.write(str(result['y'])+'/'+str(result['m'])+'/'+str(result['d'])+' '+str(result['place'])+'\n')
 			info_lt5k_list.append(rec)
 		for result in resLT5KQ:
 			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
+			OFILE5K.write(str(result['y'])+'/'+str(result['m'])+'/'+str(result['d'])+' '+str(result['place'])+'\n')
 			info_lt5k_list.append(rec)
 		mc.set(INFOVIEWLT5K_KEY,info_lt5k_list,60*60*24)
+		OFILE5K.close()
+	fnDrawGraph(5000,id)
 	if info_lt50_list==None:
 		info_lt50_list=[]
         	resLT50Q=db['tophits'+str(YEAR)+MONTHNAME].find(LT50Q)
 		D50FINDQ=db.tophits.find(LT50Q)
+		OFILE50=open("/tmp/t50.log","w")
 		for result in D50FINDQ:
 			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
+			OFILE50.write(str(result['y'])+'/'+str(result['m'])+'/'+str(result['d'])+' '+str(result['place'])+'\n')
 			info_lt50_list.append(rec)
 		for result in resLT50Q:
 			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
+			OFILE50.write(str(result['y'])+'/'+str(result['m'])+'/'+str(result['d'])+' '+str(result['place'])+'\n')
 			info_lt50_list.append(rec)
 		mc.set(INFOVIEWLT50_KEY,info_lt50_list,60*60*24)
-
+		OFILE50.close()
+	fnDrawGraph(50,id)
 
 	title, utitle = MapQuery_FindName(id)
 	if title=='':
@@ -425,7 +507,11 @@ def infoview(request,id):
 		T50KGRAPHFILESIZE=os.path.getsize('/tmp/django/wikicount/static/images/t50k/'+str(id)+'.png')
 	except OSError:
 		T50KGRAPHFILESIZE=0
-	c=Context({'PageDesc':'Click above to go the Wikipedia page.','info_find_query':send_list,'latest_news_list':latest_news_list,'PageTitle':utitle,'expiretime':expiretime,'linktitle':title,'tw_timeline':tw_timeline,'hour_send_list':sorted(HOUR_RS.iteritems()),'info_lt50k_list':info_lt50k_list,'info_lt5k_list':info_lt5k_list,'info_lt500_list':info_lt500_list,'info_lt50_list':info_lt50_list,'HOURGRAPHFILENAME':HOURGRAPHFILENAME,'T500GRAPHFILENAME':T500GRAPHFILENAME,'T5KGRAPHFILENAME':T5KGRAPHFILENAME,'T50KGRAPHFILENAME':T50KGRAPHFILENAME,'T250KGRAPHFILENAME':T250KGRAPHFILENAME,'T50GRAPHFILENAME':T50GRAPHFILENAME,'T50GRAPHFILESIZE':T50GRAPHFILESIZE,'T5KGRAPHFILESIZE':T5KGRAPHFILESIZE,'T500GRAPHFILESIZE':T500GRAPHFILESIZE,'T50KGRAPHFILESIZE':T50KGRAPHFILESIZE})
+	try:
+		SENDME=sorted(HOUR_RS.iteritems())
+	except AttributeError:
+		SENDME=[]
+	c=Context({'PageDesc':'Click above to go the Wikipedia page.','info_find_query':send_list,'latest_news_list':latest_news_list,'PageTitle':utitle,'expiretime':expiretime,'linktitle':title,'tw_timeline':tw_timeline,'hour_send_list':SENDME,'info_lt50k_list':info_lt50k_list,'info_lt5k_list':info_lt5k_list,'info_lt500_list':info_lt500_list,'info_lt50_list':info_lt50_list,'HOURGRAPHFILENAME':HOURGRAPHFILENAME,'T500GRAPHFILENAME':T500GRAPHFILENAME,'T5KGRAPHFILENAME':T5KGRAPHFILENAME,'T50KGRAPHFILENAME':T50KGRAPHFILENAME,'T250KGRAPHFILENAME':T250KGRAPHFILENAME,'T50GRAPHFILENAME':T50GRAPHFILENAME,'T50GRAPHFILESIZE':T50GRAPHFILESIZE,'T5KGRAPHFILESIZE':T5KGRAPHFILESIZE,'T500GRAPHFILESIZE':T500GRAPHFILESIZE,'T50KGRAPHFILESIZE':T50KGRAPHFILESIZE})
 	rendered=t.render(c)
 	return HttpResponse(rendered)
 
@@ -520,9 +606,10 @@ def top3hr(request):
 	title=''
 	send_list=mc.get('THREEHOUR_LIST_QUERY')
 	tw_timeline=GetTimeline() 
-	if len(send_list) > 0:
-		pass
-	else:	
+	try:
+		if len(send_list) > 0:
+			pass
+	except TypeError:	
 		send_list=[]	
 		THREEHOUR_LIST_QUERY=db.threehour.find().sort('place',1)
 		for p in THREEHOUR_LIST_QUERY:

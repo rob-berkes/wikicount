@@ -1,2 +1,9 @@
 User-agent: *
 Disallow: /admin/
+Disallow: /KBOS/
+Disallow: /PAWD/
+Disallow: /KJFK/
+Disallow: /KLEX/
+Disallow: /KJBR/
+Disallow: /KBFI/
+Disallow: /KBDU/

@@ -188,6 +188,3 @@ for p in TRENDING_QUERY:
         send_list.append(rec)
 	GenInfoPage(p['id'])
 syslog.syslog('draw_trending.py: done!')
-mc.set('TRENDING_LIST_QUERY',send_list,1800)
-
-

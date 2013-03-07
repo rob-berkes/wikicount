@@ -56,6 +56,31 @@ def FormatName(title):
         t_title=s_title.encode('utf-8')
         utitle=urllib2.unquote(t_title)
         return title, utitle
+def adjustHour(HOUR):
+        if HOUR==-1:
+                HOUR=23
+        elif HOUR==-2:
+                HOUR=22
+        return HOUR
+
+def minusHour(HOUR):
+        HOUR-=7
+        if HOUR==-1:
+                HOUR=23
+        elif HOUR==-2:
+                HOUR=22
+        elif HOUR==-3:
+                HOUR=21
+        elif HOUR==-4:
+                HOUR=20
+        elif HOUR==-5:
+                HOUR=19
+        elif HOUR==-6:
+                HOUR=18
+        elif HOUR==-7:
+                HOUR=17
+        return HOUR
+
 
 def returnHourString(hour):
 	HOUR='%02d' % (hour,)
@@ -133,6 +158,13 @@ def GenInfoPage(id):
 	return
 
 
+HOUR=datetime.datetime.now().strftime('%H')
+HOUR=minusHour(int(HOUR))
+RSET=db.logSystem.find_one({'table':'populate_image'})
+if not RSET['mesg'] == HOUR:
+	syslog.syslog('db does not appear ready for memcache, pop_image not done?')
+	exit()
+
 send_list=[]
 print 'daily pages first....'
 for d in DAILYPAGERESULTS['values']:
@@ -201,7 +233,7 @@ for a in range(1,50):
 mc.set('RANDOM_ARTICLES',send_list,60*60)
 
 
-HOUR=datetime.datetime.now().strftime('%H')
+
 print 'debuts query...'
 send_list=[]
 title=''
@@ -259,6 +291,7 @@ print 'lastly, 3hr rolling average'
 send_list=[]
 THREEHOUR_QUERY=db.threehour.find().sort('place',1)
 syslog.syslog('memcache-threehour:  count: '+str(THREEHOUR_QUERY.count()))
+
 for p in THREEHOUR_QUERY:
 	rec={'title':p['title'],'place':p['place'],'Avg':p['rollavg'],'linktitle':p['title'],'id':p['id']}
 	GenInfoPage(p['id'])
