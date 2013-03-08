@@ -231,7 +231,8 @@ def fnCaseMonthName(MONTH):
 
 def listLastHour(request):
 	DAY,MONTH,YEAR,HOUR,expiretime,MONTHNAME=fnReturnTimes()
-	tw_timeline=GetTimeline()
+	#tw_timeline=GetTimeline()
+	tw_timeline=[]
 	t=get_template('IndexListLast.html')
 	latest_news_list=latestnews()
 	SEARCH_HOUR=adjustHourforLastHour(HOUR)
@@ -337,7 +338,8 @@ def listtop(request,YEAR,MONTH,DAY):
 	syslog.syslog('wikicount-views.py-listtop DAYKEY='+DAYKEY)
 	print QUERY
 	send_list=mc.get(DAYKEY)
-	tw_timeline=GetTimeline()
+	#tw_timeline=GetTimeline()
+	tw_timeline=[]
 	latest_news_list=latestnews() 
 	if len(send_list)>0:
 		pass
@@ -391,7 +393,8 @@ def infoview(request,id):
 		HOUR_RS=db.imagehourly.find_one({'_id':id})
 	latest_news_list = latestnews()
 	
-	tw_timeline=GetTimeline()
+	#tw_timeline=GetTimeline()
+	tw_timeline=[]
 	send_list=[] 
 	send_list=mc.get(INFOVIEW_KEY)
 	info_lt50k_list=mc.get(INFOVIEWLT_KEY)
@@ -525,7 +528,8 @@ def trending(request):
 	LATEST_NEWS_LIST=latestnews()
 	title=''
 	send_list=mc.get('TRENDING_LIST_QUERY')
-	tw_timeline=GetTimeline() 
+	#tw_timeline=GetTimeline()
+	tw_timeline=[] 
 	try:
 		LENGTH_SEND=len(send_list)
 	except TypeError:
@@ -551,7 +555,8 @@ def category_trending(request):
 	LATEST_NEWS_LIST=latestnews()
 	title=''
 	send_list=mc.get('CATEGORY_TRENDING_LIST_QUERY')
-	tw_timeline=GetTimeline()
+	#tw_timeline=GetTimeline()
+	tw_timeline=[]
 	DAYKEY=str(YEAR)+"_"+str(MONTH)+"_"+str(DAY) 
 	send_list=[]	
 	CATEGORY_TRENDING_LIST_QUERY=db.prodcattrend.find().sort('Hits',-1).limit(100)
@@ -569,6 +574,7 @@ def file_trending(request):
 	LATEST_NEWS_LIST=latestnews()
 	title=''
 	tw_timeline=GetTimeline()
+	tw_timeline=[]
 	DAYKEY=str(YEAR)+"_"+str(MONTH)+"_"+str(DAY) 
 	send_list=[]	
 	FILE_TRENDING_LIST_QUERY=db.prodimagetrend.find().sort('Hits',-1).limit(100)
@@ -585,7 +591,8 @@ def imageMain(request):
 	t=get_template('RedTieIndex.html')
 	LATEST_NEWS_LIST=latestnews()
 	title=''
-	tw_timeline=GetTimeline() 
+	#tw_timeline=GetTimeline() 
+	tw_timeline=[]
 	send_list=[]	
 	dateKey=str(YEAR)+"_"+str(MONTH)+"_"+str(DAY)
 	TRENDING_LIST_QUERY=db.imagedaily.find({dateKey:{'$exists':True}}).sort(dateKey,-1).limit(100)
@@ -605,7 +612,8 @@ def top3hr(request):
 	LATEST_NEWS_LIST=latestnews()
 	title=''
 	send_list=mc.get('THREEHOUR_LIST_QUERY')
-	tw_timeline=GetTimeline() 
+	#tw_timeline=GetTimeline() 
+	tw_timeline=[]
 	try:
 		if len(send_list) > 0:
 			pass
@@ -627,7 +635,8 @@ def cold(request):
 	FQUERY={'d':int(DAY),'m':int(MONTH),'y':int(YEAR)}
 	COLD_LIST_QUERY=mc.get('COLD_LIST_QUERY')
 	LATEST_NEWS_LIST=latestnews()
-	tw_timeline=GetTimeline() 
+	#tw_timeline=GetTimeline() 
+	tw_timeline=[]
  	send_list=[]
 	title=''
 	for p in COLD_LIST_QUERY:
@@ -657,7 +666,8 @@ def randPage(request):
 	title=''
 	utitle='<unknown>'
 	send_list=mc.get('RANDOM_ARTICLES')
-	tw_timeline=GetTimeline() 
+	#tw_timeline=GetTimeline() 
+	tw_timeline=[]
         if len(send_list)>0:
                 pass
         else:
@@ -688,7 +698,8 @@ def debuts(request):
 	LATEST_NEWS_LIST=db.news.find().sort('date',-1).limit(5)
         TOTALNEW=0
 	send_list=mc.get('DEBUTS_ARTICLES')
-	tw_timeline=GetTimeline() 
+	#tw_timeline=GetTimeline() 
+	tw_timeline=[]
 	if len(send_list)>0:
 		pass
 	else:

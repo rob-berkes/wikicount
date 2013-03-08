@@ -6,6 +6,7 @@ import random
 from pymongo import Connection
 from datetime import date
 from datetime import time
+from functions import wikilib
 import datetime
 import subprocess
 import syslog
@@ -314,3 +315,4 @@ for row in HOURQUERY:
     send_list.append(rec)
 mc.set(HOURKEY,send_list,30*60)
 
+wikilib.fnLaunchNextJob('set_vars')

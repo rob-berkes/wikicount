@@ -5,5 +5,5 @@ set timefmt "%Y/%m/%d"
 set terminal png size 350,262
 set output "/tmp/t250k.png" 
 set xtics format "%b %d"
-set xtics "2012/12/06", 1209600,"2013/03/01"
+set xtics "2012/12/06", 1209600,"2013/12/01"
 plot "/tmp/t250k.log" using 1:2 with impulses

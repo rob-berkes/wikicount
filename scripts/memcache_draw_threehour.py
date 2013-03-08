@@ -6,6 +6,7 @@ import random
 from pymongo import Connection
 from datetime import date
 from datetime import time
+from functions import wikilib
 import datetime
 import subprocess
 import syslog
@@ -41,7 +42,7 @@ def GenHourlyGraph(id):
 	except KeyError:
 		pass
 	OFILE.close()
-	subprocess.call(["gnuplot","gnuplot.plot"])
+	subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.plot"])
 	OUTFILENAME='/tmp/django/wikicount/static/images/hourly/'+str(id)+'.png'
 	SFILE='/tmp/django/wikicount/introduction.png'
 	subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
@@ -84,11 +85,11 @@ def GenInfoPage(id):
 	OFILE250K.close()
 	OUTFILENAME='/tmp/django/wikicount/static/images/t250k/'+str(id)+'.png'
 	if os.path.lexists(OUTFILENAME) and random.randint(0,20)==10:
-		subprocess.call(["gnuplot","gnuplot.250k"])
+		subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.250k"])
 		SFILE='/tmp/t250k.png'
 		subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
 	elif not os.path.lexists(OUTFILENAME):
-		subprocess.call(["gnuplot","gnuplot.250k"])
+		subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.250k"])
 		SFILE='/tmp/t250k.png'
 		subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
 			
@@ -105,11 +106,11 @@ def GenInfoPage(id):
 	OFILE50K.close()
 	OUTFILENAME='/tmp/django/wikicount/static/images/t50k/'+str(id)+'.png'
 	if os.path.lexists(OUTFILENAME) and random.randint(0,20)==10:
-		subprocess.call(["gnuplot","gnuplot.50k"])
+		subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.50k"])
 		SFILE='/tmp/t50k.png'
 		subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
 	elif not os.path.lexists(OUTFILENAME):
-		subprocess.call(["gnuplot","gnuplot.50k"])
+		subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.50k"])
 		SFILE='/tmp/t50k.png'
 		subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
 
@@ -126,11 +127,11 @@ def GenInfoPage(id):
 	OFILE5K.close()
 	OUTFILENAME='/tmp/django/wikicount/static/images/t5k/'+str(id)+'.png'
 	if os.path.lexists(OUTFILENAME) and random.randint(0,20)==10:
-		subprocess.call(["gnuplot","gnuplot.5k"])
+		subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.5k"])
 		SFILE='/tmp/t5k.png'
 		subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
 	elif not os.path.lexists(OUTFILENAME):
-		subprocess.call(["gnuplot","gnuplot.5k"])
+		subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.5k"])
 		SFILE='/tmp/t5k.png'
 		subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
 
@@ -147,11 +148,11 @@ def GenInfoPage(id):
 	OFILE500.close()	
 	OUTFILENAME='/tmp/django/wikicount/static/images/t500/'+str(id)+'.png'
 	if os.path.lexists(OUTFILENAME) and random.randint(0,20)==10:
-		subprocess.call(["gnuplot","gnuplot.500"])
+		subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.500"])
 		SFILE='/tmp/top500.png'
 		subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
 	elif not os.path.lexists(OUTFILENAME):
-		subprocess.call(["gnuplot","gnuplot.500"])
+		subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.500"])
 		SFILE='/tmp/top500.png'
 		subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
 
@@ -168,11 +169,11 @@ def GenInfoPage(id):
 	OFILE50.close()	
 	OUTFILENAME='/tmp/django/wikicount/static/images/t50/'+str(id)+'.png'
 	if os.path.lexists(OUTFILENAME) and random.randint(0,20)==10:
-		subprocess.call(["gnuplot","gnuplot.50"])
+		subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.50"])
 		SFILE='/tmp/top50.png'
 		subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
 	elif not os.path.lexists(OUTFILENAME):
-		subprocess.call(["gnuplot","gnuplot.50"])
+		subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.50"])
 		SFILE='/tmp/top50.png'
 		subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
 
@@ -199,3 +200,4 @@ for p in THREEHOUR_QUERY:
 syslog.syslog('draw-threehour: done!')
 mc.set('THREEHOUR_LIST_QUERY',send_list,60*60) 
 
+wikilib.fnLaunchNextJob('threehour')
