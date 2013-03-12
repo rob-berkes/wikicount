@@ -24,7 +24,18 @@ body {
 
 /*TEXT STYLES*/
 .bodytext {
-	font: 0.8em Tahoma, sans-serif;
+	font: 1.0em Tahoma, sans-serif;
+	font-weight:bold;
+	color: #666666;
+}
+.bodytextcustom {
+	font: 1.0em Tahoma, sans-serif;
+	font-weight:bold;
+	list-style:none;
+	color: #666666;
+}
+.bodymenutext {
+	font: 0.7em Tahoma, sans-serif;
 	color: #666666;
 }
 

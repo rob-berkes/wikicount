@@ -162,9 +162,6 @@ def GenInfoPage(id):
 HOUR=datetime.datetime.now().strftime('%H')
 HOUR=minusHour(int(HOUR))
 RSET=db.logSystem.find_one({'table':'populate_image'})
-if not RSET['mesg'] == HOUR:
-	syslog.syslog('db does not appear ready for memcache, pop_image not done?')
-	exit()
 
 send_list=[]
 print 'daily pages first....'
