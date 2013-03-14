@@ -43,26 +43,24 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 			</div>
 			<div id="contenttext">
 				<div style="padding:10px">
-					<span class="titletext">{% include 'TopListTitle.html' %}</span>
+					<span class="titletext">{% include 'titletext.html' %}</span>
 					<span class="bodytext">{% include 'titledesc.html' %}</span>
 				</div>
-					<div class="bodytextcustom" style="padding:12px;" align="justify">
-					{% include 'title_list.html' %}	
+					<div class="content" style="padding:12px;" align="justify">
+					{% include 'cal.html' %}	
 				</div>
 			</div>
 			<div id="leftpanel">
-                                <div align="justify" class="graypanel">
-                                        <span class="smalltitle">Twitter</span><br /><br />
-                                        {% include 'TwitterFeed.html' %}
-                                </div>
-                        </div>
-                        <div id="leftpanel">
-                                <div align="justify" class="graypanel">
-                                        <span class="smalltitle">News</span><br /><br />
-                                        {% include 'news_list.html' %}
-                                </div>
-                        </div>
-
+				<div align="justify" class="graypanel">
+					<span class="smalltitle">Twitter</span><br /><br />
+				</div>
+			</div>
+			<div id="leftpanel">
+				<div align="justify" class="graypanel">
+					<span class="smalltitle">News</span><br /><br />
+					{% include 'news_list.html' %}
+				</div>
+			</div>
 			<div id="footer" class="smallgraytext">
 				<a href="#">Home</a> | <a href="#">About Us</a> | <a href="#">Products</a> | <a href="#">Our Services</a> | <a href="#">Contact Us</a>
 				| Rob Berkes 

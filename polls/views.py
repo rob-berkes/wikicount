@@ -18,6 +18,10 @@ import syslog
 import subprocess
 import os
 import calendar
+import HTMLParser 
+
+_htmlparser=HTMLParser.HTMLParser()
+unescape=_htmlparser.unescape
 
 conn=Connection('10.115.126.7')
 db=conn.wc
@@ -87,6 +91,7 @@ def FormatName(title):
         s_title=string.replace(title,'_',' ')
         t_title=s_title.encode('utf-8')
         utitle=urllib2.unquote(t_title)
+	utitle=unescape(utitle)	
         return title, utitle
 
 def GetTimeline():
@@ -188,7 +193,7 @@ def fnDrawGraph(type,id):
 	                subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
 	return
 def adjustHourforLastHour(HOUR):
-#	SEARCH_HOUR=int(HOUR)+4
+	SEARCH_HOUR=int(HOUR)
         if SEARCH_HOUR == 27:
                 SEARCH_HOUR = 3  
         elif SEARCH_HOUR == 26:
@@ -233,6 +238,7 @@ def fnCaseMonthName(MONTH):
 
 def listLastHour(request):
 	DAY,MONTH,YEAR,HOUR,expiretime,MONTHNAME=fnReturnTimes()
+	MONTHNAME=fnCaseMonthName(MONTH)
 	tw_timeline=GetTimeline()
 	t=get_template('IndexListLast.html')
 	latest_news_list=latestnews()
@@ -243,7 +249,7 @@ def listLastHour(request):
 	place=1
 	HOURKEY="SEARCHHOUR_"+str(SEARCH_HOUR)
 	send_list=mc.get(HOURKEY)
-	if len(send_list)>0:
+	if send_list==None:
 		pass
 	else:
 		for row in HOURQUERY:
@@ -252,7 +258,7 @@ def listLastHour(request):
 			place+=1
 			send_list.append(rec)
 	mc.set(HOURKEY,send_list,30*60)
-	c=Context({'latest_hits_list':send_list,'latest_news_list':latest_news_list,'y':YEAR,'m':MONTH,'d':DAY,'tw_timeline':tw_timeline,'latest_news_list':latest_news_list})
+	c=Context({'latest_hits_list':send_list,'latest_news_list':latest_news_list,'MONTHNAME':MONTHNAME,'y':YEAR,'m':MONTH,'d':DAY,'tw_timeline':tw_timeline,'latest_news_list':latest_news_list})
 	rendered=t.render(c)
 	return HttpResponse(rendered)
 	
@@ -337,11 +343,12 @@ def listtop(request,YEAR,MONTH,DAY):
 	QUERY={'d':int(DAY),'m':int(MONTH),'y':int(YEAR)}
 	DAYKEY='toplist'+str(YEAR)+str(MONTH)+str(DAY)
 	syslog.syslog('wikicount-views.py-listtop DAYKEY='+DAYKEY)
+	syslog.syslog('wikicount-listtop.py QUERY='+str(QUERY))
 	print QUERY
 	send_list=mc.get(DAYKEY)
 	tw_timeline=GetTimeline()
 	latest_news_list=latestnews() 
-	if len(send_list)>0:
+	if send_list==None:
 		pass
 	else:
 		send_list=[]
@@ -607,23 +614,24 @@ def imageMain(request):
 
 def top3hr(request):
 	DAY, MONTH, YEAR, HOUR,expiretime,MONTHNAME = fnReturnTimes()
+	MONTHNAME=fnCaseMonthName(MONTH)
 	mcHour=mc.get('trendingHour')
 	t=get_template('RedTieIndex.html')
 	LATEST_NEWS_LIST=latestnews()
 	title=''
 	send_list=mc.get('THREEHOUR_LIST_QUERY')
 	tw_timeline=GetTimeline() 
-	try:
-		if len(send_list) > 0:
-			pass
-	except TypeError:	
+	if send_list==None:
+		pass
+	else:
 		send_list=[]	
 		THREEHOUR_LIST_QUERY=db.threehour.find().sort('place',1)
 		for p in THREEHOUR_LIST_QUERY:
 			rec={'title':p['title'],'place':p['place'],'Avg':p['rollavg'],'linktitle':p['title'],'id':p['id']}
 			send_list.append(rec)
 		mc.set('THREEHOUR_LIST_QUERY',send_list,1800)
-	c=Context({'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':'WikiTrends.Info - Top','PageDesc':'A three hour rolling average showing the most popular articles currently','expiretime':expiretime,'tw_timeline':tw_timeline})
+	PAGETITLE="Wikitrends.Info  for "+str(MONTHNAME)+" "+str(DAY)+", "+str(YEAR)
+	c=Context({'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':PAGETITLE,'PageDesc':'A three hour rolling average showing the most popular articles currently','expiretime':expiretime,'tw_timeline':tw_timeline})
 	rendered=t.render(c)
 	return HttpResponse(rendered)
 
