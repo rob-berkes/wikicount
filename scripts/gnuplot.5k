@@ -8,4 +8,4 @@ set terminal png size 350,262
 set output "/tmp/t5k.png" 
 set xtics format "%b %d"
 set xtics "2012/12/06", 1209600,"2013/12/01"
-plot "/tmp/t5k.log" using 1:2 with impulses
+plot "/tmp/t5k.log" using 1:2 with impulses notitle

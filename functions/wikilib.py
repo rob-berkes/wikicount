@@ -27,6 +27,10 @@ def fnLaunchNextJob(CURJOBNAME):
 	elif CURJOBNAME=='cold':
 		syslog.syslog('All done with memcached for now!')
 	return 
+def fnLatestnews():
+        ARTICLELIMIT=5
+        latest_news_list = db.news.find().sort('date',-1).limit(ARTICLELIMIT)
+        return latest_news_list
 
 def fnFormatName(title):
         s_title=string.replace(title,'_',' ')
@@ -36,7 +40,7 @@ def fnFormatName(title):
 def fnFindName(id):
         QUERY={'id':id}
         MAPQ=db.hitsdaily.find({'_id':id})
-        latest_news_list = latestnews()
+        latest_news_list = fnLatestnews()
         title=''
         utitle=''
         for name in MAPQ:

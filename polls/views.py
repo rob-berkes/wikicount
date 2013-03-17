@@ -4,6 +4,7 @@ from django.template import Context
 from django.views.decorators.cache import cache_page
 from pymongo import Connection
 from datetime import date
+from functions import wikilib
 import urllib2
 import string
 import random
@@ -39,16 +40,12 @@ def ReturnHexDigest(article):
 	return hd
 
 
-def latestnews():
-	ARTICLELIMIT=5
-	latest_news_list = db.news.find().sort('date',-1).limit(ARTICLELIMIT)
-	return latest_news_list
 
 
 def MapQuery_FindName(id):
 	QUERY={'id':id}
         MAPQ=db.hitsdaily.find({'_id':id})
-        latest_news_list = latestnews()
+        latest_news_list = wikilib.fnLatestnews()
 	title=''
 	utitle=''
         for name in MAPQ:
@@ -62,7 +59,7 @@ def MapQuery_FindName(id):
 def MapQuery_FindCategory(id):
 	QUERY={'id':id}
         MAPQ=db.category.find({'_id':id})
-        latest_news_list = latestnews()
+        latest_news_list = wikilib.fnLatestnews()
 	title=''
 	utitle=''
         for name in MAPQ:
@@ -76,7 +73,7 @@ def MapQuery_FindCategory(id):
 def MapQuery_FindImage(id):
 	QUERY={'id':id}
         MAPQ=db.image.find({'_id':id})
-        latest_news_list = latestnews()
+        latest_news_list = wikilib.fnLatestnews()
 	title=''
 	utitle=''
         for name in MAPQ:
@@ -241,7 +238,7 @@ def listLastHour(request):
 	MONTHNAME=fnCaseMonthName(MONTH)
 	tw_timeline=GetTimeline()
 	t=get_template('IndexListLast.html')
-	latest_news_list=latestnews()
+	latest_news_list=wikilib.fnLatestnews()
 	SEARCH_HOUR=adjustHourforLastHour(HOUR)
 	SEARCH_HOUR='%02d' % (SEARCH_HOUR,)
 	HOURQUERY=db.hitshourlydaily.find({str(SEARCH_HOUR):{'$gt':1}}).sort(str(SEARCH_HOUR),-1).limit(50)
@@ -347,7 +344,7 @@ def listtop(request,YEAR,MONTH,DAY):
 	print QUERY
 	send_list=mc.get(DAYKEY)
 	tw_timeline=GetTimeline()
-	latest_news_list=latestnews() 
+	latest_news_list=wikilib.fnLatestnews() 
 	if send_list==None:
 		pass
 	else:
@@ -403,7 +400,7 @@ def infoview(request,id):
 		HOUR_RS=db.categoryhourly.find_one({'_id':id})
 	if HOUR_RS==None:
 		HOUR_RS=db.imagehourly.find_one({'_id':id})
-	latest_news_list = latestnews()
+	latest_news_list = wikilib.fnLatestnews()
 	
 	tw_timeline=GetTimeline()
 	send_list=[] 
@@ -536,7 +533,7 @@ def trending(request):
 	t=get_template('RedTieIndex.html')
 	FQUERY={'d':int(DAY),'m':int(MONTH),'y':int(YEAR)}
 	print FQUERY
-	LATEST_NEWS_LIST=latestnews()
+	LATEST_NEWS_LIST=wikilib.fnLatestnews()
 	title=''
 	send_list=mc.get('TRENDING_LIST_QUERY')
 	tw_timeline=GetTimeline()
@@ -562,7 +559,7 @@ def category_trending(request):
 	mcHour=mc.get('trendingHour')
 	t=get_template('RedTieIndex.html')
 	FQUERY={'d':int(DAY),'m':int(MONTH),'y':int(YEAR)}
-	LATEST_NEWS_LIST=latestnews()
+	LATEST_NEWS_LIST=wikilib.latestnews()
 	title=''
 	send_list=mc.get('CATEGORY_TRENDING_LIST_QUERY')
 	tw_timeline=GetTimeline()
@@ -580,7 +577,7 @@ def file_trending(request):
 	DAY, MONTH, YEAR, HOUR,expiretime,MONTHNAME = fnReturnTimes()
 	t=get_template('RedTieIndex.html')
 	FQUERY={'d':int(DAY),'m':int(MONTH),'y':int(YEAR)}
-	LATEST_NEWS_LIST=latestnews()
+	LATEST_NEWS_LIST=wikilib.fnLatestnews()
 	title=''
 	tw_timeline=GetTimeline()
 	DAYKEY=str(YEAR)+"_"+str(MONTH)+"_"+str(DAY) 
@@ -597,7 +594,7 @@ def file_trending(request):
 def imageMain(request):
 	DAY, MONTH, YEAR, HOUR,expiretime,MONTHNAME = fnReturnTimes()
 	t=get_template('RedTieIndex.html')
-	LATEST_NEWS_LIST=latestnews()
+	LATEST_NEWS_LIST=wikilib.fnLatestnews()
 	title=''
 	tw_timeline=GetTimeline() 
 	send_list=[]	
@@ -617,7 +614,7 @@ def top3hr(request):
 	MONTHNAME=fnCaseMonthName(MONTH)
 	mcHour=mc.get('trendingHour')
 	t=get_template('RedTieIndex.html')
-	LATEST_NEWS_LIST=latestnews()
+	LATEST_NEWS_LIST=wikilib.fnLatestnews()
 	title=''
 	send_list=mc.get('THREEHOUR_LIST_QUERY')
 	tw_timeline=GetTimeline() 
@@ -641,7 +638,7 @@ def cold(request):
 	t=get_template('RedTieIndex.html')
 	FQUERY={'d':int(DAY),'m':int(MONTH),'y':int(YEAR)}
 	COLD_LIST_QUERY=mc.get('COLD_LIST_QUERY')
-	LATEST_NEWS_LIST=latestnews()
+	LATEST_NEWS_LIST=wikilib.fnLatestnews()
 	tw_timeline=GetTimeline() 
  	send_list=[]
 	title=''
