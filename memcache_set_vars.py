@@ -12,7 +12,6 @@ import subprocess
 import syslog
 import os
 
-#conn=Connection('10.245.145.84')
 conn=Connection('10.115.126.7')
 db=conn.wc
 mc=memcache.Client(['127.0.0.1:11211'],debug=0)
@@ -20,77 +19,20 @@ TODAY=date.today()
 DAY=TODAY.day
 MONTH=TODAY.month
 YEAR=TODAY.year
+HOUR=wikilib.fnGetHour()
+if int(HOUR) < 4:
+	if DAY > 1:
+		DAY-=1
+
 MONTHNAME=datetime.datetime.now().strftime("%B")
 thCN='tophits'+str(YEAR)+MONTHNAME
 dbCN='proddebuts'+str(YEAR)+str(MONTHNAME)
 DAILYPAGERESULTS=db.command({'distinct':thCN,'key':'d','query':{'m':int(MONTH)}})
 
-def latestnews():
-        ARTICLELIMIT=5
-        latest_news_list = db.news.find().sort('date',-1).limit(ARTICLELIMIT)
-        return latest_news_list
-
-
-def Query_NewsFind(FINDQUERY,notedate,notes):
-        findresults=db.news.find(FINDQUERY)
-        for a in findresults:
-                notedate=a['date']
-                notes=a['text']
-
-        return
-def MapQuery_FindName(id):
-        QUERY={'id':id}
-        MAPQ=db.hitsdaily.find({'_id':id})
-        latest_news_list = latestnews()
-        title=''
-        utitle=''
-        for name in MAPQ:
-                        title=name['title']
-                        s_title=string.replace(title,'_',' ')
-                        t_title=s_title.encode('utf-8')
-                        utitle=urllib2.unquote(t_title)
-
-
-        return title, utitle
-def FormatName(title):
-        s_title=string.replace(title,'_',' ')
-        t_title=s_title.encode('utf-8')
-        utitle=urllib2.unquote(t_title)
-        return title, utitle
-def adjustHour(HOUR):
-        if HOUR==-1:
-                HOUR=23
-        elif HOUR==-2:
-                HOUR=22
-        return HOUR
-
-def minusHour(HOUR):
-        HOUR-=7
-        if HOUR==-1:
-                HOUR=23
-        elif HOUR==-2:
-                HOUR=22
-        elif HOUR==-3:
-                HOUR=21
-        elif HOUR==-4:
-                HOUR=20
-        elif HOUR==-5:
-                HOUR=19
-        elif HOUR==-6:
-                HOUR=18
-        elif HOUR==-7:
-                HOUR=17
-        return HOUR
-
-
-def returnHourString(hour):
-	HOUR='%02d' % (hour,)
-	return HOUR
-
 
 
 HOUR=datetime.datetime.now().strftime('%H')
-HOUR=minusHour(int(HOUR))
+HOUR=wikicount.fnMinusHour(int(HOUR))
 RSET=db.logSystem.find_one({'table':'populate_image'})
 
 send_list=[]
@@ -108,7 +50,7 @@ RESULTSET=db[thCN].find(QUERY).sort('place',1).limit(100)
 syslog.syslog('memcache-daily: '+str(QUERY)+' count: '+str(RESULTSET.count()))
 for row in RESULTSET:
 	wikilib.GenInfoPage(row['id'])
-	title,utitle=FormatName(row['title'])
+	title,utitle=wikicount.fnFormatName(row['title'])
         rec={'place':row['place'],'Hits':row['Hits'],'title':utitle ,'id':str(row['id']),'linktitle':title.encode('utf-8')}
         send_list.append(rec)
 mc.set('DAYKEY',send_list,7200)
@@ -118,7 +60,7 @@ latest_hits_list = db[thCN].find(QUERY).sort('place',1).limit(100)
 syslog.syslog('memcache-latest: '+str(QUERY)+' count: '+str(latest_hits_list.count()))
 for p in latest_hits_list:
 	wikilib.GenInfoPage(p['id'])
-        title,utitle=FormatName(p['title'])
+        title,utitle=wikicount.fnFormatName(p['title'])
 	rec={'title':utitle,'place':p['place'],'Hits':p['Hits']%1000,'linktitle':title.encode('utf-8'),'notedate':notedate,'notes':notes,'id':p['id']}
         send_list.append(rec)
 mc.set('send_list',send_list,3600)
@@ -155,7 +97,7 @@ for a in range(1,50):
         for item in RANDOM_LIST_QUERY:
         	 id=item['id']
 		 wikilib.GenInfoPage(item['id'])
-       		 title,utitle=FormatName(item['title']) 
+       		 title,utitle=wikicount.fnFormatName(item['title']) 
         	 rec={'title':utitle,'place':item['place'],'Hits':item['Hits'],'linktitle':title.encode('utf-8'),'id':item['id']}
         	 send_list.append(rec)
 mc.set('RANDOM_ARTICLES',send_list,60*60)
@@ -172,7 +114,7 @@ for item in QUERY:
 	COUNT=0
         TITLE=''
 	wikilib.GenInfoPage(item['id'])
-	title,utitle=FormatName(item['title'])
+	title,utitle=wikicount.fnFormatName(item['title'])
 
 	rec={'title':utitle,'place':item['place'],'Hits':item['Hits'],'linktitle':item['linktitle'],'id':item['id']}
         send_list.append(rec)
@@ -199,7 +141,7 @@ place=1
 HOURKEY="SEARCHHOUR_"+str(SEARCH_HOUR)
 syslog.syslog('memcache-hourly: '+' count: '+str(HOURQUERY.count()))
 for row in HOURQUERY:
-    title,utitle=MapQuery_FindName(row['_id'])
+    title,utitle=wikicount.fnFindName(row['_id'])
     wikilib.GenInfoPage(row['_id'])
     rec={'place':place,'Hits':row[str(SEARCH_HOUR)],'title':utitle ,'id':str(row['_id']),'linktitle':title.encode('utf-8')}
     place+=1
