@@ -170,8 +170,12 @@ def GenInfoPage(id):
 		info_lt500_list+=fnGenTableArchive(MONTH,id,501)        
 		info_lt50_list+=fnGenTableArchive(MONTH,id,51)        
 
-
-
+	T50FILE=open('/tmp/t50k.log','w')
+	for item in info_lt50k_list:
+		T50FILE.write(str(item)+'\n')
+	os.system('/usr/bin/python /tmp/django/wikicount/scripts/memcache_draw_cold.py')
+	T50FILE.close()
+		
         fnSetMemcache(INFOVIEW_KEY,send_list,60*60*12)
 	fnSetMemcache(INFOVIEWLT_KEY,info_lt50k_list,60*60*12)
 	fnSetMemcache(INFOVIEWLT5K_KEY,info_lt5k_list,60*60*12)
