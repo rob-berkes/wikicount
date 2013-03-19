@@ -1,6 +1,7 @@
-0 */3 * * * /bin/bash -c "/usr/bin/python /tmp/django/wikicount/copy_twitter.py"
-30 * * * * /bin/bash -c "/usr/bin/python /tmp/django/wikicount/memcache_set_vars.py"
-#35 * * * * /bin/bash -c "/usr/bin/python /tmp/django/wikicount/scripts/memcache_draw_trending_graphs.py"
-#37 * * * * /bin/bash -c "/usr/bin/python /tmp/django/wikicount/scripts/memcache_draw_cold.py"
-#39 * * * * /bin/bash -c "/usr/bin/python /tmp/django/wikicount/scripts/memcache_draw_random_graphs.py"
-#41 * * * * /bin/bash -c "/usr/bin/python /tmp/django/wikicount/scripts/memcache_draw_threehour.py"
+30 * * * * "/usr/bin/python /tmp/django/wikicount/memcache_set_archive1.py"
+31 * * * * "/usr/bin/python /tmp/django/wikicount/memcache_set_cold.py"
+32 * * * * "/usr/bin/python /tmp/django/wikicount/memcache_set_random.py"
+33 * * * * "/usr/bin/python /tmp/django/wikicount/memcache_set_trending.py"
+33 * * * * "/usr/bin/python /tmp/django/wikicount/memcache_set_threehour.py"
+34 * * * * "/usr/bin/python /tmp/django/wikicount/memcache_set_lasthour.py"
+
