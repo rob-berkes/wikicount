@@ -20,9 +20,6 @@ DAY=TODAY.day
 MONTH=TODAY.month
 YEAR=TODAY.year
 HOUR=wikilib.fnGetHour()
-if int(HOUR) < 4:
-	if DAY > 1:
-		DAY-=1
 
 MONTHNAME=datetime.datetime.now().strftime("%B")
 thCN='tophits'+str(YEAR)+MONTHNAME
@@ -40,7 +37,7 @@ print 'daily pages first....'
 for d in DAILYPAGERESULTS['values']:
 	rec={'d':d,'m':MONTH,'y':YEAR,'stry':str(YEAR),'strm':str(MONTH),'strd':str(d)}
         send_list.append(rec)
-mc.set('mcdpDaysList',send_list,60*60*24)
+wikilib.fnSetMemcache('mcdpDaysList',send_list,60*60*24)
 
 
 
@@ -53,7 +50,7 @@ for row in RESULTSET:
 	title,utitle=wikilib.fnFormatName(row['title'])
         rec={'place':row['place'],'Hits':row['Hits'],'title':utitle ,'id':str(row['id']),'linktitle':title.encode('utf-8')}
         send_list.append(rec)
-mc.set('DAYKEY',send_list,7200)
+wikilib.fnSetMemcache('DAYKEY',send_list,7200)
 notedate=''
 notes=''
 latest_hits_list = db[thCN].find(QUERY).sort('place',1).limit(100)
@@ -63,7 +60,7 @@ for p in latest_hits_list:
         title,utitle=wikilib.fnFormatName(p['title'])
 	rec={'title':utitle,'place':p['place'],'Hits':p['Hits']%1000,'linktitle':title.encode('utf-8'),'notedate':notedate,'notes':notes,'id':p['id']}
         send_list.append(rec)
-mc.set('send_list',send_list,3600)
+wikilib.fnSetMemcache('send_list',send_list,3600)
 
 
 send_list=[]    
@@ -74,7 +71,7 @@ for p in TRENDING_LIST_QUERY:
 	rec={'title':p['title'],'place':p['place'],'Hits':p['Hits']%1000,'linktitle':p['linktitle'],'id':p['id']}
         send_list.append(rec)
 	wikilib.GenInfoPage(p['id'])
-mc.set('TRENDING_LIST_QUERY',send_list,1800)
+wikilib.fnSetMemcache('TRENDING_LIST_QUERY',send_list,1800)
 
 print 'cold list query'
 send_list=[]    
@@ -85,7 +82,7 @@ for p in COLD_LIST_QUERY:
 	rec={'title':p['title'],'place':p['place'],'Hits':p['Hits']%1000,'linktitle':p['linktitle'],'id':p['id']}
         send_list.append(rec)
 	wikilib.GenInfoPage(p['id'])
-mc.set('COLD_LIST_QUERY',send_list,1800)
+wikilib.fnSetMemcache('COLD_LIST_QUERY',send_list,1800)
 
 
 print 'random query...'
@@ -100,8 +97,7 @@ for a in range(1,50):
        		 title,utitle=wikilib.fnFormatName(item['title']) 
         	 rec={'title':utitle,'place':item['place'],'Hits':item['Hits'],'linktitle':title.encode('utf-8'),'id':item['id']}
         	 send_list.append(rec)
-mc.set('RANDOM_ARTICLES',send_list,60*60)
-
+wikilib.fnSetMemcache('RANDOM_ARTICLES',send_list,60*60)
 
 
 print 'debuts query...'
@@ -118,7 +114,7 @@ for item in QUERY:
 
 	rec={'title':utitle,'place':item['place'],'Hits':item['Hits'],'linktitle':item['linktitle'],'id':item['id']}
         send_list.append(rec)
-mc.set('DEBUTS_ARTICLES',send_list,60*60)
+wikilib.fnSetMemcache('DEBUTS_ARTICLES',send_list,60*60)
 
 
 print 'lastly, 3hr rolling average'
@@ -130,7 +126,7 @@ for p in THREEHOUR_QUERY:
 	rec={'title':p['title'],'place':p['place'],'Avg':p['rollavg'],'linktitle':p['title'],'id':p['id']}
 	wikilib.GenInfoPage(p['id'])
         send_list.append(rec)
-mc.set('THREEHOUR_LIST_QUERY',send_list,60*60) 
+wikilib.fnSetMemcache('THREEHOUR_LIST_QUERY',send_list,60*60) 
 
 
 
@@ -146,6 +142,6 @@ for row in HOURQUERY:
     rec={'place':place,'Hits':row[str(SEARCH_HOUR)],'title':utitle ,'id':str(row['_id']),'linktitle':title.encode('utf-8')}
     place+=1
     send_list.append(rec)
-mc.set(HOURKEY,send_list,30*60)
+wikilib.fnSetMemcache(HOURKEY,send_list,30*60)
 
 wikilib.fnLaunchNextJob('set_vars')

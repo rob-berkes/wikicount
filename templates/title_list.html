@@ -1,6 +1,6 @@
 {% autoescape off %}
 {% for item in latest_hits_list %}
-                <li>{{ item.place }}.<a href="http://en.wikipedia.org/wiki/{{item.linktitle}}"> {{ item.linktitle }} </a>
+                <li>{{ item.place }}.<a href="http://en.wikipedia.org/wiki/{{item.linktitle}}"> {{ item.title }} </a>
 <span class="bodymenutext"><table><tr><td><a href="http://www.wikitrends.info/infoview/{{item.id}}">Page Stats</a></td><td><a href="https://www.google.com/search?hl=en&gl=us&tbm=nws&q={{item.title}}&oq={{item.title}}">Google News</a></td>,<td><a href="https://twitter.com/search?q={{item.title}}&src=typd">Twitter</a></td></tr></table></span></li>
 <br>
 {% endfor %}

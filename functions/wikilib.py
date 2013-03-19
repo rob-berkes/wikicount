@@ -7,9 +7,109 @@ from pymongo import Connection
 import memcache
 import time
 
-mc=memcache.Client(['127.0.0.1:11211'],debug=0)
+mc1=memcache.Client(['127.0.0.1:11211'],debug=0)
 conn=Connection('10.115.126.7')
 db=conn.wc
+
+def fnDrawGraph(type,id):
+        if type==250:
+                OUTFILENAME='/tmp/django/wikicount/static/images/t250k/'+str(id)+'.png' 
+                if not os.path.lexists(OUTFILENAME):
+                        subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.250k"])
+                        SFILE='/tmp/t250k.png'
+                        subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
+        elif type==50000:
+                OUTFILENAME='/tmp/django/wikicount/static/images/t50k/'+str(id)+'.png' 
+                if not os.path.lexists(OUTFILENAME):
+                        subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.50k"])
+                        SFILE='/tmp/t50k.png'
+                        subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
+        elif type==5000:
+                OUTFILENAME='/tmp/django/wikicount/static/images/t5k/'+str(id)+'.png' 
+                if not os.path.lexists(OUTFILENAME):
+                        subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.5k"])
+                        SFILE='/tmp/t5k.png'
+                        subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
+        elif type==500:
+                OUTFILENAME='/tmp/django/wikicount/static/images/t500/'+str(id)+'.png' 
+                if not os.path.lexists(OUTFILENAME):
+                        subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.500"])
+                        SFILE='/tmp/t500.png'
+                        subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
+        elif type==50:
+                OUTFILENAME='/tmp/django/wikicount/static/images/t50/'+str(id)+'.png' 
+                if not os.path.lexists(OUTFILENAME):
+                        subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.50"])
+                        SFILE='/tmp/t50.png'
+                        subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
+        return
+
+def fnFindCategory(id):
+        QUERY={'id':id}
+        MAPQ=db.category.find({'_id':id})
+        title=''
+        utitle=''
+        for name in MAPQ:
+                        title=name['title']
+                        s_title=string.replace(title,'_',' ')
+                        t_title=s_title.encode('utf-8')
+                        utitle=urllib2.unquote(t_title)
+        return title, utitle
+
+def fnFindImage(id):
+        QUERY={'id':id}
+        MAPQ=db.image.find({'_id':id})
+        title=''
+        utitle=''
+        for name in MAPQ:
+                        title=name['title']
+                        s_title=string.replace(title,'_',' ')
+                        t_title=s_title.encode('utf-8')
+                        utitle=urllib2.unquote(t_title)
+
+
+        return title, utitle
+
+def fnFindName(id):
+        QUERY={'id':id}
+        MAPQ=db.hitsdaily.find({'_id':id})
+        latest_news_list = fnLatestnews()
+        title=''
+        utitle=''
+        for name in MAPQ:
+                        title=name['title']
+                        s_title=string.replace(title,'_',' ')
+                        t_title=s_title.encode('utf-8')
+                        utitle=urllib2.unquote(t_title)
+        return title, utitle
+
+def fnFormatName(title):
+        s_title=string.replace(title,'_',' ')
+        t_title=s_title.encode('utf-8')
+        utitle=urllib2.unquote(t_title)
+        return title, utitle
+
+def fnGenTableArchive(TABLENAME,id,place):
+	send_list=[];
+	QUERY={'id':id,'place':place}
+	FINDQ=db[TABLENAME].find(QUERY)
+	for result in FINDQ:
+	        rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
+        	send_list.append(rec)
+
+	return send_list
+
+def fnGetHour():
+	return time.strftime('%H')
+
+def fnGetHourString(hour):
+        HOUR='%02d' % (hour,)
+        return HOUR
+
+def fnLatestnews():
+        ARTICLELIMIT=5
+        latest_news_list = db.news.find().sort('date',-1).limit(ARTICLELIMIT)
+        return latest_news_list
 
 def fnLaunchNextJob(CURJOBNAME):
 	if CURJOBNAME=='set_vars':
@@ -27,32 +127,9 @@ def fnLaunchNextJob(CURJOBNAME):
 	elif CURJOBNAME=='cold':
 		syslog.syslog('All done with memcached for now!')
 	return 
-def fnLatestnews():
-        ARTICLELIMIT=5
-        latest_news_list = db.news.find().sort('date',-1).limit(ARTICLELIMIT)
-        return latest_news_list
 
-def fnFormatName(title):
-        s_title=string.replace(title,'_',' ')
-        t_title=s_title.encode('utf-8')
-        utitle=urllib2.unquote(t_title)
-        return title, utitle
-def fnFindName(id):
-        QUERY={'id':id}
-        MAPQ=db.hitsdaily.find({'_id':id})
-        latest_news_list = fnLatestnews()
-        title=''
-        utitle=''
-        for name in MAPQ:
-                        title=name['title']
-                        s_title=string.replace(title,'_',' ')
-                        t_title=s_title.encode('utf-8')
-                        utitle=urllib2.unquote(t_title)
-
-
-        return title, utitle
 def fnMinusHour(HOUR):
-        HOUR-=7
+        HOUR-=1
         if HOUR==-1:
                 HOUR=23
         elif HOUR==-2:
@@ -68,26 +145,11 @@ def fnMinusHour(HOUR):
         elif HOUR==-7:
                 HOUR=17
         return HOUR
-
-
-def fnGetHourString(hour):
-        HOUR='%02d' % (hour,)
-        return HOUR
-
-
-def fnGenTableArchive(TABLENAME,id,place):
-	send_list=[];
-	QUERY={'id':id,'place':place}
-	FINDQ=db[TABLENAME].find(QUERY)
-	for result in FINDQ:
-	        rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
-        	send_list.append(rec)
-
-	return send_list
-
-def fnGetHour():
-	return time.strftime('%H')
-
+def fnSetMemcache(KEYNAME,send_list,exptime):
+	MEMCACHE_SERVERS=['127.0.0.1','10.62.13.235']
+		
+	mc1.set(KEYNAME,send_list,exptime)
+	return
 def GenInfoPage(id):
 	INFOVIEW_KEY='infoview_'+str(id)
 	INFOVIEWLT_KEY='infoviewlt_'+str(id)
@@ -109,11 +171,11 @@ def GenInfoPage(id):
 
 
 
-        mc.set(INFOVIEW_KEY,send_list,60*60*12)
-	mc.set(INFOVIEWLT_KEY,info_lt50k_list,60*60*12)
-	mc.set(INFOVIEWLT5K_KEY,info_lt5k_list,60*60*12)
-	mc.set(INFOVIEWLT500_KEY,info_lt500_list,60*60*12)
-	mc.set(INFOVIEWLT50_KEY,info_lt50_list,60*60*12)
+        fnSetMemcache(INFOVIEW_KEY,send_list,60*60*12)
+	fnSetMemcache(INFOVIEWLT_KEY,info_lt50k_list,60*60*12)
+	fnSetMemcache(INFOVIEWLT5K_KEY,info_lt5k_list,60*60*12)
+	fnSetMemcache(INFOVIEWLT500_KEY,info_lt500_list,60*60*12)
+	fnSetMemcache(INFOVIEWLT50_KEY,info_lt50_list,60*60*12)
 	return
 
 

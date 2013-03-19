@@ -42,54 +42,7 @@ def ReturnHexDigest(article):
 
 
 
-def MapQuery_FindName(id):
-	QUERY={'id':id}
-        MAPQ=db.hitsdaily.find({'_id':id})
-        latest_news_list = wikilib.fnLatestnews()
-	title=''
-	utitle=''
-        for name in MAPQ:
-                        title=name['title']
-                        s_title=string.replace(title,'_',' ')
-                        t_title=s_title.encode('utf-8')
-                        utitle=urllib2.unquote(t_title)
-	return title, utitle
 
-
-def MapQuery_FindCategory(id):
-	QUERY={'id':id}
-        MAPQ=db.category.find({'_id':id})
-        latest_news_list = wikilib.fnLatestnews()
-	title=''
-	utitle=''
-        for name in MAPQ:
-                        title=name['title']
-                        s_title=string.replace(title,'_',' ')
-                        t_title=s_title.encode('utf-8')
-                        utitle=urllib2.unquote(t_title)
-	return title, utitle
-
-
-def MapQuery_FindImage(id):
-	QUERY={'id':id}
-        MAPQ=db.image.find({'_id':id})
-        latest_news_list = wikilib.fnLatestnews()
-	title=''
-	utitle=''
-        for name in MAPQ:
-                        title=name['title']
-                        s_title=string.replace(title,'_',' ')
-                        t_title=s_title.encode('utf-8')
-                        utitle=urllib2.unquote(t_title)
-
-
-	return title, utitle
-def FormatName(title):
-        s_title=string.replace(title,'_',' ')
-        t_title=s_title.encode('utf-8')
-        utitle=urllib2.unquote(t_title)
-	utitle=unescape(utitle)	
-        return title, utitle
 
 def GetTimeline():
 #	status=api.user_timeline('wikitrendsinfo',count=5)
@@ -152,43 +105,11 @@ def GenHourlyGraph(id):
         except KeyError:
                 pass
         OFILE.close()
-        subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.plot"])
-        OUTFILENAME='/tmp/django/wikicount/static/images/hourly/'+str(id)+'.png'
-        SFILE='/tmp/django/wikicount/introduction.png'
+        subprocess.call(["gnuplot","/tmp/django/wikilib/scripts/gnuplot.plot"])
+        OUTFILENAME='/tmp/django/wikilib/static/images/hourly/'+str(id)+'.png'
+        SFILE='/tmp/django/wikilib/introduction.png'
         subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
         return
-def fnDrawGraph(type,id):
-	if type==250:
-		OUTFILENAME='/tmp/django/wikicount/static/images/t250k/'+str(id)+'.png' 
-		if not os.path.lexists(OUTFILENAME):
-	                subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.250k"])
-	                SFILE='/tmp/t250k.png'
-	                subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
-	elif type==50000:
-		OUTFILENAME='/tmp/django/wikicount/static/images/t50k/'+str(id)+'.png' 
-		if not os.path.lexists(OUTFILENAME):
-	                subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.50k"])
-	                SFILE='/tmp/t50k.png'
-	                subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
-	elif type==5000:
-		OUTFILENAME='/tmp/django/wikicount/static/images/t5k/'+str(id)+'.png' 
-		if not os.path.lexists(OUTFILENAME):
-	                subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.5k"])
-	                SFILE='/tmp/t5k.png'
-	                subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
-	elif type==500:
-		OUTFILENAME='/tmp/django/wikicount/static/images/t500/'+str(id)+'.png' 
-		if not os.path.lexists(OUTFILENAME):
-	                subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.500"])
-	                SFILE='/tmp/t500.png'
-	                subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
-	elif type==50:
-		OUTFILENAME='/tmp/django/wikicount/static/images/t50/'+str(id)+'.png' 
-		if not os.path.lexists(OUTFILENAME):
-	                subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.50"])
-	                SFILE='/tmp/t50.png'
-	                subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
-	return
 def adjustHourforLastHour(HOUR):
 	SEARCH_HOUR=int(HOUR)
         if SEARCH_HOUR == 27:
@@ -250,7 +171,7 @@ def listLastHour(request):
 		pass
 	else:
 		for row in HOURQUERY:
-			title,utitle=MapQuery_FindName(row['_id'])		 	
+			title,utitle=wikilib.fnFindName(row['_id'])		 	
 			rec={'place':place,'Hits':row[str(SEARCH_HOUR)],'title':utitle ,'id':str(row['_id']),'linktitle':title.encode('utf-8')}
 			place+=1
 			send_list.append(rec)
@@ -270,7 +191,7 @@ def searchResults(request):
 		message="You submitted an empty query"
 	DAY,MONTH,YEAR,HOUR,expiretime,MONTHNAME=fnReturnTimes()
 	hd=ReturnHexDigest(stitle)
-	title,utitle=MapQuery_FindName(hd)
+	title,utitle=wikilib.fnFindName(hd)
 	t=get_template('IndexSearchResults.html')
 	MAPQ={'_id': str(hd)}
 	MAPQUERY=db.hitsdaily.find(MAPQ).limit(20)
@@ -339,8 +260,8 @@ def listtop(request,YEAR,MONTH,DAY):
 	#print request
 	QUERY={'d':int(DAY),'m':int(MONTH),'y':int(YEAR)}
 	DAYKEY='toplist'+str(YEAR)+str(MONTH)+str(DAY)
-	syslog.syslog('wikicount-views.py-listtop DAYKEY='+DAYKEY)
-	syslog.syslog('wikicount-listtop.py QUERY='+str(QUERY))
+	syslog.syslog('wikilib-views.py-listtop DAYKEY='+DAYKEY)
+	syslog.syslog('wikilib-listtop.py QUERY='+str(QUERY))
 	print QUERY
 	send_list=mc.get(DAYKEY)
 	tw_timeline=GetTimeline()
@@ -354,7 +275,7 @@ def listtop(request,YEAR,MONTH,DAY):
 			title=''
 			utitle=''
 			try:
-				title, utitle=FormatName(row['title'])
+				title, utitle=wikilib.fnFormatName(row['title'])
 			except KeyError:
 				pass
 			rec={'place':row['place'],'Hits':row['Hits'],'title':utitle ,'id':str(row['id']),'linktitle':title.encode('utf-8')}
@@ -424,7 +345,7 @@ def infoview(request,id):
 			send_list.append(rec)
 		mc.set(INFOVIEW_KEY,send_list,60*60*24)
 	OFILE250K.close()
-	fnDrawGraph(250,id)
+	wikilib.fnDrawGraph(250,id)
 	if info_lt50k_list==None:
 		info_lt50k_list=[]
         	LT50KQ=db['tophits'+str(YEAR)+MONTHNAME].find(LTQUERY)
@@ -440,7 +361,7 @@ def infoview(request,id):
 			info_lt50k_list.append(rec)
 		mc.set(INFOVIEWLT_KEY,info_lt50k_list,60*60*24)
 		OFILE50K.close()
-	fnDrawGraph(50000,id)
+	wikilib.fnDrawGraph(50000,id)
 	if info_lt500_list==None:
 		info_lt500_list=[]
         	resLT500Q=db['tophits'+str(YEAR)+MONTHNAME].find(LT500Q)
@@ -456,7 +377,7 @@ def infoview(request,id):
 			info_lt500_list.append(rec)
 		OFILE500.close()
 		mc.set(INFOVIEWLT500_KEY,info_lt500_list,60*60*24)
-	fnDrawGraph(500,id)
+	wikilib.fnDrawGraph(500,id)
 	if info_lt5k_list==None:
 		info_lt5k_list=[]
         	resLT5KQ=db['tophits'+str(YEAR)+MONTHNAME].find(LT5KQ)
@@ -472,7 +393,7 @@ def infoview(request,id):
 			info_lt5k_list.append(rec)
 		mc.set(INFOVIEWLT5K_KEY,info_lt5k_list,60*60*24)
 		OFILE5K.close()
-	fnDrawGraph(5000,id)
+	wikilib.fnDrawGraph(5000,id)
 	if info_lt50_list==None:
 		info_lt50_list=[]
         	resLT50Q=db['tophits'+str(YEAR)+MONTHNAME].find(LT50Q)
@@ -488,13 +409,13 @@ def infoview(request,id):
 			info_lt50_list.append(rec)
 		mc.set(INFOVIEWLT50_KEY,info_lt50_list,60*60*24)
 		OFILE50.close()
-	fnDrawGraph(50,id)
+	wikilib.fnDrawGraph(50,id)
 
-	title, utitle = MapQuery_FindName(id)
+	title, utitle = wikilib.fnFindName(id)
 	if title=='':
-		title,utitle = MapQuery_FindCategory(id)
+		title,utitle = wikilib.fnFindCategory(id)
 	if title=='':
-		title,utitle = MapQuery_FindImage(id)
+		title,utitle = wikilib.fnFindImage(id)
 	t=get_template('InfoviewIndex.htm')
 	HOURGRAPHFILENAME='http://www.wikitrends.info/static/images/hourly/'+str(id)+'.png'
 	T500GRAPHFILENAME='http://www.wikitrends.info/static/images/t500/'+str(id)+'.png'
@@ -503,19 +424,19 @@ def infoview(request,id):
 	T250KGRAPHFILENAME='http://www.wikitrends.info/static/images/t250k/'+str(id)+'.png'
 	T50GRAPHFILENAME='http://www.wikitrends.info/static/images/t50/'+str(id)+'.png'
 	try:
-		T50GRAPHFILESIZE=os.path.getsize('/tmp/django/wikicount/static/images/t50/'+str(id)+'.png')
+		T50GRAPHFILESIZE=os.path.getsize('/tmp/django/wikilib/static/images/t50/'+str(id)+'.png')
 	except OSError:
 		T50GRAPHFILESIZE=0
 	try:
-		T5KGRAPHFILESIZE=os.path.getsize('/tmp/django/wikicount/static/images/t5k/'+str(id)+'.png')
+		T5KGRAPHFILESIZE=os.path.getsize('/tmp/django/wikilib/static/images/t5k/'+str(id)+'.png')
 	except OSError:
 		T5KGRAPHFILESIZE=0
 	try:
-		T500GRAPHFILESIZE=os.path.getsize('/tmp/django/wikicount/static/images/t500/'+str(id)+'.png')
+		T500GRAPHFILESIZE=os.path.getsize('/tmp/django/wikilib/static/images/t500/'+str(id)+'.png')
 	except OSError:
 		T500GRAPHFILESIZE=0
 	try:
-		T50KGRAPHFILESIZE=os.path.getsize('/tmp/django/wikicount/static/images/t50k/'+str(id)+'.png')
+		T50KGRAPHFILESIZE=os.path.getsize('/tmp/django/wikilib/static/images/t50k/'+str(id)+'.png')
 	except OSError:
 		T50KGRAPHFILESIZE=0
 	try:
@@ -679,7 +600,7 @@ def randPage(request):
 			FQUERY={'d':int(DAY),'m':int(MONTH),'y':int(YEAR),'place':place}
 			RANDOM_LIST_QUERY=db['tophits'+str(YEAR)+MONTHNAME].find(FQUERY)
 			for item in RANDOM_LIST_QUERY:
-				title, utitle=FormatName(item['title'])
+				title, utitle=wikilib.fnFormatName(item['title'])
 				rec={'title':utitle,'place':item['place'],'Hits':item['Hits'],'linktitle':title.encode('utf-8'),'id':item['id']}
 				send_list.append(rec)
 	mc.set('RANDOM_ARTICLES',send_list,60*60)
@@ -708,7 +629,7 @@ def debuts(request):
 	        for item in QUERY:
 	                COUNT=0
 	                TITLE=''
-			title, utitle = MapQuery_FindName(item['id'])
+			title, utitle = wikilib.fnFindName(item['id'])
 			rec={'title':utitle,'place':item['place'],'Hits':item['Hits'],'linktitle':item['linktitle'],'id':item['id']}
 			send_list.append(rec)
 	mc.set('DEBUTS_ARTICLES',send_list,60*60)
