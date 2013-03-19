@@ -73,16 +73,6 @@ for p in TRENDING_LIST_QUERY:
 	wikilib.GenInfoPage(p['id'])
 wikilib.fnSetMemcache('TRENDING_LIST_QUERY',send_list,1800)
 
-print 'cold list query'
-send_list=[]    
-COLD_LIST_QUERY=db.prodcold.find().sort('Hits',1).limit(100)
-syslog.syslog('memcache-cold: '+str(QUERY)+' count: '+str(COLD_LIST_QUERY.count()))
-print COLD_LIST_QUERY.count()
-for p in COLD_LIST_QUERY:
-	rec={'title':p['title'],'place':p['place'],'Hits':p['Hits']%1000,'linktitle':p['linktitle'],'id':p['id']}
-        send_list.append(rec)
-	wikilib.GenInfoPage(p['id'])
-wikilib.fnSetMemcache('COLD_LIST_QUERY',send_list,1800)
 
 
 print 'random query...'

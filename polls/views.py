@@ -540,8 +540,6 @@ def top3hr(request):
 	send_list=mc.get('THREEHOUR_LIST_QUERY')
 	tw_timeline=GetTimeline() 
 	if send_list==None:
-		pass
-	else:
 		send_list=[]	
 		THREEHOUR_LIST_QUERY=db.threehour.find().sort('place',1)
 		for p in THREEHOUR_LIST_QUERY:
@@ -563,10 +561,10 @@ def cold(request):
 	tw_timeline=GetTimeline() 
  	send_list=[]
 	title=''
-	for p in COLD_LIST_QUERY:
-		rec={'title':p['title'],'place':p['place'],'Hits':p['Hits'],'linktitle':p['linktitle'],'id':p['id']}
-		send_list.append(rec)
-	c=Context({'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':'WikiTrends.Info - Cooling','PageDesc':'The pages with the biggest drop in standings from yesterday to today.','expiretime':expiretime,'tw_timeline':tw_timeline})
+#	for p in COLD_LIST_QUERY:
+#		rec={'title':p['title'],'place':p['place'],'Hits':p['Hits'],'linktitle':p['linktitle'],'id':p['id']}
+#		send_list.append(rec)
+	c=Context({'latest_hits_list':COLD_LIST_QUERY,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':'WikiTrends.Info - Cooling','PageDesc':'The pages with the biggest drop in standings from yesterday to today.','expiretime':expiretime,'tw_timeline':tw_timeline})
 	rendered=t.render(c)
 	return HttpResponse(rendered)
 
