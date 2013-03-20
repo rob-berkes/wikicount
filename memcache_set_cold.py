@@ -40,6 +40,6 @@ for p in COLD_LIST_QUERY:
 	rec={'title':p['title'],'place':p['place'],'Hits':p['Hits'],'linktitle':p['linktitle'],'id':p['id']}
         send_list.append(rec)
 	wikilib.GenInfoPage(p['id'])
-wikilib.fnSetMemcache('COLD_LIST_QUERY',send_list,1800)
+wikilib.fnSetMemcache('COLD_LIST_QUERY',send_list,60*60)
 
 

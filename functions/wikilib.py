@@ -8,7 +8,6 @@ import memcache
 import time
 import subprocess 
 
-mc1=memcache.Client(['127.0.0.1:11211'],debug=0)
 conn=Connection('10.115.126.7')
 db=conn.wc
 
@@ -148,7 +147,7 @@ def fnMinusHour(HOUR):
         return HOUR
 def fnSetMemcache(KEYNAME,send_list,exptime):
 	MEMCACHE_SERVERS=['127.0.0.1','10.62.13.235']
-		
+	mc1=memcache.Client(['127.0.0.1:11211'],debug=0)
 	mc1.set(KEYNAME,send_list,exptime)
 	return
 def GenInfoPage(id):
