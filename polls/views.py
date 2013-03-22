@@ -291,110 +291,10 @@ def infoview(request,id):
 
         QUERY={'id':str(id)}
 	print QUERY
-	LTQUERY={'id':id,'place':{'$lt':50001}}
-	LT5KQ={'id':id,'place':{'$lt':5001}}
-	LT500Q={'id':id,'place':{'$lt':501}}
-	LT50Q={'id':id,'place':{'$lt':51}}
-	INFOVIEW_KEY='infoview_'+str(id)
-	INFOVIEWLT_KEY='infoviewlt_'+str(id)
-	INFOVIEWLT5K_KEY='infoviewlt5k_'+str(id)
-	INFOVIEWLT500_KEY='infoviewlt500_'+str(id)
-	INFOVIEWLT50_KEY='infoviewlt50_'+str(id)
 
-	HOUR_RS=db.hitshourly.find_one({'_id':id})
-	if HOUR_RS==None:
-		HOUR_RS=db.categoryhourly.find_one({'_id':id})
-	if HOUR_RS==None:
-		HOUR_RS=db.imagehourly.find_one({'_id':id})
 	latest_news_list = wikilib.fnLatestnews()
 	
 	tw_timeline=GetTimeline()
-	send_list=[] 
-	send_list=mc.get(INFOVIEW_KEY)
-	info_lt50k_list=mc.get(INFOVIEWLT_KEY)
-	info_lt5k_list=mc.get(INFOVIEWLT5K_KEY)	
-	info_lt500_list=mc.get(INFOVIEWLT500_KEY)	
-	info_lt50_list=mc.get(INFOVIEWLT50_KEY)
-	OFILE250K=open("/tmp/t250k.log","w")	
-	if send_list==None:
-		send_list=[]
-		FINDQ=db['tophits'+str(YEAR)+MONTHNAME].find(QUERY).sort([('y',1),('m',1),('d',1)])
-		DFINDQ=db.tophits.find(QUERY)
-		for result in DFINDQ:
-			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
-			OFILE250K.write(str(result['y'])+'/'+str(result['m'])+'/'+str(result['d'])+' '+str(result['place'])+'\n')
-			send_list.append(rec)
-		for result in FINDQ:
-			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
-			OFILE250K.write(str(result['y'])+'/'+str(result['m'])+'/'+str(result['d'])+' '+str(result['place'])+'\n')
-			send_list.append(rec)
-		mc.set(INFOVIEW_KEY,send_list,60*60*24)
-	OFILE250K.close()
-	wikilib.fnDrawGraph(250,id)
-	if info_lt50k_list==None:
-		info_lt50k_list=[]
-        	LT50KQ=db['tophits'+str(YEAR)+MONTHNAME].find(LTQUERY)
-		D50KFINDQ=db.tophits.find(LTQUERY)
-		OFILE50K=open("/tmp/t50k.log","w")
-		for result in D50KFINDQ:
-			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
-			OFILE50K.write(str(rec['y'])+'/'+str(rec['m'])+'/'+str(rec['d'])+' '+str(rec['place'])+'\n')
-			info_lt50k_list.append(rec)
-		for result in LT50KQ:
-			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
-			OFILE50K.write(str(rec['y'])+'/'+str(rec['m'])+'/'+str(rec['d'])+' '+str(rec['place'])+'\n')
-			info_lt50k_list.append(rec)
-		mc.set(INFOVIEWLT_KEY,info_lt50k_list,60*60*24)
-		OFILE50K.close()
-	wikilib.fnDrawGraph(50000,id)
-	if info_lt500_list==None:
-		info_lt500_list=[]
-        	resLT500Q=db['tophits'+str(YEAR)+MONTHNAME].find(LT500Q)
-		D500FINDQ=db.tophits.find(LT500Q)
-		OFILE500=open("/tmp/t500.log","w")
-		for result in D500FINDQ:
-			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
-			OFILE500.write(str(result['y'])+'/'+str(result['m'])+'/'+str(result['d'])+' '+str(result['place'])+'\n')
-			info_lt500_list.append(rec)
-		for res in resLT500Q:
-			rec={'d':str(res['d']),'m':str(res['m']),'y':str(res['y']),'place':str(res['place'])}
-			OFILE500.write(str(res['y'])+'/'+str(res['m'])+'/'+str(res['d'])+' '+str(res['place'])+'\n')
-			info_lt500_list.append(rec)
-		OFILE500.close()
-		mc.set(INFOVIEWLT500_KEY,info_lt500_list,60*60*24)
-	wikilib.fnDrawGraph(500,id)
-	if info_lt5k_list==None:
-		info_lt5k_list=[]
-        	resLT5KQ=db['tophits'+str(YEAR)+MONTHNAME].find(LT5KQ)
-		D5KFINDQ=db.tophits.find(LT5KQ)
-		OFILE5K=open("/tmp/t5k.log","w")
-		for result in D5KFINDQ:
-			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}	
-			OFILE5K.write(str(result['y'])+'/'+str(result['m'])+'/'+str(result['d'])+' '+str(result['place'])+'\n')
-			info_lt5k_list.append(rec)
-		for result in resLT5KQ:
-			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
-			OFILE5K.write(str(result['y'])+'/'+str(result['m'])+'/'+str(result['d'])+' '+str(result['place'])+'\n')
-			info_lt5k_list.append(rec)
-		mc.set(INFOVIEWLT5K_KEY,info_lt5k_list,60*60*24)
-		OFILE5K.close()
-	wikilib.fnDrawGraph(5000,id)
-	if info_lt50_list==None:
-		info_lt50_list=[]
-        	resLT50Q=db['tophits'+str(YEAR)+MONTHNAME].find(LT50Q)
-		D50FINDQ=db.tophits.find(LT50Q)
-		OFILE50=open("/tmp/t50.log","w")
-		for result in D50FINDQ:
-			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
-			OFILE50.write(str(result['y'])+'/'+str(result['m'])+'/'+str(result['d'])+' '+str(result['place'])+'\n')
-			info_lt50_list.append(rec)
-		for result in resLT50Q:
-			rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
-			OFILE50.write(str(result['y'])+'/'+str(result['m'])+'/'+str(result['d'])+' '+str(result['place'])+'\n')
-			info_lt50_list.append(rec)
-		mc.set(INFOVIEWLT50_KEY,info_lt50_list,60*60*24)
-		OFILE50.close()
-	wikilib.fnDrawGraph(50,id)
 
 	title, utitle = wikilib.fnFindName(id)
 	if title=='':
@@ -424,11 +324,7 @@ def infoview(request,id):
 		T50KGRAPHFILESIZE=os.path.getsize('/tmp/django/wikilib/static/images/t50k/'+str(id)+'.png')
 	except OSError:
 		T50KGRAPHFILESIZE=0
-	try:
-		SENDME=sorted(HOUR_RS.iteritems())
-	except AttributeError:
-		SENDME=[]
-	c=Context({'PageDesc':'Click above to go the Wikipedia page.','info_find_query':send_list,'latest_news_list':latest_news_list,'PageTitle':utitle,'expiretime':expiretime,'linktitle':title,'tw_timeline':tw_timeline,'hour_send_list':SENDME,'info_lt50k_list':info_lt50k_list,'info_lt5k_list':info_lt5k_list,'info_lt500_list':info_lt500_list,'info_lt50_list':info_lt50_list,'HOURGRAPHFILENAME':HOURGRAPHFILENAME,'T500GRAPHFILENAME':T500GRAPHFILENAME,'T5KGRAPHFILENAME':T5KGRAPHFILENAME,'T50KGRAPHFILENAME':T50KGRAPHFILENAME,'T250KGRAPHFILENAME':T250KGRAPHFILENAME,'T50GRAPHFILENAME':T50GRAPHFILENAME,'T50GRAPHFILESIZE':T50GRAPHFILESIZE,'T5KGRAPHFILESIZE':T5KGRAPHFILESIZE,'T500GRAPHFILESIZE':T500GRAPHFILESIZE,'T50KGRAPHFILESIZE':T50KGRAPHFILESIZE})
+	c=Context({'PageDesc':'Click above to go the Wikipedia page.','info_find_query':send_list,'latest_news_list':latest_news_list,'PageTitle':utitle,'expiretime':expiretime,'linktitle':title,'tw_timeline':tw_timeline,'HOURGRAPHFILENAME':HOURGRAPHFILENAME,'T500GRAPHFILENAME':T500GRAPHFILENAME,'T5KGRAPHFILENAME':T5KGRAPHFILENAME,'T50KGRAPHFILENAME':T50KGRAPHFILENAME,'T250KGRAPHFILENAME':T250KGRAPHFILENAME,'T50GRAPHFILENAME':T50GRAPHFILENAME,'T50GRAPHFILESIZE':T50GRAPHFILESIZE,'T5KGRAPHFILESIZE':T5KGRAPHFILESIZE,'T500GRAPHFILESIZE':T500GRAPHFILESIZE,'T50KGRAPHFILESIZE':T50KGRAPHFILESIZE})
 	rendered=t.render(c)
 	return HttpResponse(rendered)
 

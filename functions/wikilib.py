@@ -95,7 +95,7 @@ def fnGenTableArchive(TABLENAME,id,place):
 	QUERY={'id':id,'place':{'$lt':place}}
 	FINDQ=db[TABLENAME].find(QUERY)
 	for result in FINDQ:
-	        rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
+		rec=str(item['y'])+'/'+str(item['m'])+'/'+str(item['d'])+' '+str(item['place'])+'\n'
         	send_list.append(rec)
 	return send_list
 
@@ -194,20 +194,15 @@ def GenInfoPage(id):
 	T5KFILE=open('/tmp/t5k.log','w')
 
 	for item in send_list:
-		REC=str(item['y'])+'/'+str(item['m'])+'/'+str(item['d'])+' '+str(item['place'])+'\n'
-		T250FILE.write(REC)
+		T250FILE.write(item)
 	for item in info_lt50k_list:
-		REC=str(item['y'])+'/'+str(item['m'])+'/'+str(item['d'])+' '+str(item['place'])+'\n'
-		T50KFILE.write(REC)
+		T50KFILE.write(item)
 	for item in info_lt5k_list:
-		REC=str(item['y'])+'/'+str(item['m'])+'/'+str(item['d'])+' '+str(item['place'])+'\n'
-		T5KFILE.write(REC)
+		T5KFILE.write(item)
 	for item in info_lt500_list:
-		REC=str(item['y'])+'/'+str(item['m'])+'/'+str(item['d'])+' '+str(item['place'])+'\n'
-		T500FILE.write(REC)
+		T500FILE.write(item)
 	for item in info_lt50_list:
-		REC=str(item['y'])+'/'+str(item['m'])+'/'+str(item['d'])+' '+str(item['place'])+'\n'
-		T50FILE.write(REC)
+		T50FILE.write(item)
 	
 	T50KFILE.close()
 	T5KFILE.close()
@@ -222,11 +217,11 @@ def GenInfoPage(id):
 	fnDrawGraph(250,id)
 
 		
-        fnSetMemcache(INFOVIEW_KEY,send_list,60*60*12)
-	fnSetMemcache(INFOVIEWLT_KEY,info_lt50k_list,60*60*12)
-	fnSetMemcache(INFOVIEWLT5K_KEY,info_lt5k_list,60*60*12)
-	fnSetMemcache(INFOVIEWLT500_KEY,info_lt500_list,60*60*12)
-	fnSetMemcache(INFOVIEWLT50_KEY,info_lt50_list,60*60*12)
+#        fnSetMemcache(INFOVIEW_KEY,send_list,60*60*12)
+#	fnSetMemcache(INFOVIEWLT_KEY,info_lt50k_list,60*60*12)
+#	fnSetMemcache(INFOVIEWLT5K_KEY,info_lt5k_list,60*60*12)
+#	fnSetMemcache(INFOVIEWLT500_KEY,info_lt500_list,60*60*12)
+#	fnSetMemcache(INFOVIEWLT50_KEY,info_lt50_list,60*60*12)
 	return
 
 
