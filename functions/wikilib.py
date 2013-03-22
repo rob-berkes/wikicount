@@ -124,19 +124,25 @@ def fnLatestnews():
         return latest_news_list
 
 def fnLaunchNextJob(CURJOBNAME):
-	if CURJOBNAME=='set_vars':
-		syslog.syslog('Launching image draw for trending...')
-		os.system('/usr/bin/python /tmp/django/wikicount/scripts/memcache_draw_trending_graphs.py')
-	elif CURJOBNAME=='trending':
-		syslog.syslog('Launching threehour images script...') 
-		os.system('/usr/bin/python /tmp/django/wikicount/scripts/memcache_draw_threehour.py')
-	elif CURJOBNAME=='threehour':
-		syslog.syslog('Launching random graph image draw script...')
-		os.system('/usr/bin/python /tmp/django/wikicount/scripts/memcache_draw_random_graphs.py')
-	elif CURJOBNAME=='random':
-		syslog.syslog('Launching cold images script...')
-		os.system('/usr/bin/python /tmp/django/wikicount/scripts/memcache_draw_cold.py')
-	elif CURJOBNAME=='cold':
+	if CURJOBNAME=='set_cold':
+		syslog.syslog('Launching image draw for day...')
+		os.system('/usr/bin/python /tmp/django/wikicount/scripts/memcache_set_day.py')
+	elif CURJOBNAME=='set_day':
+		syslog.syslog('Launching debuts images script...') 
+		os.system('/usr/bin/python /tmp/django/wikicount/scripts/memcache_set_debuts.py')
+	elif CURJOBNAME=='set_debuts':
+		syslog.syslog('Launching last hour memcache  script...')
+		os.system('/usr/bin/python /tmp/django/wikicount/scripts/memcache_set_lasthour.py')
+	elif CURJOBNAME=='set_lasthour':
+		syslog.syslog('Launching memcache random images script...')
+		os.system('/usr/bin/python /tmp/django/wikicount/scripts/memcache_set_random.py')
+	elif CURJOBNAME=='set_random':
+		syslog.syslog('Launching threehour rolling avg script..')
+		os.system('/usr/bin/python /tmp/django/wikicount/scripts/memcache_set_threehour.py')
+	elif CURJOBNAME=='set_threehour':
+		syslog.syslog('Launching trending script....')
+		os.system('/usr/bin/python /tmp/django/wikicount/scripts/memcache_set_trending.py')
+	elif CURJOBNAME=='set_trending':
 		syslog.syslog('All done with memcached for now!')
 	return 
 

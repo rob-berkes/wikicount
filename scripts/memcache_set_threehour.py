@@ -45,6 +45,6 @@ for p in THREEHOUR_QUERY:
 	wikilib.GenInfoPage(p['id'])
         send_list.append(rec)
 wikilib.fnSetMemcache('THREEHOUR_LIST_QUERY',send_list,60*60) 
-
+wikilib.fnLaunchNextJob('set_threehour')
 
 

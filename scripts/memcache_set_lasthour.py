@@ -46,4 +46,4 @@ for row in HOURQUERY:
     place+=1
     send_list.append(rec)
 wikilib.fnSetMemcache('HOURKEY',send_list,60*60*3)
-
+wikilib.fnLaunchNextJob('set_lasthour')

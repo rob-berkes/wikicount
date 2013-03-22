@@ -47,5 +47,5 @@ for a in range(1,50):
         	 rec={'title':utitle,'place':item['place'],'Hits':item['Hits'],'linktitle':title.encode('utf-8'),'id':item['id']}
         	 send_list.append(rec)
 wikilib.fnSetMemcache('RANDOM_ARTICLES',send_list,60*60)
-
+wikilib.fnLaunchNextJob('set_random')
 
