@@ -92,7 +92,7 @@ def fnFormatName(title):
 
 def fnGenTableArchive(TABLENAME,id,place):
 	send_list=[];
-	QUERY={'id':id,'place':place}
+	QUERY={'id':id,'place':{'$lt':place}}
 	FINDQ=db[TABLENAME].find(QUERY)
 	for result in FINDQ:
 	        rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
@@ -193,14 +193,21 @@ def GenInfoPage(id):
 	T500FILE=open('/tmp/t500.log','w')
 	T5KFILE=open('/tmp/t5k.log','w')
 
+	for item in send_list:
+		REC=str(item['y'])+'/'+str(item['m'])+'/'+str(item['d'])+' '+str(item['place'])+'\n'
+		T250FILE.write(REC)
 	for item in info_lt50k_list:
-		T50KFILE.write(str(item)+'\n')
+		REC=str(item['y'])+'/'+str(item['m'])+'/'+str(item['d'])+' '+str(item['place'])+'\n'
+		T50KFILE.write(REC)
 	for item in info_lt5k_list:
-		T5KFILE.write(str(item)+'\n')
+		REC=str(item['y'])+'/'+str(item['m'])+'/'+str(item['d'])+' '+str(item['place'])+'\n'
+		T5KFILE.write(REC)
 	for item in info_lt500_list:
-		T500FILE.write(str(item)+'\n')
+		REC=str(item['y'])+'/'+str(item['m'])+'/'+str(item['d'])+' '+str(item['place'])+'\n'
+		T500FILE.write(REC)
 	for item in info_lt50_list:
-		T50FILE.write(str(item)+'\n')
+		REC=str(item['y'])+'/'+str(item['m'])+'/'+str(item['d'])+' '+str(item['place'])+'\n'
+		T50FILE.write(REC)
 	
 	T50KFILE.close()
 	T5KFILE.close()
