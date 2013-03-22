@@ -43,4 +43,4 @@ for item in QUERY:
 	rec={'title':utitle,'place':item['place'],'Hits':item['Hits'],'linktitle':item['linktitle'],'id':item['id']}
         send_list.append(rec)
 wikilib.fnSetMemcache('DEBUTS_ARTICLES',send_list,60*60)
-wikilib.fnLaunchNextJob('set_debuts')
+#wikilib.fnLaunchNextJob('set_debuts')

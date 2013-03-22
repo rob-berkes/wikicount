@@ -41,6 +41,6 @@ for p in TRENDING_LIST_QUERY:
         send_list.append(rec)
 	wikilib.GenInfoPage(p['id'])
 wikilib.fnSetMemcache('TRENDING_LIST_QUERY',send_list,1800)
-wikilib.fnLaunchNextJob('set_trending')
+#wikilib.fnLaunchNextJob('set_trending')
 
 

@@ -28,5 +28,5 @@ for p in COLD_LIST_QUERY:
         send_list.append(rec)
 	wikilib.GenInfoPage(p['id'])
 wikilib.fnSetMemcache('COLD_LIST_QUERY',send_list,60*60)
-wikilib.fnLaunchNextJob('set_cold')
+#wikilib.fnLaunchNextJob('set_cold')
 
