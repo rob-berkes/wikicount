@@ -38,13 +38,12 @@ print SEARCH_HOUR
 HOURQUERY=db.hitshourlydaily.find({str(SEARCH_HOUR):{'$gt':1}}).sort(str(SEARCH_HOUR),-1).limit(50)
 send_list=[]
 place=1
-HOURKEY="SEARCHHOUR_"+str(SEARCH_HOUR)
 syslog.syslog('memcache-hourly: '+' count: '+str(HOURQUERY.count()))
 for row in HOURQUERY:
     title,utitle=wikilib.fnFindName(row['_id'])
     wikilib.GenInfoPage(row['_id'])
-    rec={'place':place,'Hits':row[str(SEARCH_HOUR)],'title':utitle ,'id':str(row['_id']),'linktitle':title}
+    rec={'place':place,'Hits':row[str(SEARCH_HOUR)],'title':title ,'id':str(row['_id']),'linktitle':title}
     place+=1
     send_list.append(rec)
-wikilib.fnSetMemcache(HOURKEY,send_list,30*60)
+wikilib.fnSetMemcache('HOURKEY',send_list,60*60*3)
 

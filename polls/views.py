@@ -156,26 +156,11 @@ def fnCaseMonthName(MONTH):
 
 def listLastHour(request):
 	DAY,MONTH,YEAR,HOUR,expiretime,MONTHNAME=fnReturnTimes()
-	MONTHNAME=fnCaseMonthName(MONTH)
 	tw_timeline=GetTimeline()
 	t=get_template('IndexListLast.html')
 	latest_news_list=wikilib.fnLatestnews()
-	SEARCH_HOUR=adjustHourforLastHour(HOUR)
-	SEARCH_HOUR='%02d' % (SEARCH_HOUR,)
-	HOURQUERY=db.hitshourlydaily.find({str(SEARCH_HOUR):{'$gt':1}}).sort(str(SEARCH_HOUR),-1).limit(50)
 	send_list=[]
-	place=1
-	HOURKEY="SEARCHHOUR_"+str(SEARCH_HOUR)
-	send_list=mc.get(HOURKEY)
-	if send_list==None:
-		pass
-	else:
-		for row in HOURQUERY:
-			title,utitle=wikilib.fnFindName(row['_id'])		 	
-			rec={'place':place,'Hits':row[str(SEARCH_HOUR)],'title':utitle ,'id':str(row['_id']),'linktitle':title.encode('utf-8')}
-			place+=1
-			send_list.append(rec)
-	mc.set(HOURKEY,send_list,30*60)
+	send_list=mc.get('HOURKEY')
 	c=Context({'latest_hits_list':send_list,'latest_news_list':latest_news_list,'MONTHNAME':MONTHNAME,'y':YEAR,'m':MONTH,'d':DAY,'tw_timeline':tw_timeline,'latest_news_list':latest_news_list})
 	rendered=t.render(c)
 	return HttpResponse(rendered)
