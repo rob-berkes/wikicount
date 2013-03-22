@@ -1,6 +1,6 @@
 from pymongo import Connection
 import tweepy
-conn=Connection('10.115.126.7')
+conn=Connection('10.37.11.218')
 api=tweepy.api
 db=conn.wc
 

@@ -12,7 +12,7 @@ import subprocess
 import syslog
 import os
 
-conn=Connection('10.115.126.7')
+conn=Connection('10.37.11.218')
 db=conn.wc
 mc=memcache.Client(['127.0.0.1:11211'],debug=0)
 TODAY=date.today()
@@ -24,7 +24,6 @@ HOUR=wikilib.fnGetHour()
 MONTHNAME=datetime.datetime.now().strftime("%B")
 thCN='tophits'+str(YEAR)+MONTHNAME
 dbCN='proddebuts'+str(YEAR)+str(MONTHNAME)
-DAILYPAGERESULTS=db.command({'distinct':thCN,'key':'d','query':{'m':int(MONTH)}})
 
 
 
@@ -32,15 +31,20 @@ HOUR=datetime.datetime.now().strftime('%H')
 HOUR=wikilib.fnMinusHour(int(HOUR))
 RSET=db.logSystem.find_one({'table':'populate_image'})
 
-send_list=[]    
-TRENDING_LIST_QUERY=db.prodtrend.find({u'd':DAY,u'm':MONTH,u'y':YEAR}).sort('Hits',-1).limit(150)
-syslog.syslog('memcache-trending: count: '+str(TRENDING_LIST_QUERY.count()))
-print TRENDING_LIST_QUERY.count()
-for p in TRENDING_LIST_QUERY:
-	rec={'title':p['title'],'place':p['place'],'Hits':p['Hits']%1000,'linktitle':p['linktitle'],'id':p['id']}
-        send_list.append(rec)
+
+
+
+
+print 'lastly, 3hr rolling average'
+send_list=[]
+THREEHOUR_QUERY=db.threehour.find().sort('place',1)
+syslog.syslog('memcache-threehour:  count: '+str(THREEHOUR_QUERY.count()))
+
+for p in THREEHOUR_QUERY:
+	rec={'title':p['title'],'place':p['place'],'Avg':p['rollavg'],'linktitle':p['title'],'id':p['id']}
 	wikilib.GenInfoPage(p['id'])
-wikilib.fnSetMemcache('TRENDING_LIST_QUERY',send_list,1800)
+        send_list.append(rec)
+wikilib.fnSetMemcache('THREEHOUR_LIST_QUERY',send_list,60*60) 
 
 
 

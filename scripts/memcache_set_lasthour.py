@@ -12,7 +12,7 @@ import subprocess
 import syslog
 import os
 
-conn=Connection('10.115.126.7')
+conn=Connection('10.37.11.218')
 db=conn.wc
 mc=memcache.Client(['127.0.0.1:11211'],debug=0)
 TODAY=date.today()
@@ -34,6 +34,7 @@ HOUR=wikilib.fnMinusHour(int(HOUR))
 
 
 SEARCH_HOUR='%02d' % (int(HOUR),)
+print SEARCH_HOUR
 HOURQUERY=db.hitshourlydaily.find({str(SEARCH_HOUR):{'$gt':1}}).sort(str(SEARCH_HOUR),-1).limit(50)
 send_list=[]
 place=1
@@ -42,9 +43,8 @@ syslog.syslog('memcache-hourly: '+' count: '+str(HOURQUERY.count()))
 for row in HOURQUERY:
     title,utitle=wikilib.fnFindName(row['_id'])
     wikilib.GenInfoPage(row['_id'])
-    rec={'place':place,'Hits':row[str(SEARCH_HOUR)],'title':utitle ,'id':str(row['_id']),'linktitle':title.encode('utf-8')}
+    rec={'place':place,'Hits':row[str(SEARCH_HOUR)],'title':utitle ,'id':str(row['_id']),'linktitle':title}
     place+=1
     send_list.append(rec)
 wikilib.fnSetMemcache(HOURKEY,send_list,30*60)
 
-wikilib.fnLaunchNextJob('set_vars')

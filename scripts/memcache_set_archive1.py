@@ -6,7 +6,7 @@ import syslog
 from functions import wikilib
 
 
-conn=Connection('10.115.126.7')
+conn=Connection('10.37.11.218')
 db=conn.wc
 mc=memcache.Client(['127.0.0.1:11211'],debug=0)
 TODAY=date.today()

@@ -3,12 +3,13 @@ import urllib2
 import os
 import string
 import datetime 
+from datetime import date
 from pymongo import Connection 
 import memcache
 import time
 import subprocess 
 
-conn=Connection('10.115.126.7')
+conn=Connection('10.37.11.218')
 db=conn.wc
 
 def fnDrawGraph(type,id):
@@ -96,15 +97,26 @@ def fnGenTableArchive(TABLENAME,id,place):
 	for result in FINDQ:
 	        rec={'d':str(result['d']),'m':str(result['m']),'y':str(result['y']),'place':str(result['place'])}
         	send_list.append(rec)
-
 	return send_list
 
+def fnGetDate():
+	TODAY=date.today()
+	DAY=TODAY.day
+	MONTH=TODAY.month
+	YEAR=TODAY.year
+	return DAY,MONTH,YEAR
+
+	
 def fnGetHour():
 	return time.strftime('%H')
 
 def fnGetHourString(hour):
         HOUR='%02d' % (hour,)
         return HOUR
+
+def fnGetMonthName():
+	MONTHNAME=datetime.datetime.now().strftime("%B")
+	return MONTHNAME
 
 def fnLatestnews():
         ARTICLELIMIT=5
@@ -169,11 +181,33 @@ def GenInfoPage(id):
 		info_lt500_list+=fnGenTableArchive(MONTH,id,501)        
 		info_lt50_list+=fnGenTableArchive(MONTH,id,51)        
 
-	T50FILE=open('/tmp/t50k.log','w')
+	T50KFILE=open('/tmp/t50k.log','w')
+	T250FILE=open('/tmp/t250k.log','w')
+	T50FILE=open('/tmp/t50.log','w')
+	T500FILE=open('/tmp/t500.log','w')
+	T5KFILE=open('/tmp/t5k.log','w')
+
 	for item in info_lt50k_list:
+		T50KFILE.write(str(item)+'\n')
+	for item in info_lt5k_list:
+		T5KFILE.write(str(item)+'\n')
+	for item in info_lt500_list:
+		T500FILE.write(str(item)+'\n')
+	for item in info_lt50_list:
 		T50FILE.write(str(item)+'\n')
-	os.system('/usr/bin/python /tmp/django/wikicount/scripts/memcache_draw_cold.py')
+	
+	T50KFILE.close()
+	T5KFILE.close()
+	T500FILE.close()
 	T50FILE.close()
+	T250FILE.close()
+
+	fnDrawGraph(50000,id)
+	fnDrawGraph(5000,id)
+	fnDrawGraph(500,id)
+	fnDrawGraph(50,id)
+	fnDrawGraph(250,id)
+
 		
         fnSetMemcache(INFOVIEW_KEY,send_list,60*60*12)
 	fnSetMemcache(INFOVIEWLT_KEY,info_lt50k_list,60*60*12)
