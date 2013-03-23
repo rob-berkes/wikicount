@@ -18,15 +18,19 @@ dbCN='proddebuts'+str(YEAR)+str(MONTHNAME)
 
 HOUR=wikilib.fnMinusHour(int(HOUR))
 
-print 'cold list query'
+syslog.syslog('starting memcache_set_cold query')
 send_list=[]    
 COLD_LIST_QUERY=db.prodcold.find().sort('Hits',1).limit(100)
-syslog.syslog('memcache-cold:  count: '+str(COLD_LIST_QUERY.count()))
+syslog.syslog('memcache-cold: COLD_LIST_QUERY count: '+str(COLD_LIST_QUERY.count()))
 print COLD_LIST_QUERY.count()
+a=0
 for p in COLD_LIST_QUERY:
+	a+=1
 	rec={'title':p['title'],'place':p['place'],'Hits':p['Hits'],'linktitle':p['linktitle'],'id':p['id']}
         send_list.append(rec)
 	wikilib.GenInfoPage(p['id'])
-wikilib.fnSetMemcache('COLD_LIST_QUERY',send_list,60*60)
+syslog.syslog('memcache-cold: total of '+str(a)+' records processed')
+wikilib.fnSetMemcache('COLD_LIST_QUERY',send_list,60*60*2)
+syslog.syslog('memcache-cold: done!')
 #wikilib.fnLaunchNextJob('set_cold')
 

@@ -33,7 +33,7 @@ HOUR=wikilib.fnMinusHour(int(HOUR))
 RSET=db.logSystem.find_one({'table':'populate_image'})
 
 send_list=[]
-print 'daily pages first....'
+syslog.syslog('calling daily pages image script....')
 for d in DAILYPAGERESULTS['values']:
 	rec={'d':d,'m':MONTH,'y':YEAR,'stry':str(YEAR),'strm':str(MONTH),'strd':str(d)}
         send_list.append(rec)

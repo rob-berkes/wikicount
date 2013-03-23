@@ -8,6 +8,7 @@ from pymongo import Connection
 import memcache
 import time
 import subprocess 
+import syslog
 
 conn=Connection('10.37.11.218')
 db=conn.wc
@@ -166,6 +167,7 @@ def fnMinusHour(HOUR):
 def fnSetMemcache(KEYNAME,send_list,exptime):
 	MEMCACHE_SERVERS=['127.0.0.1','10.62.13.235']
 	mc1=memcache.Client(['127.0.0.1:11211'],debug=0)
+	syslog.syslog('setting memcache key '+str(KEYNAME))
 	mc1.set(KEYNAME,send_list,exptime)
 	return
 def GenInfoPage(id):
