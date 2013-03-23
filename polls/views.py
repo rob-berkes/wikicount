@@ -105,7 +105,7 @@ def GenHourlyGraph(id):
         except KeyError:
                 pass
         OFILE.close()
-        subprocess.call(["gnuplot","/tmp/django/wikilib/scripts/gnuplot.plot"])
+        subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.plot"])
         OUTFILENAME='/tmp/django/wikilib/static/images/hourly/'+str(id)+'.png'
         SFILE='/tmp/django/wikilib/introduction.png'
         subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
