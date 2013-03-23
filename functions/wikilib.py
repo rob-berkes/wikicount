@@ -17,31 +17,31 @@ def fnDrawGraph(type,id):
                 OUTFILENAME='/tmp/django/wikicount/static/images/t250k/'+str(id)+'.png' 
                 if not os.path.lexists(OUTFILENAME):
                         subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.250k"])
-                        SFILE='/tmp/t250k.png'
+                        SFILE='/tmp/top250k.png'
                         subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
         elif type==50000:
                 OUTFILENAME='/tmp/django/wikicount/static/images/t50k/'+str(id)+'.png' 
                 if not os.path.lexists(OUTFILENAME):
                         subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.50k"])
-                        SFILE='/tmp/t50k.png'
+                        SFILE='/tmp/top50k.png'
                         subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
         elif type==5000:
                 OUTFILENAME='/tmp/django/wikicount/static/images/t5k/'+str(id)+'.png' 
                 if not os.path.lexists(OUTFILENAME):
                         subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.5k"])
-                        SFILE='/tmp/t5k.png'
+                        SFILE='/tmp/top5k.png'
                         subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
         elif type==500:
                 OUTFILENAME='/tmp/django/wikicount/static/images/t500/'+str(id)+'.png' 
                 if not os.path.lexists(OUTFILENAME):
                         subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.500"])
-                        SFILE='/tmp/t500.png'
+                        SFILE='/tmp/top500.png'
                         subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
         elif type==50:
                 OUTFILENAME='/tmp/django/wikicount/static/images/t50/'+str(id)+'.png' 
                 if not os.path.lexists(OUTFILENAME):
                         subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.50"])
-                        SFILE='/tmp/t50.png'
+                        SFILE='/tmp/top50.png'
                         subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
         return
 
@@ -95,7 +95,7 @@ def fnGenTableArchive(TABLENAME,id,place):
 	QUERY={'id':id,'place':{'$lt':place}}
 	FINDQ=db[TABLENAME].find(QUERY)
 	for result in FINDQ:
-		rec=str(item['y'])+'/'+str(item['m'])+'/'+str(item['d'])+' '+str(item['place'])+'\n'
+		rec=str(result['y'])+'/'+str(result['m'])+'/'+str(result['d'])+' '+str(result['place'])+'\n'
         	send_list.append(rec)
 	return send_list
 
