@@ -501,16 +501,6 @@ def debuts(request):
         TOTALNEW=0
 	send_list=mc.get('DEBUTS_ARTICLES')
 	tw_timeline=GetTimeline() 
-	if len(send_list)>0:
-		pass
-	else:
-		send_list=[]
-	        for item in QUERY:
-	                COUNT=0
-	                TITLE=''
-			title, utitle = wikilib.fnFindName(item['id'])
-			rec={'title':utitle,'place':item['place'],'Hits':item['Hits'],'linktitle':item['linktitle'],'id':item['id']}
-			send_list.append(rec)
 	mc.set('DEBUTS_ARTICLES',send_list,60*60)
 	c=Context({'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':'Wikipedia\'s Debuting Pages','PageDesc':'Articles that have debuted in the most viewed list today','expiretime':expiretime,'tw_timeline':tw_timeline})
 	rendered=t.render(c)
