@@ -24,9 +24,6 @@ HOUR=wikilib.fnGetHour()
 MONTHNAME=datetime.datetime.now().strftime("%B")
 thCN='tophits'+str(YEAR)+MONTHNAME
 dbCN='proddebuts'+str(YEAR)+str(MONTHNAME)
-DAILYPAGERESULTS=db.command({'distinct':thCN,'key':'d','query':{'m':int(MONTH)}})
-
-
 
 HOUR=datetime.datetime.now().strftime('%H')
 HOUR=wikilib.fnMinusHour(int(HOUR))
@@ -34,13 +31,13 @@ RSET=db.logSystem.find_one({'table':'populate_image'})
 
 send_list=[]    
 TRENDING_LIST_QUERY=db.prodtrend.find({u'd':DAY,u'm':MONTH,u'y':YEAR}).sort('Hits',-1).limit(150)
-syslog.syslog('memcache-trending: count: '+str(TRENDING_LIST_QUERY.count()))
+syslog.syslog('memcache-hour-trending: count: '+str(TRENDING_LIST_QUERY.count()))
 print TRENDING_LIST_QUERY.count()
 for p in TRENDING_LIST_QUERY:
-	rec={'title':p['title'],'place':p['place'],'Hits':p['Hits']%1000,'linktitle':p['linktitle'],'id':p['id']}
+	rec={'title':p['title'],'place':p['place'],'Hits':p['Hits'],'linktitle':p['linktitle'],'id':p['id']}
         send_list.append(rec)
 	wikilib.GenInfoPage(p['id'])
-wikilib.fnSetMemcache('TRENDING_LIST_QUERY',send_list,1800)
+wikilib.fnSetMemcache('HOURKEY',send_list,1800)
 #wikilib.fnLaunchNextJob('set_trending')
 
 
