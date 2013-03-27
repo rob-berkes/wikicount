@@ -261,7 +261,8 @@ def listtop(request,YEAR,MONTH,DAY):
 			rec={'place':row['place'],'Hits':row['Hits'],'title':utitle ,'id':str(row['id']),'linktitle':title.encode('utf-8')}
 			send_list.append(rec)
 		mc.set('DAYKEY',send_list,7200)
-	c=Context({'latest_hits_list':send_list,'y':YEAR,'m':MONTH,'d':DAY,'tw_timeline':tw_timeline,'latest_news_list':latest_news_list})
+	PageTitle='Top Articles for '+str(YEAR)+'/'+str(MONTH)+'/'+str(DAY)+'.'
+	c=Context({'PageTitle':PageTitle,'latest_hits_list':send_list,'y':YEAR,'m':MONTH,'d':DAY,'tw_timeline':tw_timeline,'latest_news_list':latest_news_list})
 	rendered=t.render(c)
 	return HttpResponse(rendered)
 
