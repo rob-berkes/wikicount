@@ -221,9 +221,7 @@ def dailypage(request,YEAR=2013,MONTH=2):
 	t=get_template('IndexDaily.html')
 	send_list=mc.get('mcdpDaysList'+str(MONTH)+str(YEAR))
 	archive_list=GenArchiveList()
-	if len(send_list)>0:
-		pass
-	else:
+	if send_list==None:
 		send_list=[]
 		RESULTSET=db.command({'distinct':'tophits'+str(YEAR)+MONTHNAME,'key':'d','query':{'m':int(MONTH),'y':int(YEAR)}})
 		for d in RESULTSET['values']:
@@ -247,13 +245,10 @@ def listtop(request,YEAR,MONTH,DAY):
 	DAYKEY='toplist'+str(YEAR)+str(MONTH)+str(DAY)
 	syslog.syslog('wikilib-views.py-listtop DAYKEY='+DAYKEY)
 	syslog.syslog('wikilib-listtop.py QUERY='+str(QUERY))
-	print QUERY
 	send_list=mc.get(DAYKEY)
 	tw_timeline=GetTimeline()
-	latest_news_list=wikilib.fnLatestnews() 
-	if send_list==None:
-		pass
-	else:
+	latest_news_list=wikilib.fnLatestnews()
+	if send_list==None: 
 		send_list=[]
 		RESULTSET=db['tophits'+str(YEAR)+MONTHNAME].find(QUERY).sort('place',1).limit(100)
 		for row in RESULTSET:

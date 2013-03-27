@@ -9,38 +9,40 @@ import memcache
 import time
 import subprocess 
 import syslog
+import random
 
 conn=Connection('10.37.11.218')
 db=conn.wc
 
 def fnDrawGraph(type,id):
+	TESTNUM=random.randint(1,20)
         if type==250:
                 OUTFILENAME='/tmp/django/wikicount/static/images/t250k/'+str(id)+'.png' 
-                if not os.path.lexists(OUTFILENAME):
+                if not os.path.lexists(OUTFILENAME) or TESTNUM==12:
                         subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.250k"])
                         SFILE='/tmp/top250k.png'
                         subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
         elif type==50000:
                 OUTFILENAME='/tmp/django/wikicount/static/images/t50k/'+str(id)+'.png' 
-                if not os.path.lexists(OUTFILENAME):
+                if not os.path.lexists(OUTFILENAME) or TESTNUM==12:
                         subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.50k"])
                         SFILE='/tmp/top50k.png'
                         subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
         elif type==5000:
                 OUTFILENAME='/tmp/django/wikicount/static/images/t5k/'+str(id)+'.png' 
-                if not os.path.lexists(OUTFILENAME):
+                if not os.path.lexists(OUTFILENAME) or TESTNUM==12:
                         subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.5k"])
                         SFILE='/tmp/top5k.png'
                         subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
         elif type==500:
                 OUTFILENAME='/tmp/django/wikicount/static/images/t500/'+str(id)+'.png' 
-                if not os.path.lexists(OUTFILENAME):
+                if not os.path.lexists(OUTFILENAME) or TESTNUM==12:
                         subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.500"])
                         SFILE='/tmp/top500.png'
                         subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
         elif type==50:
                 OUTFILENAME='/tmp/django/wikicount/static/images/t50/'+str(id)+'.png' 
-                if not os.path.lexists(OUTFILENAME):
+                if not os.path.lexists(OUTFILENAME) or TESTNUM==12:
                         subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.50"])
                         SFILE='/tmp/top50.png'
                         subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)

@@ -24,9 +24,9 @@ RESULTSET=db.command({'distinct':thCN,'key':'d'})
 for d in RESULTSET['values']:
         rec={'d':d,'m':MONTH,'y':YEAR,'stry':str(YEAR),'strm':str(MONTH),'strd':str(d)}
         QUERY={'d':int(d),'m':int(MONTH),'y':int(YEAR)}
-        DAYKEY='toplist'+str(YEAR)+'-'+str(MONTH)+'-'+str(DAY)
+        DAYKEY='toplist'+str(YEAR)+str(MONTH)+str(DAY)
         page_list=[]
-        PAGERESULTSET=db[thCN].find(QUERY).sort('place',1).limit(50)
+        PAGERESULTSET=db[thCN].find(QUERY).sort('place',1).limit(100)
         syslog.syslog('memcache-monthly: '+str(DAYKEY)+' '+str(QUERY)+' count: '+str(PAGERESULTSET.count()))
         for row in PAGERESULTSET:
                 title, utitle=wikilib.fnFormatName(row['title'])
@@ -35,5 +35,5 @@ for d in RESULTSET['values']:
                 page_list.append(prec)
                 mc.set(DAYKEY,page_list,60*60*24*14)
         send_list.append(rec)
-mc.set('mcdpDaysList'+str(MONTH)+str(YEAR),send_list,60*60*24)
+mc.set('mcdpDaysList'+str(MONTH)+str(YEAR),send_list,60*60*24*5)
 
