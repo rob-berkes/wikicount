@@ -242,7 +242,7 @@ def listtop(request,YEAR,MONTH,DAY):
 	send_list=[]
 	#print request
 	QUERY={'d':int(DAY),'m':int(MONTH),'y':int(YEAR)}
-	DAYKEY='toplist'+str(YEAR)+str(MONTH)+str(DAY)
+	DAYKEY='toplist'+str(YEAR)+'-'+str(MONTH)+'-'+str(DAY)
 	syslog.syslog('wikilib-views.py-listtop DAYKEY='+DAYKEY)
 	syslog.syslog('wikilib-listtop.py QUERY='+str(QUERY))
 	send_list=mc.get(DAYKEY)

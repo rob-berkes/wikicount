@@ -29,7 +29,7 @@ for COLLECTION in PASTTABLES:
 	for d in RESULTSET['values']:
 	        rec={'d':d,'m':MONTH,'y':YEAR,'stry':str(YEAR),'strm':str(MONTH),'strd':str(d)}
 	        QUERY={'d':int(d),'m':int(MONTH),'y':int(YEAR)}
-	        DAYKEY='toplist'+str(YEAR)+str(MONTH)+str(d)
+	        DAYKEY='toplist'+str(YEAR)+'-'+str(MONTH)+'-'+str(d)
 	        page_list=[]
 	        PAGERESULTSET=db[COLLECTION].find(QUERY).sort('place',1).limit(100)
 	        syslog.syslog('memcache-monthly: '+str(DAYKEY)+' '+str(QUERY)+' count: '+str(PAGERESULTSET.count()))
@@ -39,6 +39,7 @@ for COLLECTION in PASTTABLES:
 	                prec={'place':row['place'],'Hits':row['Hits'],'title':title ,'id':str(row['id']),'linktitle':utitle}
 	                wikilib.GenInfoPage(row['id'])
 	                page_list.append(prec)
+			syslog.syslog('mc-archives: Now setting mc key '+str(DAYKEY))
 	                mc.set(DAYKEY,page_list,60*60*24*60)
 	        send_list.append(rec)
 	mc.set('mcdpDaysList'+str(MONTH)+str(YEAR),send_list,60*60*24*60)
