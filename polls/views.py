@@ -309,6 +309,11 @@ def infoview(request,id):
 	T250KGRAPHFILENAME='http://www.wikitrends.info/static/images/t250k/'+str(id)+'.png'
 	T50GRAPHFILENAME='http://www.wikitrends.info/static/images/t50/'+str(id)+'.png'
 	try:
+		T250KGRAPHFILESIZE=os.path.getsize('/tmp/django/wikilib/static/images/t50/'+str(id)+'.png')
+	except OSError:
+		T250KGRAPHFILESIZE=0
+		wikilib.fnDrawGraph(250,id)
+	try:
 		T50GRAPHFILESIZE=os.path.getsize('/tmp/django/wikilib/static/images/t50/'+str(id)+'.png')
 	except OSError:
 		T50GRAPHFILESIZE=0
