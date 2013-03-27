@@ -6,4 +6,4 @@ set terminal png size 350,262
 set output "/tmp/top500.png" 
 set xtics format "%b %d"
 set xtics "2012/12/06", 1209600,"2013/12/01"
-plot "/tmp/top500.log" using 1:2 with impulses notitle
+plot "/tmp/t500.log" using 1:2 with impulses notitle
