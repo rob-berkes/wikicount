@@ -361,7 +361,7 @@ def category_trending(request):
 	mcHour=mc.get('trendingHour')
 	t=get_template('RedTieIndex.html')
 	FQUERY={'d':int(DAY),'m':int(MONTH),'y':int(YEAR)}
-	LATEST_NEWS_LIST=wikilib.latestnews()
+	LATEST_NEWS_LIST=wikilib.fnLatestnews()
 	title=''
 	send_list=mc.get('CATEGORY_TRENDING_LIST_QUERY')
 	tw_timeline=GetTimeline()
