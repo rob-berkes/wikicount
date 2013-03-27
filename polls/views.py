@@ -86,6 +86,8 @@ def GenArchiveList():
 	archive_list=[]
 	dec12={'text':'Dec 2012','d': '31','m':'12','y':'2012'}
 	archive_list.append(dec12)
+	feb13={'text':'Feb 2013','d': '28','m':'2','y':'2013'}
+	archive_list.append(feb13)
 	return archive_list
 	
 def returnHourString(hour):
