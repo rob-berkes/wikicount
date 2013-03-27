@@ -1,5 +1,4 @@
 from pymongo import Connection
-import memcache
 from datetime import date
 from datetime import time
 import syslog
@@ -8,7 +7,6 @@ from functions import wikilib
 
 conn=Connection('10.37.11.218')
 db=conn.wc
-mc=memcache.Client(['0.0.0.0:11211'])
 TODAY=date.today()
 DAY=TODAY.day
 MONTH=TODAY.month
@@ -36,12 +34,11 @@ for COLLECTION in PASTTABLES:
 	        for row in PAGERESULTSET:
 		        title, utitle=wikilib.fnFindName(row['id'])
 
-#	                prec={'place':row['place'],'Hits':row['Hits'],'title':title ,'id':str(row['id']),'linktitle':title}
-			prec={'place':row['place']}
+	                prec={'place':row['place'],'Hits':row['Hits'],'title':title ,'id':str(row['id']),'linktitle':utitle}
 	                page_list.append(prec)
 	                wikilib.GenInfoPage(row['id'])
 		syslog.syslog('mc-archives: Now setting mc key '+str(DAYKEY)+' of length '+str(len(page_list)))
-	        wikilib.fnSetMemcache(DAYKEY,page_list,60*60*24*60)
+	        wikilib.fnSetMemcache(DAYKEY,page_list,60*60)
 	        send_list.append(rec)
 	mc.set('mcdpDaysList'+str(MONTH)+str(YEAR),send_list,60*60*24*60)
 
