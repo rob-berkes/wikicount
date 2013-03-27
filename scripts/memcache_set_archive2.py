@@ -17,13 +17,13 @@ MONTHNAME=TODAY.strftime("%B")
 send_list=[]
 
 thCN='tophits'+str(YEAR)+MONTHNAME
-PASTTABLES=['tophits','tophits2013February']
+PASTTABLES=['tophits2013February']
 for COLLECTION in PASTTABLES:
 	RESULTSET=db.command({'distinct':COLLECTION,'key':'d'})
 	if COLLECTION=='tophits':
-		MONTH=12
-		YEAR=2012
-	elif COLLECTION=='tophitsFebruary2013':
+		MONTH=1
+		YEAR=2013
+	elif COLLECTION=='tophits2013February':
 		MONTH=2
 		YEAR=2013
 	for d in RESULTSET['values']:
@@ -32,15 +32,15 @@ for COLLECTION in PASTTABLES:
 	        DAYKEY='toplist'+str(YEAR)+'-'+str(MONTH)+'-'+str(d)
 	        page_list=[]
 	        PAGERESULTSET=db[COLLECTION].find(QUERY).sort('place',1).limit(100)
-	        syslog.syslog('memcache-monthly: '+str(DAYKEY)+' '+str(QUERY)+' count: '+str(PAGERESULTSET.count()))
+	        syslog.syslog('mc-archives: '+str(DAYKEY)+' '+str(QUERY)+' count: '+str(PAGERESULTSET.count()))
 	        for row in PAGERESULTSET:
 		        title, utitle=wikilib.fnFindName(row['id'])
 
 	                prec={'place':row['place'],'Hits':row['Hits'],'title':title ,'id':str(row['id']),'linktitle':utitle}
 	                wikilib.GenInfoPage(row['id'])
 	                page_list.append(prec)
-			syslog.syslog('mc-archives: Now setting mc key '+str(DAYKEY))
-	                mc.set(DAYKEY,page_list,60*60*24*60)
+		syslog.syslog('mc-archives: Now setting mc key '+str(DAYKEY))
+	        mc.set(DAYKEY,page_list,60*60*24*60)
 	        send_list.append(rec)
 	mc.set('mcdpDaysList'+str(MONTH)+str(YEAR),send_list,60*60*24*60)
 
