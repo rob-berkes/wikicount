@@ -37,7 +37,7 @@ syslog.syslog('calling daily pages image script....')
 for d in DAILYPAGERESULTS['values']:
 	rec={'d':d,'m':MONTH,'y':YEAR,'stry':str(YEAR),'strm':str(MONTH),'strd':str(d)}
         send_list.append(rec)
-wikilib.fnSetMemcache('mcdpDaysList',send_list,60*60*24)
+wikilib.fnSetMemcache('mcdpDaysList'+str(MONTH)+str(YEAR),send_list,60*60*24)
 
 
 
