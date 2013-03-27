@@ -312,18 +312,22 @@ def infoview(request,id):
 		T50GRAPHFILESIZE=os.path.getsize('/tmp/django/wikilib/static/images/t50/'+str(id)+'.png')
 	except OSError:
 		T50GRAPHFILESIZE=0
+		wikilib.fnDrawGraph(50,id)
 	try:
 		T5KGRAPHFILESIZE=os.path.getsize('/tmp/django/wikilib/static/images/t5k/'+str(id)+'.png')
 	except OSError:
 		T5KGRAPHFILESIZE=0
+		wikilib.fnDrawGraph(5000,id)
 	try:
 		T500GRAPHFILESIZE=os.path.getsize('/tmp/django/wikilib/static/images/t500/'+str(id)+'.png')
 	except OSError:
 		T500GRAPHFILESIZE=0
+		wikilib.fnDrawGraph(500,id)
 	try:
 		T50KGRAPHFILESIZE=os.path.getsize('/tmp/django/wikilib/static/images/t50k/'+str(id)+'.png')
 	except OSError:
 		T50KGRAPHFILESIZE=0
+		wikilib.fnDrawGraph(50000,id)
 	c=Context({'PageDesc':'Click above to go the Wikipedia page.','latest_news_list':latest_news_list,'PageTitle':utitle,'expiretime':expiretime,'linktitle':title,'tw_timeline':tw_timeline,'HOURGRAPHFILENAME':HOURGRAPHFILENAME,'T500GRAPHFILENAME':T500GRAPHFILENAME,'T5KGRAPHFILENAME':T5KGRAPHFILENAME,'T50KGRAPHFILENAME':T50KGRAPHFILENAME,'T250KGRAPHFILENAME':T250KGRAPHFILENAME,'T50GRAPHFILENAME':T50GRAPHFILENAME,'T50GRAPHFILESIZE':T50GRAPHFILESIZE,'T5KGRAPHFILESIZE':T5KGRAPHFILESIZE,'T500GRAPHFILESIZE':T500GRAPHFILESIZE,'T50KGRAPHFILESIZE':T50KGRAPHFILESIZE})
 	rendered=t.render(c)
 	return HttpResponse(rendered)
