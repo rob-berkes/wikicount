@@ -48,7 +48,7 @@ def fnDrawGraph(type,id):
                         subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
 	elif type==365:
 		OUTFILENAME='/tmp/django/wikicount/static/images/daily/'+str(id)+'.png'
-		if not os.path.lexists(OUTFILENAME or TESTNUM==15:
+		if not os.path.lexists(OUTFILENAME) or TESTNUM==15:
 			subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.daily"])
 			SFILE='/tmp/daily.png'
 			subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
