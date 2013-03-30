@@ -181,7 +181,7 @@ def fnSetMemcache(KEYNAME,send_list,exptime):
 def GenInfoDailyGraph(id):
 	DAY,MONTH,YEAR=fnGetDate()
 	OFILE=open("/tmp/daily.log","w")
-	for aMONTH in range(1,MONTH):
+	for aMONTH in range(1,MONTH+1):
 		for aDAY in range(1,31):
 			strDAY=fnGetHourString(aDAY)
 			strMONTH=fnGetHourString(aMONTH)
