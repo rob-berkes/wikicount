@@ -4,5 +4,5 @@ set xlabel 'Date'
 set ylabel 'Hits'
 set style fill solid
 set terminal png size 350,262 
-set output '/tmp/django/wikicount/daily.png'
-plot 'daily.log' using 1:2 with boxes notitle
+set output '/tmp/daily.png'
+plot '/tmp/daily.log' using 1:2 with boxes notitle

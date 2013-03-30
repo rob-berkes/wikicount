@@ -46,6 +46,12 @@ def fnDrawGraph(type,id):
                         subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.50"])
                         SFILE='/tmp/top50.png'
                         subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
+	elif type==365:
+		OUTFILENAME='/tmp/django/wikicount/static/images/daily/'+str(id)+'.png'
+		if not os.path.lexists(OUTFILENAME or TESTNUM==15:
+			subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.daily"])
+			SFILE='/tmp/daily.png'
+			subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
         return
 
 def fnFindCategory(id):
@@ -172,7 +178,26 @@ def fnSetMemcache(KEYNAME,send_list,exptime):
 	syslog.syslog('setting memcache key '+str(KEYNAME))
 	mc1.set(KEYNAME,send_list,exptime)
 	return
+def GenInfoDailyGraph(id):
+	DAY,MONTH,YEAR=fnGetDate()
+	OFILE=open("/tmp/daily.log","w")
+	for aMONTH in range(1,MONTH):
+		for aDAY in range(1,31):
+			strDAY=fnGetHourString(aDAY)
+			strMONTH=fnGetHourString(aMONTH)
+			SEARCHDATE="2013_"+str(MONTH)+"_"+str(DAY)
+			OUTDATE="2013/"+str(MONTH)+"/"+str(DAY)
+			RESULT=db.hitsdaily.find_one({"_id":id,SEARCHDATE:{"$gt":0}})
+			try:
+				OFILE.write(str(OUTDATE)+" "+str(RESULT[SEARCHDATE])+"\n")
+			except TypeError:
+				pass
+	OFILE.close()
+	fnDrawGraph(365,id)
+				
+	return
 def GenInfoPage(id):
+	GenInfoDailyGraph(id)
 	INFOVIEW_KEY='infoview_'+str(id)
 	INFOVIEWLT_KEY='infoviewlt_'+str(id)
 	INFOVIEWLT5K_KEY='infoviewlt5k_'+str(id)

@@ -117,15 +117,18 @@ def GenDailyGraph(id):
 	ENDMONTH=MONTH
 	ENDDAY=DAY
 	ENDYEAR=YEAR
-        OFILE=open('daily.log','w')
+        OFILE=open('/tmp/daily.log','w')
 	for MONTH in range(1,ENDMONTH):
 		for DAY in range(0,31):
 			strDAY=returnHourString(DAY)
 			strMONTH=returnHourString(MONTH)
 			DATESEARCH="2013_"+str(strMONTH)+"_"+str(DAY)
 			DATEOUTPUT="2013/"+str(strMONTH)+"/"+str(DAY)
-			RESULT=db.hitsdaily.find_one({"_id":str(id),DATESEARCH:{"$gt":0}}
-                        OFILE.write(str(DATEOUTPUT)+' '+str(RESULT[DATESEARCH])+'\n')
+			RESULT=db.hitsdaily.find_one({"_id":str(id),DATESEARCH:{"$gt":0}})
+			try:
+	                        OFILE.write(str(DATEOUTPUT)+' '+str(RESULT[DATESEARCH])+'\n')
+			except TypeError:
+				pass
         OFILE.close()
         subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.daily"])
         OUTFILENAME='/tmp/django/wikicount/static/images/daily/'+str(id)+'.png'
