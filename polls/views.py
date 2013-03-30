@@ -132,7 +132,7 @@ def GenDailyGraph(id):
         OFILE.close()
         subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.daily"])
         OUTFILENAME='/tmp/django/wikicount/static/images/daily/'+str(id)+'.png'
-        SFILE='/tmp/django/wikicount/daily.png'
+        SFILE='/tmp/django/daily.png'
         subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
         return
 def adjustHourforLastHour(HOUR):
