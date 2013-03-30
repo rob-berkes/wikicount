@@ -125,10 +125,7 @@ def GenDailyGraph(id):
 			DATESEARCH="2013_"+str(strMONTH)+"_"+str(DAY)
 			DATEOUTPUT="2013/"+str(strMONTH)+"/"+str(DAY)
 			RESULT=db.hitsdaily.find_one({"_id":str(id),DATESEARCH:{"$gt":0}}
-		        try:
-                                OFILE.write(str(DATEOUTPUT)+' '+str(RESULT[DATESEARCH])+'\n')
-                        except TypeError:
-                                pass
+                        OFILE.write(str(DATEOUTPUT)+' '+str(RESULT[DATESEARCH])+'\n')
         OFILE.close()
         subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.daily"])
         OUTFILENAME='/tmp/django/wikicount/static/images/daily/'+str(id)+'.png'
