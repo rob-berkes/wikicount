@@ -308,6 +308,7 @@ def debug(request):
 
 def infoview(request,id):
 	GenHourlyGraph(id)
+	GenDailyGraph(id)
 	DAY, MONTH, YEAR, HOUR,expiretime,MONTHNAME = fnReturnTimes()
 
         QUERY={'id':str(id)}
@@ -324,6 +325,7 @@ def infoview(request,id):
 		title,utitle = wikilib.fnFindImage(id)
 	t=get_template('InfoviewIndex.htm')
 	HOURGRAPHFILENAME='http://www.wikitrends.info/static/images/hourly/'+str(id)+'.png'
+	DAILYGRAPHFILENAME='http://www.wikitrends.info/static/images/daily/'+str(id)+'.png'
 	T500GRAPHFILENAME='http://www.wikitrends.info/static/images/t500/'+str(id)+'.png'
 	T5KGRAPHFILENAME='http://www.wikitrends.info/static/images/t5k/'+str(id)+'.png'
 	T50KGRAPHFILENAME='http://www.wikitrends.info/static/images/t50k/'+str(id)+'.png'
@@ -354,7 +356,7 @@ def infoview(request,id):
 	except OSError:
 		T50KGRAPHFILESIZE=0
 		wikilib.fnDrawGraph(50000,id)
-	c=Context({'PageDesc':'Click above to go the Wikipedia page.','latest_news_list':latest_news_list,'PageTitle':utitle,'expiretime':expiretime,'linktitle':title,'tw_timeline':tw_timeline,'HOURGRAPHFILENAME':HOURGRAPHFILENAME,'T500GRAPHFILENAME':T500GRAPHFILENAME,'T5KGRAPHFILENAME':T5KGRAPHFILENAME,'T50KGRAPHFILENAME':T50KGRAPHFILENAME,'T250KGRAPHFILENAME':T250KGRAPHFILENAME,'T50GRAPHFILENAME':T50GRAPHFILENAME,'T50GRAPHFILESIZE':T50GRAPHFILESIZE,'T5KGRAPHFILESIZE':T5KGRAPHFILESIZE,'T500GRAPHFILESIZE':T500GRAPHFILESIZE,'T50KGRAPHFILESIZE':T50KGRAPHFILESIZE})
+	c=Context({'PageDesc':'Click above to go the Wikipedia page.','latest_news_list':latest_news_list,'PageTitle':utitle,'expiretime':expiretime,'linktitle':title,'tw_timeline':tw_timeline,'DAILYGRAPHFILENAME':DAILYGRAPHFILENAME,'HOURGRAPHFILENAME':HOURGRAPHFILENAME,'T500GRAPHFILENAME':T500GRAPHFILENAME,'T5KGRAPHFILENAME':T5KGRAPHFILENAME,'T50KGRAPHFILENAME':T50KGRAPHFILENAME,'T250KGRAPHFILENAME':T250KGRAPHFILENAME,'T50GRAPHFILENAME':T50GRAPHFILENAME,'T50GRAPHFILESIZE':T50GRAPHFILESIZE,'T5KGRAPHFILESIZE':T5KGRAPHFILESIZE,'T500GRAPHFILESIZE':T500GRAPHFILESIZE,'T50KGRAPHFILESIZE':T50KGRAPHFILESIZE})
 	rendered=t.render(c)
 	return HttpResponse(rendered)
 

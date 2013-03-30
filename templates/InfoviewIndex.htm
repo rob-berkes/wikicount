@@ -49,7 +49,9 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 					<div class="graypanel" style="padding:12px;" align="justify">
 					<table>
 					<tr>
-					<td>
+					<td span=2>
+					<div align="center">Hits by Day</div>
+					{% include 'daily_graph.html'%}
 					<div align="center">Hits by Hour</div>
 					{% include 'hour_graph.html'%}
 					</td>
