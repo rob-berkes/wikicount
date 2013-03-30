@@ -126,7 +126,7 @@ def GenDailyGraph(id):
 			DATEOUTPUT="2013/"+str(strMONTH)+"/"+str(DAY)
 			RESULT=db.hitsdaily.find_one({"_id":str(id),DATESEARCH:{"$gt":0}}
 		        try:
-                                OFILE.write(str(DATEOUTPUT)+' '+str(RESULT1[HOUR])+'\n')
+                                OFILE.write(str(DATEOUTPUT)+' '+str(RESULT[DATESEARCH])+'\n')
                         except TypeError:
                                 pass
         OFILE.close()
