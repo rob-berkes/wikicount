@@ -185,8 +185,8 @@ def GenInfoDailyGraph(id):
 		for aDAY in range(1,31):
 			strDAY=fnGetHourString(aDAY)
 			strMONTH=fnGetHourString(aMONTH)
-			SEARCHDATE="2013_"+str(MONTH)+"_"+str(DAY)
-			OUTDATE="2013/"+str(MONTH)+"/"+str(DAY)
+			SEARCHDATE="2013_"+str(strMONTH)+"_"+str(strDAY)
+			OUTDATE="2013/"+str(strMONTH)+"/"+str(strDAY)
 			RESULT=db.hitsdaily.find_one({"_id":id,SEARCHDATE:{"$gt":0}})
 			try:
 				OFILE.write(str(OUTDATE)+" "+str(RESULT[SEARCHDATE])+"\n")
