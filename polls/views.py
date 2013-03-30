@@ -112,6 +112,29 @@ def GenHourlyGraph(id):
         SFILE='/tmp/django/wikicount/introduction.png'
         subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
         return
+def GenDailyGraph(id):
+	DAY,MONTH,YEAR,HOUR,expiretime,MONTHNAME=fnReturnTimes()
+	ENDMONTH=MONTH
+	ENDDAY=DAY
+	ENDYEAR=YEAR
+        OFILE=open('daily.log','w')
+	for MONTH in range(1,ENDMONTH):
+		for DAY in range(0,31):
+			strDAY=returnHourString(DAY)
+			strMONTH=returnHourString(MONTH)
+			DATESEARCH="2013_"+str(strMONTH)+"_"+str(DAY)
+			DATEOUTPUT="2013/"+str(strMONTH)+"/"+str(DAY)
+			RESULT=db.hitsdaily.find_one({"_id":str(id),DATESEARCH:{"$gt":0}}
+		        try:
+                                OFILE.write(str(DATEOUTPUT)+' '+str(RESULT1[HOUR])+'\n')
+                        except TypeError:
+                                pass
+        OFILE.close()
+        subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.daily"])
+        OUTFILENAME='/tmp/django/wikicount/static/images/daily/'+str(id)+'.png'
+        SFILE='/tmp/django/wikicount/daily.png'
+        subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
+        return
 def adjustHourforLastHour(HOUR):
 	SEARCH_HOUR=int(HOUR)
         if SEARCH_HOUR == 27:
