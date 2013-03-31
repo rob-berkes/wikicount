@@ -17,7 +17,7 @@ thCN='tophits'+str(YEAR)+MONTHNAME
 dbCN='proddebuts'+str(YEAR)+str(MONTHNAME)
 
 HOUR=wikilib.fnMinusHour(int(HOUR))
-
+wikilib.fnOpenSitemap()
 syslog.syslog('starting memcache_set_cold query')
 send_list=[]    
 COLD_LIST_QUERY=db.prodcold.find().sort('Hits',1).limit(100)
