@@ -172,6 +172,21 @@ def fnMinusHour(HOUR):
         elif HOUR==-7:
                 HOUR=17
         return HOUR
+def fnAppendSitemap(id):
+	out=open("/tmp/sitemap.xml","a")
+	out.write("<url>\n")
+	out.write("     <loc>http://www.wikitrends.info/infoview/"+str(id)+"</loc>\n")
+	out.write("     <changefreq>daily</changefreq>\n")
+	out.write("	<priority>0.5</priority>\n")
+	out.write("</url>\n")
+	out.close()
+	return
+def fnOpenSitemap():
+	out=open("/tmp/sitemap.xml","w")
+	out.write("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n")
+ 	out.write("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n")
+	out.close()
+	return
 def fnSetMemcache(KEYNAME,send_list,exptime):
 	MEMCACHE_SERVERS=['127.0.0.1','10.62.13.235']
 	mc1=memcache.Client(['127.0.0.1:11211'],debug=0)
@@ -198,6 +213,7 @@ def GenInfoDailyGraph(id):
 	return
 def GenInfoPage(id):
 	GenInfoDailyGraph(id)
+	fnAppendSitemap(id)
 	INFOVIEW_KEY='infoview_'+str(id)
 	INFOVIEWLT_KEY='infoviewlt_'+str(id)
 	INFOVIEWLT5K_KEY='infoviewlt5k_'+str(id)
