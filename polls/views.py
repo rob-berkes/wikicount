@@ -502,10 +502,7 @@ def randPage(request):
 	utitle='<unknown>'
 	send_list=mc.get('RANDOM_ARTICLES')
 	tw_timeline=GetTimeline() 
-        if len(send_list)>0:
-                pass
-        else:
-
+        if send_list==None:
 		for a in range(1,50):
 			place=random.randint(1,250000)
 			FQUERY={'d':int(DAY),'m':int(MONTH),'y':int(YEAR),'place':place}
