@@ -33,10 +33,14 @@ send_list=[]
 TRENDING_LIST_QUERY=db.prodtrend.find({u'd':DAY,u'm':MONTH,u'y':YEAR}).sort('Hits',-1).limit(150)
 syslog.syslog('memcache-hour-trending: count: '+str(TRENDING_LIST_QUERY.count()))
 print TRENDING_LIST_QUERY.count()
+COUNTER=0
 for p in TRENDING_LIST_QUERY:
 	rec={'title':p['title'],'place':p['place'],'Hits':p['Hits'],'linktitle':p['linktitle'],'id':p['id']}
         send_list.append(rec)
+	COUNTER+=1
 	wikilib.GenInfoPage(p['id'])
+syslog.syslog('memcache-hour-trending: '+str(COUNTER)+' pages appended succesfully.')
+syslog.syslog('memcache-hour-trending: '+str(len(send_list))+' items in send_list.')
 wikilib.fnSetMemcache('HOURKEY',send_list,60*60*3)
 #wikilib.fnLaunchNextJob('set_trending')
 
