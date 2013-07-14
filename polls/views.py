@@ -41,7 +41,9 @@ def ReturnHexDigest(article):
 
 
 
-
+def fnReturnTitle(id):
+	RESULT=db.hitsmap.find_one({"_id":id})
+	return RESULT['title']	
 
 
 def GetTimeline():
@@ -245,18 +247,19 @@ def blog(request):
 
 
 def dailypage(request,YEAR=2013,MONTH=7):
-	DAY,MONTH,YEAR,HOUR,expiretime,MONTHNAME=fnReturnTimes()
+	DAY,month,YEAR,HOUR,expiretime,MONTHNAME=fnReturnTimes()
 	syslog.syslog('wc-dailypage MONTH='+str(MONTH))
 	t=get_template('IndexDaily.html')
 	send_list=mc.get('mcdpDaysList'+str(MONTH)+str(YEAR))
 	archive_list=GenArchiveList()
 	if send_list==None:
 		send_list=[]
-		RESULTSET=db.command({'distinct':'tophits'+str(YEAR)+MONTHNAME,'key':'d','query':{'m':int(MONTH),'y':int(YEAR)}})
-		for d in RESULTSET['values']:
-			rec={'d':d,'m':MONTH,'y':YEAR,'stry':str(YEAR),'strm':str(MONTH),'strd':str(d)}
-			print rec
-			send_list.append(rec)
+		for a in range(1,31):
+			RETSTR=fnReturnStringDate(DAY,int(MONTH),YEAR)
+			RESULTSET=db.command({'distinct':'tophits'+RETSTR,'key':'place'})
+			if RESULTSET:
+				rec={'d':a,'m':MONTH,'y':YEAR,'stry':str(YEAR),'strm':str(MONTH),'strd':str(a)}
+				send_list.append(rec)
 		mc.set('mcdpDaysList'+str(MONTH)+str(YEAR),send_list,60*60*24)
 
 	title=''
@@ -269,25 +272,24 @@ def listtop(request,YEAR,MONTH,DAY):
 	MONTHNAME=fnCaseMonthName(int(MONTH))
 	t=get_template('IndexTopList.html')
 	send_list=[]
-	#print request
-	QUERY={'d':int(DAY),'m':int(MONTH),'y':int(YEAR)}
-	DAYKEY='toplist'+str(YEAR)+'-'+str(MONTH)+'-'+str(DAY)
+	RETSTR=fnReturnStringDate(int(DAY),int(MONTH),YEAR)
+	DAYKEY='tophits'+RETSTR
 	syslog.syslog('wikilib-views.py-listtop DAYKEY='+DAYKEY)
-	syslog.syslog('wikilib-listtop.py QUERY='+str(QUERY))
 	send_list=mc.get(DAYKEY)
 	tw_timeline=GetTimeline()
 	latest_news_list=wikilib.fnLatestnews()
 	if send_list==None: 
 		send_list=[]
-		RESULTSET=db['tophits'+str(YEAR)+MONTHNAME].find(QUERY).sort('place',1).limit(100)
+		RESULTSET=db[DAYKEY].find().sort('place',1).limit(100)
 		for row in RESULTSET:
 			title=''
 			utitle=''
 			try:
-				title, utitle=wikilib.fnFormatName(row['title'])
+				ATITLE=fnReturnTitle(row['_id'])
+				title, utitle=wikilib.fnFormatName(ATITLE)
 			except KeyError:
 				pass
-			rec={'place':row['place'],'Hits':row['Hits'],'title':utitle ,'id':str(row['id']),'linktitle':title.encode('utf-8')}
+			rec={'place':row['place'],'Hits':row['Hits'],'title':utitle ,'id':str(row['_id']),'linktitle':title.encode('utf-8')}
 			send_list.append(rec)
 		mc.set('DAYKEY',send_list,7200)
 	PageTitle='Top Articles for '+str(YEAR)+'/'+str(MONTH)+'/'+str(DAY)+'.'
