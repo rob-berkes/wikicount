@@ -255,9 +255,9 @@ def dailypage(request,YEAR=2013,MONTH=7):
 	if send_list==None:
 		send_list=[]
 		for a in range(1,31):
-			RETSTR=fnReturnStringDate(DAY,int(MONTH),YEAR)
-			RESULTSET=db.command({'distinct':'tophits'+RETSTR,'key':'place'})
-			if RESULTSET:
+			RETSTR='tophits'+fnReturnStringDate(DAY,int(MONTH),YEAR)
+			RESULTSET=db.RETSTR.find()
+			if RESULTSET.count>1:
 				rec={'d':a,'m':MONTH,'y':YEAR,'stry':str(YEAR),'strm':str(MONTH),'strd':str(a)}
 				send_list.append(rec)
 		mc.set('mcdpDaysList'+str(MONTH)+str(YEAR),send_list,60*60*24)
