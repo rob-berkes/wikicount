@@ -87,7 +87,11 @@ def GenArchiveList():
 	dec12={'text':'Dec 2012','d': '31','m':'12','y':'2012'}
 	archive_list.append(dec12)
 	feb13={'text':'Feb 2013','d': '28','m':'2','y':'2013'}
+	jun13={'text':'Jun 2013','d': '30','m':'6','y':'2013'}
+	jul13={'text':'Jul 2013','d': '31','m':'7','y':'2013'}
 	archive_list.append(feb13)
+	archive_list.append(jun13)
+	archive_list.append(jul13)
 	return archive_list
 	
 def returnHourString(hour):
@@ -240,7 +244,7 @@ def blog(request):
 	return HttpResponse(rendered)
 
 
-def dailypage(request,YEAR=2013,MONTH=2):
+def dailypage(request,YEAR=2013,MONTH=7):
 	DAY,MONTH,YEAR,HOUR,expiretime,MONTHNAME=fnReturnTimes()
 	syslog.syslog('wc-dailypage MONTH='+str(MONTH))
 	t=get_template('IndexDaily.html')
