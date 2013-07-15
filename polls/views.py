@@ -476,7 +476,7 @@ def top3hr(request):
 			send_list.append(rec)
 		mc.set('THREEHOUR_LIST_QUERY',send_list,1800)
 	PAGETITLE="Wikitrends.Info  for "+str(MONTHNAME)+" "+str(DAY)+", "+str(YEAR)
-	c=Context({'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':PAGETITLE,'PageDesc':'A three hour rolling average showing the most popular articles currently','expiretime':expiretime,'tw_timeline':tw_timeline})
+	c=Context({'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':PAGETITLE,'PageDesc':'A three hour rolling average showing the most popular articles currently','expiretime':expiretime,'tw_timeline':tw_timeline,'archive_list':archive_list})
 	rendered=t.render(c)
 	return HttpResponse(rendered)
 
