@@ -88,10 +88,18 @@ def GenArchiveList():
 	archive_list=[]
 	dec12={'text':'Dec 2012','d': '31','m':'12','y':'2012'}
 	archive_list.append(dec12)
+	jan13={'text':'Jan 2013','d': '28','m':'1','y':'2013'}
 	feb13={'text':'Feb 2013','d': '28','m':'2','y':'2013'}
+	mar13={'text':'Mar 2013','d': '28','m':'3','y':'2013'}
+	apr13={'text':'Apr 2013','d': '28','m':'4','y':'2013'}
+	may13={'text':'May 2013','d': '28','m':'5','y':'2013'}
 	jun13={'text':'Jun 2013','d': '30','m':'6','y':'2013'}
 	jul13={'text':'Jul 2013','d': '31','m':'7','y':'2013'}
+	archive_list.append(jan13)
 	archive_list.append(feb13)
+	archive_list.append(mar13)
+	archive_list.append(apr13)
+	archive_list.append(may13)
 	archive_list.append(jun13)
 	archive_list.append(jul13)
 	return archive_list
@@ -247,7 +255,8 @@ def blog(request):
 
 
 def dailypage(request,YEAR=2013,MONTH=7):
-	DAY,month,YEAR,HOUR,expiretime,MONTHNAME=fnReturnTimes()
+	DAY,m,y,HOUR,expiretime,MONTHNAME=fnReturnTimes()
+	print YEAR,MONTH
 	syslog.syslog('wc-dailypage MONTH='+str(MONTH))
 	t=get_template('IndexDaily.html')
 	send_list=mc.get('mcdpDaysList'+str(MONTH)+str(YEAR))
@@ -255,9 +264,9 @@ def dailypage(request,YEAR=2013,MONTH=7):
 	if send_list==None:
 		send_list=[]
 		for a in range(1,31):
-			RETSTR='tophits'+fnReturnStringDate(DAY,int(MONTH),YEAR)
-			RESULTSET=db.RETSTR.find()
-			if RESULTSET.count>1:
+			RETSTR='tophits'+fnReturnStringDate(a,int(MONTH),YEAR)
+			RESULTSET=db[RETSTR].count()
+			if RESULTSET>1:
 				rec={'d':a,'m':MONTH,'y':YEAR,'stry':str(YEAR),'strm':str(MONTH),'strd':str(a)}
 				send_list.append(rec)
 		mc.set('mcdpDaysList'+str(MONTH)+str(YEAR),send_list,60*60*24)
@@ -458,6 +467,7 @@ def top3hr(request):
 	title=''
 	send_list=mc.get('THREEHOUR_LIST_QUERY')
 	tw_timeline=GetTimeline() 
+	archive_list=GenArchiveList()
 	if send_list==None:
 		send_list=[]	
 		THREEHOUR_LIST_QUERY=db.threehour.find().sort('place',1)
