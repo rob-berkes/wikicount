@@ -486,6 +486,31 @@ def top3hr(request):
 	rendered=t.render(c)
 	return HttpResponse(rendered)
 
+def indexLang(request,LANG):
+	request.encoding='iso-8859-1'
+	DAY, MONTH, YEAR, HOUR,expiretime,MONTHNAME = fnReturnTimes()
+	MONTHNAME=fnCaseMonthName(MONTH)
+	mcHour=mc.get('trendingHour')
+	t=get_template('RedTieIndex.html')
+	LATEST_NEWS_LIST=wikilib.fnLatestnews()
+	title=''
+	tw_timeline=GetTimeline() 
+	archive_list=GenArchiveList()
+	MEMCACHE_VARNAME='INDEXLANG_'+str(LANG)
+	send_list=mc.get(MEMCACHE_VARNAME)
+	if send_list==None:
+		send_list=[]	
+		COLLNAME=str(LANG)+"_threehour"
+		THREEHOUR_LIST_QUERY=db[COLLNAME].find().sort('place',1)
+		for p in THREEHOUR_LIST_QUERY:
+			tstr=str(p['title'])
+			rec={'title':urllib2.unquote(p['title']),'place':p['place'],'Avg':p['rollavg'],'linktitle':p['title'],'id':p['id']}
+			send_list.append(rec)
+		mc.set('THREEHOUR_LIST_QUERY',send_list,1800)
+	PAGETITLE="Top Wikipedia pages for "+str(MONTHNAME)+" "+str(DAY)+", "+str(YEAR)
+	c=Context({'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':PAGETITLE,'PageDesc':'A three hour rolling average showing the most popular articles currently','expiretime':expiretime,'tw_timeline':tw_timeline,'archive_list':archive_list})
+	rendered=t.render(c)
+	return HttpResponse(rendered)
 
 def cold(request):
 	DAY, MONTH, YEAR, HOUR,expiretime,MONTHNAME = fnReturnTimes()
