@@ -265,6 +265,7 @@ def dailypage(request,YEAR=2013,MONTH=7):
 		send_list=[]
 		for a in range(1,31):
 			RETSTR='tophits'+fnReturnStringDate(a,int(MONTH),YEAR)
+			syslog.syslog("RETSTR="+str(RETSTR))
 			RESULTSET=db[RETSTR].count()
 			if RESULTSET>1:
 				rec={'d':a,'m':MONTH,'y':YEAR,'stry':str(YEAR),'strm':str(MONTH),'strd':str(a)}
@@ -290,6 +291,7 @@ def listtop(request,YEAR,MONTH,DAY):
 	if send_list==None: 
 		send_list=[]
 		RESULTSET=db[DAYKEY].find().sort('place',1).limit(100)
+		PLACE=1
 		for row in RESULTSET:
 			title=''
 			utitle=''
@@ -298,7 +300,8 @@ def listtop(request,YEAR,MONTH,DAY):
 				title, utitle=wikilib.fnFormatName(ATITLE)
 			except KeyError:
 				pass
-			rec={'place':row['place'],'Hits':row['Hits'],'title':utitle ,'id':str(row['_id']),'linktitle':title.encode('utf-8')}
+			rec={'place':PLACE,'Hits':row['Hits'],'title':utitle ,'id':str(row['_id']),'linktitle':title.encode('utf-8')}
+			PLACE+=1
 			send_list.append(rec)
 		mc.set('DAYKEY',send_list,7200)
 	PageTitle='Top Articles for '+str(YEAR)+'/'+str(MONTH)+'/'+str(DAY)+'.'
@@ -412,14 +415,17 @@ def category_trending(request):
 	title=''
 	send_list=mc.get('CATEGORY_TRENDING_LIST_QUERY')
 	tw_timeline=GetTimeline()
-	DAYKEY=str(YEAR)+"_"+str(MONTH)+"_"+str(DAY) 
+	DAYKEY=fnReturnStringDate(DAY,MONTH,YEAR) 
 	send_list=[]	
-	CATEGORY_TRENDING_LIST_QUERY=db.prodcattrend.find().sort('Hits',-1).limit(100)
+	CATEGORY_TRENDING_LIST_QUERY=db.categorydaily.find().sort(DAYKEY,-1).limit(100)
+	COUNT=0
 	for p in CATEGORY_TRENDING_LIST_QUERY:
-		rec={'title':p['title'],'place':p['place'],'Hits':p['Hits'],'linktitle':p['linktitle'],'id':p['id']}
+		COUNT+=1
+		r=db.category.find_one({"_id":p["_id"]})
+		rec={'title':r['title'],'place':COUNT,'Hits':p[DAYKEY],'linktitle':r['title'],'id':p['_id']}
 		send_list.append(rec)
 	mc.set('CATEGORY_TRENDING_LIST_QUERY',send_list,1800)
-	c=Context({'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':'WikiTrends.Info - Trending Categories','PageDesc':'Today\'s hottest categories','expiretime':expiretime,'tw_timeline':tw_timeline})
+	c=Context({'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':'Wikipedia\'s most popular categories','PageDesc':'Today\'s hottest categories','expiretime':expiretime,'tw_timeline':tw_timeline})
 	rendered=t.render(c)
 	return HttpResponse(rendered)	
 def file_trending(request):
@@ -429,7 +435,7 @@ def file_trending(request):
 	LATEST_NEWS_LIST=wikilib.fnLatestnews()
 	title=''
 	tw_timeline=GetTimeline()
-	DAYKEY=str(YEAR)+"_"+str(MONTH)+"_"+str(DAY) 
+	DAYKEY=fnReturnStringDate(DAY,MONTH,YEAR) 
 	send_list=[]	
 	FILE_TRENDING_LIST_QUERY=db.prodimagetrend.find().sort('Hits',-1).limit(100)
 	for p in FILE_TRENDING_LIST_QUERY:
@@ -475,7 +481,7 @@ def top3hr(request):
 			rec={'title':p['title'],'place':p['place'],'Avg':p['rollavg'],'linktitle':p['title'],'id':p['id']}
 			send_list.append(rec)
 		mc.set('THREEHOUR_LIST_QUERY',send_list,1800)
-	PAGETITLE="Wikitrends.Info  for "+str(MONTHNAME)+" "+str(DAY)+", "+str(YEAR)
+	PAGETITLE="Top Wikipedia pages for "+str(MONTHNAME)+" "+str(DAY)+", "+str(YEAR)
 	c=Context({'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':PAGETITLE,'PageDesc':'A three hour rolling average showing the most popular articles currently','expiretime':expiretime,'tw_timeline':tw_timeline,'archive_list':archive_list})
 	rendered=t.render(c)
 	return HttpResponse(rendered)

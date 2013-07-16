@@ -62,4 +62,4 @@ for p in latest_hits_list:
         send_list.append(rec)
 wikilib.fnSetMemcache('send_list',send_list,3600)
 
-#wikilib.fnLaunchNextJob('set_day')
+wikilib.fnLaunchNextJob('set_day')

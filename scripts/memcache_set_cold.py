@@ -32,5 +32,5 @@ for p in COLD_LIST_QUERY:
 syslog.syslog('memcache-cold: total of '+str(a)+' records processed')
 wikilib.fnSetMemcache('COLD_LIST_QUERY',send_list,60*60*2)
 syslog.syslog('memcache-cold: done!')
-#wikilib.fnLaunchNextJob('set_cold')
+wikilib.fnLaunchNextJob('set_cold')
 

@@ -45,5 +45,6 @@ for row in HOURQUERY:
     rec={'place':place,'Hits':row[str(SEARCH_HOUR)],'title':title ,'id':str(row['_id']),'linktitle':title}
     place+=1
     send_list.append(rec)
+print len(send_list)
 wikilib.fnSetMemcache('HOURKEY',send_list,60*60*3)
-#wikilib.fnLaunchNextJob('set_lasthour')
+wikilib.fnLaunchNextJob('set_lasthour')

@@ -8,7 +8,7 @@ body {
 	margin-bottom: 0px;
 }
 #logo{float:left; background-image:url(tie_logo.gif); width:274px; height:13px;}
-#topheader{float:right; width:960px; height:127px; background-color:#F0F0F0; position:relative}
+#topheader{float:right; width:960px; height:200px; background-color:#F0F0F0; position:relative}
 #toplinks{position:absolute; right:10px; top:10px;}
 #menu{float:right; width:526px; height:32px; background-image:url(bg_menu.gif); background-repeat:repeat-x;}
 #submenu{float:right; width:800px; height:32px; background-image:url(bg_submenu.gif); background-position:top; background-repeat:repeat-x;}

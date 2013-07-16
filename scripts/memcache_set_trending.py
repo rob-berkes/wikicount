@@ -42,6 +42,6 @@ for p in TRENDING_LIST_QUERY:
 syslog.syslog('memcache-hour-trending: '+str(COUNTER)+' pages appended succesfully.')
 syslog.syslog('memcache-hour-trending: '+str(len(send_list))+' items in send_list.')
 wikilib.fnSetMemcache('HOURKEY',send_list,60*60*3)
-#wikilib.fnLaunchNextJob('set_trending')
+wikilib.fnLaunchNextJob('set_trending')
 
 
