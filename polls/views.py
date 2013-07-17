@@ -44,7 +44,11 @@ def ReturnHexDigest(article):
 def fnReturnTitle(id):
 	RESULT=db.hitsmap.find_one({"_id":id})
 	return RESULT['title']	
-
+def fnReturnTitleI18(LANG,id):
+	hmCOLL=str(LANG)+"_hitsmap"
+	RESULT=db[hmCOLL].find_one({'_id':id})
+	return RESULT['title']
+	
 
 def GetTimeline():
 #	status=api.user_timeline('wikitrendsinfo',count=5)
@@ -104,6 +108,78 @@ def GenArchiveList():
 	archive_list.append(jul13)
 	return archive_list
 	
+def GenArchiveListI18(LANG):
+	thCOLL=str(LANG)+"_tophits"
+	archive_list=[]
+	dec12={'text':'Dec 2012','d': '31','m':'12','y':'2012'}
+	D12=False
+	for a in range(1,32):
+		CNAME=thCOLL+fnReturnStringDate(a,12,2012)
+		if db[CNAME].count() > 1:
+			D12=True
+	if D12:
+		archive_list.append(dec12)
+	jan13={'text':'Jan 2013','d': '28','m':'1','y':'2013','lang':LANG}
+	feb13={'text':'Feb 2013','d': '28','m':'2','y':'2013','lang':LANG}
+	mar13={'text':'Mar 2013','d': '28','m':'3','y':'2013','lang':LANG}
+	apr13={'text':'Apr 2013','d': '28','m':'4','y':'2013','lang':LANG}
+	may13={'text':'May 2013','d': '28','m':'5','y':'2013','lang':LANG}
+	jun13={'text':'Jun 2013','d': '30','m':'6','y':'2013','lang':LANG}
+	jul13={'text':'Jul 2013','d': '31','m':'7','y':'2013','lang':LANG}
+	
+	FOUND=False
+	for a in range(1,32):
+		CNAME=thCOLL+fnReturnStringDate(a,1,2013)
+		if db[CNAME].count() > 1:
+			FOUND=True
+	if FOUND:
+		archive_list.append(jan13)
+	
+
+	FOUND=False
+	for a in range(1,32):
+		CNAME=thCOLL+fnReturnStringDate(a,2,2013)
+		if db[CNAME].count() > 1:
+			FOUND=True
+	if FOUND:
+		archive_list.append(feb13)
+	FOUND=False
+	for a in range(1,32):
+		CNAME=thCOLL+fnReturnStringDate(a,3,2013)
+		if db[CNAME].count() > 1:
+			FOUND=True
+	if FOUND:
+		archive_list.append(mar13)
+	FOUND=False
+	for a in range(1,32):
+		CNAME=thCOLL+fnReturnStringDate(a,4,2013)
+		if db[CNAME].count() > 1:
+			FOUND=True
+	if FOUND:
+		archive_list.append(apr13)
+	FOUND=False
+	for a in range(1,32):
+		CNAME=thCOLL+fnReturnStringDate(a,5,2013)
+		if db[CNAME].count() > 1:
+			FOUND=True
+	if FOUND:
+		archive_list.append(may13)
+	FOUND=False
+	for a in range(1,32):
+		CNAME=thCOLL+fnReturnStringDate(a,6,2013)
+		if db[CNAME].count() > 1:
+			FOUND=True
+	if FOUND:
+		archive_list.append(jun13)
+	FOUND=False
+	for a in range(1,32):
+		CNAME=thCOLL+fnReturnStringDate(a,7,2013)
+		if db[CNAME].count() > 1:
+			FOUND=True
+	if FOUND:
+		archive_list.append(jul13)
+	return archive_list
+
 def returnHourString(hour):
         HOUR='%02d' % (hour,)
         return HOUR
@@ -278,6 +354,32 @@ def dailypage(request,YEAR=2013,MONTH=7):
 	return HttpResponse(rendered)
 
 
+def dailypageI18(request,LANG='en',YEAR=2013,MONTH=7):
+	DAY,m,y,HOUR,expiretime,MONTHNAME=fnReturnTimes()
+	print YEAR,MONTH
+	syslog.syslog('wc-dailypage MONTH='+str(MONTH))
+	t=get_template('IndexDailyI18.html')
+	MEMCACHEDAYLIST=str(LANG)+"_mcdpDaysList"+str(MONTH)+str(YEAR)
+	send_list=mc.get(MEMCACHEDAYLIST)
+	archive_list=GenArchiveListI18(LANG)
+	if send_list==None:
+		send_list=[]
+		for a in range(1,31):
+			RETSTR=str(LANG)+'_tophits'+fnReturnStringDate(a,int(MONTH),YEAR)
+			syslog.syslog("RETSTR="+str(RETSTR))
+			RESULTSET=db[RETSTR].count()
+			if RESULTSET>1:
+				rec={'d':a,'m':MONTH,'y':YEAR,'stry':str(YEAR),'strm':str(MONTH),'strd':str(a)}
+				send_list.append(rec)
+		mc.set(MEMCACHEDAYLIST,send_list,60*60*24)
+
+	title=''
+	c=Context({'news_list':send_list,expiretime:expiretime,'archive_list':archive_list,'LANGUAGE':LANG})
+	rendered=t.render(c)
+	return HttpResponse(rendered)
+
+
+
 def listtop(request,YEAR,MONTH,DAY):
 	MONTHNAME=fnCaseMonthName(int(MONTH))
 	t=get_template('IndexTopList.html')
@@ -309,6 +411,37 @@ def listtop(request,YEAR,MONTH,DAY):
 	rendered=t.render(c)
 	return HttpResponse(rendered)
 
+def listtopI18(request,LANG,YEAR,MONTH,DAY):
+	MONTHNAME=fnCaseMonthName(int(MONTH))
+	t=get_template('IndexTopList.html')
+	send_list=[]
+	RETSTR=fnReturnStringDate(int(DAY),int(MONTH),YEAR)
+	DAYKEY=str(LANG)+'_tophits'+RETSTR
+	syslog.syslog('wikilib-views.py-listtop DAYKEY='+DAYKEY)
+	send_list=mc.get(DAYKEY)
+	tw_timeline=GetTimeline()
+	latest_news_list=wikilib.fnLatestnews()
+	if send_list==None: 
+		send_list=[]
+		RESULTSET=db[DAYKEY].find().sort('place',1).limit(100)
+		PLACE=1
+		for row in RESULTSET:
+			title=''
+			utitle=''
+			try:
+				ATITLE=fnReturnTitleI18(LANG,row['_id'])
+				title, utitle=wikilib.fnFormatName(ATITLE)
+			except KeyError:
+				pass
+			rec={'place':PLACE,'Hits':row['Hits'],'title':utitle ,'id':str(row['_id']),'linktitle':title.encode('utf-8')}
+			PLACE+=1
+			send_list.append(rec)
+		mc.set('DAYKEY',send_list,7200)
+	LANGSTR=wikilib.fnReturnLanguageName(LANG)
+	PageTitle='Top Articles for '+str(LANGSTR)+' Wikipedia on '+str(YEAR)+'/'+str(MONTH)+'/'+str(DAY)+'.'
+	c=Context({'PageTitle':PageTitle,'latest_hits_list':send_list,'y':YEAR,'m':MONTH,'d':DAY,'tw_timeline':tw_timeline,'latest_news_list':latest_news_list})
+	rendered=t.render(c)
+	return HttpResponse(rendered)
 
 def debug(request):
 	t=get_template('IndexDebug.html')
@@ -501,7 +634,7 @@ def indexLang(request,LANG):
 	LATEST_NEWS_LIST=wikilib.fnLatestnews()
 	title=''
 	tw_timeline=GetTimeline() 
-	archive_list=GenArchiveList()
+	archive_list=GenArchiveListI18(LANG)
 	mcVAR=str(LANG)+"_THREEHOUR"
 	send_list=mc.get(mcVAR)
 	if send_list==None:
@@ -514,7 +647,7 @@ def indexLang(request,LANG):
 			send_list.append(rec)
 		mc.set(mcVAR,send_list,1800)
 	PAGETITLE="Top "+returnLanguage(LANG)+" Wikipedia pages for "+str(MONTHNAME)+" "+str(DAY)+", "+str(YEAR)
-	c=Context({'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':PAGETITLE,'PageDesc':'A three hour rolling average showing the most popular articles currently','expiretime':expiretime,'tw_timeline':tw_timeline,'archive_list':archive_list})
+	c=Context({'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':PAGETITLE,'PageDesc':'A three hour rolling average showing the most popular articles currently','expiretime':expiretime,'tw_timeline':tw_timeline,'archive_list':archive_list,'LANGUAGE':LANG})
 	rendered=t.render(c)
 	return HttpResponse(rendered)
 

@@ -14,6 +14,13 @@ import random
 conn=Connection('10.37.11.218')
 db=conn.wc
 
+def fnReturnLanguageName(LANG):
+	if LANG=='ru':
+		return 'Russian'
+	elif LANG=='en':
+		return 'English'
+	elif LANG=='ja':
+		return 'Japanese'
 def fnDrawGraph(type,id):
 	TESTNUM=random.randint(1,20)
         if type==250:

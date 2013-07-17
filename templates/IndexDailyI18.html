@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 	<meta name="author" content="" />
-	<meta http-equiv="Content-Type" content="text/html" charset="UTF-8" />
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
 	{% include 'meta_expires.html' %}
 	<link rel="stylesheet" href="{{ STATIC_URL}}/style.css" type="text/css" />
 	<title>Wikitrends.info</title>
@@ -40,42 +40,38 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 				</div>
 			</div>
 			<div id="submenu">
-					{% include 'menu_listI18.html' %}
+					{% include 'menu_list.html' %}
 			</div>
 			<div id="contenttext">
 				<div style="padding:10px">
-					<span class="titletext">{% include 'titletext.html' %}</span>
+					<span class="titletext">Wikipedia's Top Daily Pages</span>
 					<span class="bodytext">{% include 'titledesc.html' %}</span>
 				</div>
-					<div class="bodytextcustom" style="padding:12px;" align="justify">
-					{% include 'title_listI18.html' %}	
+					<div class="bodytext" style="padding:12px;" align="justify">
+					{% include 'list_dailyI18.html' %}	
 				</div>
 			</div>
-			<div id="leftpanel">
-					<div class="smallgraytext" style="padding:9px;" align="justify">
-			How popular is your favorite topic?<br />
-			     <form action="/search-results/" method="get">
-			                                                                                                                                <input type="text" name="q">
-			                                                                                                                                <input type="submit" value="Search">
-			                                                                                                                               </form>
-			                                                                                                                               </div>
-			</div>
+			                        <div id="leftpanel">
+			                                                                <div class="smallgraytext" style="padding:9px;" align="justify">
+			                                                                                        How popular is your favorite topic?<br />
+			                                                                                                                     <form action="/search-results/" method="get">
+
+                              <input type="text" name="q">
+
+                              <input type="submit" value="Search">
+
+                             </form>
+
+                             </div>
+                                                     </div>
+
 			<div id="leftpanel">
                                 <div align="justify" class="graypanel">
                                         <span class="smalltitle">Past Months</span><br /><br />
-                                        {% include 'archive_listI18.html' %}
+                                        {% include 'archive_list.html' %}
                                 </div>
                         </div>
 			<div id="leftpanel">
-				<div align="justify" class="graypanel">
-					{% include 'TwitterFeed.html' %}
-				</div>
-			</div>
-			<div id="leftpanel">
-				<div align="justify" class="graypanel">
-					<span class="smalltitle">News</span><br /><br />
-					{% include 'news_list.html' %}
-				</div>
 			</div>
 			<div id="footer" class="smallgraytext">
 				<a href="#">Home</a> | <a href="#">About Us</a> | <a href="#">Products</a> | <a href="#">Our Services</a> | <a href="#">Contact Us</a>
