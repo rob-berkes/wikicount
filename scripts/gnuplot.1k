@@ -1,11 +1,11 @@
-set yrange[5000:-100]
+set yrange[1000:-50]
 set xlabel "Date"
-set ylabel "Place (of 5000)"
+set ylabel "Place (of 1000)"
 #set xrange["2012/12/1":"2013/3/1"]
 set xdata time
 set timefmt "%Y/%m/%d"
 set terminal png size 350,262
-set output "/tmp/top5k.png" 
+set output "/tmp/top1k.png" 
 set xtics format "%b %d"
 set xtics "2012/12/06", 2419200,"2013/12/01"
-plot "/tmp/t5k.log" using 1:2 with impulses notitle
+plot "/tmp/t1k.log" using 1:2 with impulses notitle

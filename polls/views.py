@@ -30,28 +30,23 @@ api=tweepy.api
 RECORDSPERPAGE=50
 mc=memcache.Client(['127.0.0.1:11211'],debug=0)
 
-
-
-
 #All purpose Functions
 
 def ReturnHexDigest(article):
 	hd=hashlib.sha1(article).hexdigest()
 	return hd
 
-
-
-def fnReturnTitle(id):
-	RESULT=db.hitsmap.find_one({"_id":id})
-	return RESULT['title']	
-def fnReturnTitleI18(LANG,id):
+def fnReturnTitleI18(id,LANG='en'):
 	hmCOLL=str(LANG)+"_hitsmap"
 	RESULT=db[hmCOLL].find_one({'_id':id})
-	return RESULT['title']
+	
+	try:
+		return RESULT['title']
+	except TypeError:
+		return 'err:Name not found'
 	
 
 def GetTimeline():
-#	status=api.user_timeline('wikitrendsinfo',count=5)
 	status=db.twitter.find()
 	return status
 
@@ -88,37 +83,28 @@ def fnReturnStringDate(DAY,MONTH,YEAR):
 	RETSTR=str(YEAR)+"_"+str(MONTH)+"_"+str(DAY)
 	return RETSTR
 
-def GenArchiveList():
-	archive_list=[]
-	dec12={'text':'Dec 2012','d': '31','m':'12','y':'2012'}
-	archive_list.append(dec12)
-	jan13={'text':'Jan 2013','d': '28','m':'1','y':'2013'}
-	feb13={'text':'Feb 2013','d': '28','m':'2','y':'2013'}
-	mar13={'text':'Mar 2013','d': '28','m':'3','y':'2013'}
-	apr13={'text':'Apr 2013','d': '28','m':'4','y':'2013'}
-	may13={'text':'May 2013','d': '28','m':'5','y':'2013'}
-	jun13={'text':'Jun 2013','d': '30','m':'6','y':'2013'}
-	jul13={'text':'Jul 2013','d': '31','m':'7','y':'2013'}
-	archive_list.append(jan13)
-	archive_list.append(feb13)
-	archive_list.append(mar13)
-	archive_list.append(apr13)
-	archive_list.append(may13)
-	archive_list.append(jun13)
-	archive_list.append(jul13)
-	return archive_list
-	
-def GenArchiveListI18(LANG):
+def GenArchiveListI18(LANG='en'):
+	PLACECOLL=str(LANG)+"_mapPlace"
 	thCOLL=str(LANG)+"_tophits"
 	archive_list=[]
+	m12=False
+	m1=False
+	m2=False
+	m3=False
+	m4=False
+	m5=False
+	m6=False
+	m7=False
+	m8=False
+	m9=False
+	m10=False
+	m11=False
 	dec12={'text':'Dec 2012','d': '31','m':'12','y':'2012'}
-	D12=False
 	for a in range(1,32):
-		CNAME=thCOLL+fnReturnStringDate(a,12,2012)
+		CNAME=fnReturnStringDate(a,12,2012)
 		if db[CNAME].count() > 1:
-			D12=True
-	if D12:
-		archive_list.append(dec12)
+			archive_list.append(dec12)
+			break
 	jan13={'text':'Jan 2013','d': '28','m':'1','y':'2013','lang':LANG}
 	feb13={'text':'Feb 2013','d': '28','m':'2','y':'2013','lang':LANG}
 	mar13={'text':'Mar 2013','d': '28','m':'3','y':'2013','lang':LANG}
@@ -127,57 +113,35 @@ def GenArchiveListI18(LANG):
 	jun13={'text':'Jun 2013','d': '30','m':'6','y':'2013','lang':LANG}
 	jul13={'text':'Jul 2013','d': '31','m':'7','y':'2013','lang':LANG}
 	
-	FOUND=False
 	for a in range(1,32):
-		CNAME=thCOLL+fnReturnStringDate(a,1,2013)
-		if db[CNAME].count() > 1:
-			FOUND=True
-	if FOUND:
-		archive_list.append(jan13)
-	
-
-	FOUND=False
-	for a in range(1,32):
-		CNAME=thCOLL+fnReturnStringDate(a,2,2013)
-		if db[CNAME].count() > 1:
-			FOUND=True
-	if FOUND:
-		archive_list.append(feb13)
-	FOUND=False
-	for a in range(1,32):
-		CNAME=thCOLL+fnReturnStringDate(a,3,2013)
-		if db[CNAME].count() > 1:
-			FOUND=True
-	if FOUND:
-		archive_list.append(mar13)
-	FOUND=False
-	for a in range(1,32):
-		CNAME=thCOLL+fnReturnStringDate(a,4,2013)
-		if db[CNAME].count() > 1:
-			FOUND=True
-	if FOUND:
-		archive_list.append(apr13)
-	FOUND=False
-	for a in range(1,32):
-		CNAME=thCOLL+fnReturnStringDate(a,5,2013)
-		if db[CNAME].count() > 1:
-			FOUND=True
-	if FOUND:
-		archive_list.append(may13)
-	FOUND=False
-	for a in range(1,32):
-		CNAME=thCOLL+fnReturnStringDate(a,6,2013)
-		if db[CNAME].count() > 1:
-			FOUND=True
-	if FOUND:
-		archive_list.append(jun13)
-	FOUND=False
-	for a in range(1,32):
-		CNAME=thCOLL+fnReturnStringDate(a,7,2013)
-		if db[CNAME].count() > 1:
-			FOUND=True
-	if FOUND:
-		archive_list.append(jul13)
+		CNAME=fnReturnStringDate(a,1,2013)
+		if db[PLACECOLL].find({CNAME:{"$gt":0}}).count() > 1 and not m1:
+			m1=True
+			archive_list.append(jan13)
+		CNAME=fnReturnStringDate(a,2,2013)
+		if db[PLACECOLL].find({CNAME:{"$gt":0}}).count() > 1 and not m2:
+			m2=True
+			archive_list.append(feb13)
+		CNAME=fnReturnStringDate(a,3,2013)
+		if db[PLACECOLL].find({CNAME:{"$gt":0}}).count() > 1 and not m3:
+			m3=True
+			archive_list.append(mar13)
+		CNAME=fnReturnStringDate(a,4,2013)
+		if db[PLACECOLL].find({CNAME:{"$gt":0}}).count() > 1 and not m4:
+			m4=True
+			archive_list.append(apr13)
+		CNAME=fnReturnStringDate(a,5,2013)
+		if db[PLACECOLL].find({CNAME:{"$gt":0}}).count() > 1 and not m5:
+			m5=True
+			archive_list.append(may13)
+		CNAME=fnReturnStringDate(a,6,2013)
+		if db[PLACECOLL].find({CNAME:{"$gt":0}}).count() > 1 and not m6:
+			m6=True
+			archive_list.append(jun13)
+		CNAME=fnReturnStringDate(a,7,2013)
+		if db[PLACECOLL].find({CNAME:{"$gt":0}}).count() > 1 and not m7:
+			m7=True
+			archive_list.append(jul13)
 	return archive_list
 
 def returnHourString(hour):
@@ -323,41 +287,16 @@ def blog(request):
 	title=''
 	for p in BLOGQUERY:
 		rec={'newsdate':p['date'],'headtext':p['text']}
-		print rec
+		syslog.syslog("blog fn: "+str(rec))
 		send_list.append(rec)
 	c=Context({'news_list':send_list,expiretime:expiretime})
 	rendered=t.render(c)
 	return HttpResponse(rendered)
 
 
-def dailypage(request,YEAR=2013,MONTH=7):
-	DAY,m,y,HOUR,expiretime,MONTHNAME=fnReturnTimes()
-	print YEAR,MONTH
-	syslog.syslog('wc-dailypage MONTH='+str(MONTH))
-	t=get_template('IndexDaily.html')
-	send_list=mc.get('mcdpDaysList'+str(MONTH)+str(YEAR))
-	archive_list=GenArchiveList()
-	if send_list==None:
-		send_list=[]
-		for a in range(1,31):
-			RETSTR='tophits'+fnReturnStringDate(a,int(MONTH),YEAR)
-			syslog.syslog("RETSTR="+str(RETSTR))
-			RESULTSET=db[RETSTR].count()
-			if RESULTSET>1:
-				rec={'d':a,'m':MONTH,'y':YEAR,'stry':str(YEAR),'strm':str(MONTH),'strd':str(a)}
-				send_list.append(rec)
-		mc.set('mcdpDaysList'+str(MONTH)+str(YEAR),send_list,60*60*24)
-
-	title=''
-	c=Context({'news_list':send_list,expiretime:expiretime,'archive_list':archive_list})
-	rendered=t.render(c)
-	return HttpResponse(rendered)
-
-
 def dailypageI18(request,LANG='en',YEAR=2013,MONTH=7):
 	DAY,m,y,HOUR,expiretime,MONTHNAME=fnReturnTimes()
-	print YEAR,MONTH
-	syslog.syslog('wc-dailypage MONTH='+str(MONTH))
+	syslog.syslog('dailypageI18: Req made, lang :'+str(LANG)+' Y: '+str(YEAR)+' M: '+str(MONTH))
 	t=get_template('IndexDailyI18.html')
 	MEMCACHEDAYLIST=str(LANG)+"_mcdpDaysList"+str(MONTH)+str(YEAR)
 	send_list=mc.get(MEMCACHEDAYLIST)
@@ -365,10 +304,10 @@ def dailypageI18(request,LANG='en',YEAR=2013,MONTH=7):
 	if send_list==None:
 		send_list=[]
 		for a in range(1,31):
-			RETSTR=str(LANG)+'_tophits'+fnReturnStringDate(a,int(MONTH),YEAR)
-			syslog.syslog("RETSTR="+str(RETSTR))
-			RESULTSET=db[RETSTR].count()
-			if RESULTSET>1:
+			COLLNAME=str(LANG)+"_mapPlace"
+			DAYKEY=fnReturnStringDate(a,int(MONTH),YEAR)
+			RESULTSET=db[COLLNAME].find({DAYKEY:{"$gt":1}}).count()
+			if RESULTSET>0:
 				rec={'d':a,'m':MONTH,'y':YEAR,'stry':str(YEAR),'strm':str(MONTH),'strd':str(a)}
 				send_list.append(rec)
 		mc.set(MEMCACHEDAYLIST,send_list,60*60*24)
@@ -378,68 +317,37 @@ def dailypageI18(request,LANG='en',YEAR=2013,MONTH=7):
 	rendered=t.render(c)
 	return HttpResponse(rendered)
 
-
-
-def listtop(request,YEAR,MONTH,DAY):
-	MONTHNAME=fnCaseMonthName(int(MONTH))
-	t=get_template('IndexTopList.html')
-	send_list=[]
-	RETSTR=fnReturnStringDate(int(DAY),int(MONTH),YEAR)
-	DAYKEY='tophits'+RETSTR
-	syslog.syslog('wikilib-views.py-listtop DAYKEY='+DAYKEY)
-	send_list=mc.get(DAYKEY)
-	tw_timeline=GetTimeline()
-	latest_news_list=wikilib.fnLatestnews()
-	if send_list==None: 
-		send_list=[]
-		RESULTSET=db[DAYKEY].find().sort('place',1).limit(100)
-		PLACE=1
-		for row in RESULTSET:
-			title=''
-			utitle=''
-			try:
-				ATITLE=fnReturnTitle(row['_id'])
-				title, utitle=wikilib.fnFormatName(ATITLE)
-			except KeyError:
-				pass
-			rec={'place':PLACE,'Hits':row['Hits'],'title':utitle ,'id':str(row['_id']),'linktitle':title.encode('utf-8')}
-			PLACE+=1
-			send_list.append(rec)
-		mc.set('DAYKEY',send_list,7200)
-	PageTitle='Top Articles for '+str(YEAR)+'/'+str(MONTH)+'/'+str(DAY)+'.'
-	c=Context({'PageTitle':PageTitle,'latest_hits_list':send_list,'y':YEAR,'m':MONTH,'d':DAY,'tw_timeline':tw_timeline,'latest_news_list':latest_news_list})
-	rendered=t.render(c)
-	return HttpResponse(rendered)
-
 def listtopI18(request,LANG,YEAR,MONTH,DAY):
 	MONTHNAME=fnCaseMonthName(int(MONTH))
-	t=get_template('IndexTopList.html')
+	t=get_template('IndexTopListI18.html')
 	send_list=[]
 	RETSTR=fnReturnStringDate(int(DAY),int(MONTH),YEAR)
-	DAYKEY=str(LANG)+'_tophits'+RETSTR
+	DAYKEY=str(LANG)+'_mapPlace'
+	HITSKEY=str(LANG)+'_mapHits'
 	syslog.syslog('wikilib-views.py-listtop DAYKEY='+DAYKEY)
 	send_list=mc.get(DAYKEY)
 	tw_timeline=GetTimeline()
 	latest_news_list=wikilib.fnLatestnews()
 	if send_list==None: 
 		send_list=[]
-		RESULTSET=db[DAYKEY].find().sort('place',1).limit(100)
+		RESULTSET=db[DAYKEY].find({RETSTR:{"$lt":101}}).sort(RETSTR,1).limit(100)
 		PLACE=1
 		for row in RESULTSET:
 			title=''
 			utitle=''
 			try:
-				ATITLE=fnReturnTitleI18(LANG,row['_id'])
+				ATITLE=fnReturnTitleI18(row['_id'],LANG)
 				title, utitle=wikilib.fnFormatName(ATITLE)
 			except KeyError:
 				pass
-			rec={'place':PLACE,'Hits':row['Hits'],'title':utitle ,'id':str(row['_id']),'linktitle':title.encode('utf-8')}
+			HITS=db[HITSKEY].find_one({'_id':row['_id']})
+			rec={'place':row[RETSTR],'Hits':HITS[RETSTR],'title':utitle ,'id':str(row['_id']),'linktitle':title.encode('utf-8'),'LANG':LANG}
 			PLACE+=1
 			send_list.append(rec)
 		mc.set('DAYKEY',send_list,7200)
 	LANGSTR=wikilib.fnReturnLanguageName(LANG)
 	PageTitle='Top Articles for '+str(LANGSTR)+' Wikipedia on '+str(YEAR)+'/'+str(MONTH)+'/'+str(DAY)+'.'
-	c=Context({'PageTitle':PageTitle,'latest_hits_list':send_list,'y':YEAR,'m':MONTH,'d':DAY,'tw_timeline':tw_timeline,'latest_news_list':latest_news_list})
+	c=Context({'PageTitle':PageTitle,'latest_hits_list':send_list,'y':YEAR,'m':MONTH,'d':DAY,'tw_timeline':tw_timeline,'latest_news_list':latest_news_list,'LANGUAGE':LANG})
 	rendered=t.render(c)
 	return HttpResponse(rendered)
 
@@ -454,7 +362,72 @@ def debug(request):
 	rendered=t.render(c)
 	return HttpResponse(rendered)
 
+def infoviewI18(request,LANG,id):
+	GenHourlyGraph(id)
+	GenDailyGraph(id)
+	DAY,MONTH,YEAR,HOUR,expiretime,MONTHNAME=fnReturnTimes()
+	latest_news_list=wikilib.fnLatestnews()
+	tw_timeline=GetTimeline()
 
+	title,utitle=wikilib.fnFindName(LANG,id)
+	HOURGRAPHDIRECTORY='http://www.wikitrends.info/static/images/'+str(LANG)+'/hourly/'
+	DAILYGRAPHDIRECTORY='http://www.wikitrends.info/static/images/'+str(LANG)+'/daily/'
+	T25GRAPHDIRECTORY='http://www.wikitrends.info/static/images/'+str(LANG)+'/t25/'
+        T50GRAPHDIRECTORY='http://www.wikitrends.info/static/images/'+str(LANG)+'/t50/'
+	T100GRAPHDIRECTORY='http://www.wikitrends.info/static/images/'+str(LANG)+'/t100/'
+	T500GRAPHDIRECTORY='http://www.wikitrends.info/static/images/'+str(LANG)+'/t500/'
+	T1KGRAPHDIRECTORY='http://www.wikitrends.info/static/images/'+str(LANG)+'/t1k/'
+
+	if not os.path.exists(HOURGRAPHDIRECTORY):
+		os.makedirs(HOURGRAPHDIRECTORY)
+	if not os.path.exists(DAILYGRAPHDIRECTORY):
+		os.makedirs(DAILYGRAPHDIRECTORY)
+	if not os.path.exists(T25GRAPHDIRECTORY):
+		os.makedirs(T25GRAPHDIRECTORY)
+	if not os.path.exists(T50GRAPHDIRECTORY):
+		os.makedirs(T50GRAPHDIRECTORY)
+	if not os.path.exists(T100GRAPHDIRECTORY):
+		os.makedirs(T100GRAPHDIRECTORY)
+	if not os.path.exists(T500GRAPHDIRECTORY):
+		os.makedirs(T500GRAPHDIRECTORY)
+	if not os.path.exists(T1KGRAPHDIRECTORY):
+		os.makedirs(T1KGRAPHDIRECTORY)
+	
+	
+	try:
+		T25GRAPHFILESIZE=os.path.getsize('/tmp/django/wikilib/static/images/'+str(LANG)+'/t25/'+str(id)+'.png')
+	except OSError:
+		T25GRAPHFILESIZE=0
+		wikilib.fnDrawGraph(25,id,LANG)
+
+	try:
+		T50GRAPHFILESIZE=os.path.getsize('/tmp/django/wikilib/static/images/'+str(LANG)+'/t50/'+str(id)+'.png')
+	except OSError:
+		T50GRAPHFILESIZE=0
+		wikilib.fnDrawGraph(50,id,LANG)
+	
+	try:
+		T100GRAPHFILESIZE=os.path.getsize('/tmp/django/wikilib/static/images/'+str(LANG)+'/t100/'+str(id)+'.png')
+	except OSError:
+		T100GRAPHFILESIZE=0
+		wikilib.fnDrawGraph(100,id,LANG)
+	
+	try:
+		T500GRAPHFILESIZE=os.path.getsize('/tmp/django/wikilib/static/images/'+str(LANG)+'/t500/'+str(id)+'.png')
+	except OSError:
+		T500GRAPHFILESIZE=0
+		wikilib.fnDrawGraph(500,id,LANG)
+
+	try:
+		T1KGRAPHFILESIZE=os.path.getsize('/tmp/django/wikilib/static/images/'+str(LANG)+'/t1k/'+str(id)+'.png')
+	except OSError:
+		T1KGRAPHFILESIZE=0
+		wikilib.fnDrawGraph(100,id,LANG)
+
+	c=Context({'PageDesc':'Click above to go the Wikipedia page.','latest_news_list':latest_news_list,'PageTitle':utitle,'expiretime':expiretime,'linktitle':title,'tw_timeline':tw_timeline,'DAILYGRAPHFILENAME':T25GRAPHFILENAME,'HOURGRAPHFILENAME':T500GRAPHFILENAME,'T500GRAPHFILENAME':T500GRAPHFILENAME,'T5KGRAPHFILENAME':T50GRAPHFILENAME,'T50KGRAPHFILENAME':T25GRAPHFILENAME,'T250KGRAPHFILENAME':T1KGRAPHFILENAME,'T50GRAPHFILENAME':T50GRAPHFILENAME,'T50GRAPHFILESIZE':T50GRAPHFILESIZE,'T5KGRAPHFILESIZE':T50GRAPHFILESIZE,'T500GRAPHFILESIZE':T500GRAPHFILESIZE,'T1KGRAPHFILESIZE':T1KGRAPHFILESIZE})
+	rendered=t.render(c)
+
+	return HttpResponse(rendered)
 
 
 def infoview(request,id):
@@ -463,7 +436,8 @@ def infoview(request,id):
 	DAY, MONTH, YEAR, HOUR,expiretime,MONTHNAME = fnReturnTimes()
 
         QUERY={'id':str(id)}
-	print QUERY
+	syslog.syslog("Infoview - Query by "+str(request['REMOTE_ADDR'])+" for "+str(QUERY))
+
 
 	latest_news_list = wikilib.fnLatestnews()
 	
@@ -483,12 +457,12 @@ def infoview(request,id):
 	T250KGRAPHFILENAME='http://www.wikitrends.info/static/images/t250k/'+str(id)+'.png'
 	T50GRAPHFILENAME='http://www.wikitrends.info/static/images/t50/'+str(id)+'.png'
 	try:
-		T250KGRAPHFILESIZE=os.path.getsize('/tmp/django/wikilib/static/images/t50/'+str(id)+'.png')
+		HOURGRAPHFILESIZE=os.path.getsize('/tmp/django/wikilib/static/images/hourly/'+str(id)+'.png')
 	except OSError:
-		T250KGRAPHFILESIZE=0
+		HOURGRAPHFILESIZE=0
 		wikilib.fnDrawGraph(250,id)
 	try:
-		T50GRAPHFILESIZE=os.path.getsize('/tmp/django/wikilib/static/images/t50/'+str(id)+'.png')
+		DAILYGRAPHFILESIZE=os.path.getsize('/tmp/django/wikilib/static/images/t50/'+str(id)+'.png')
 	except OSError:
 		T50GRAPHFILESIZE=0
 		wikilib.fnDrawGraph(50,id)
@@ -517,7 +491,6 @@ def trending(request):
 	mcHour=mc.get('trendingHour')
 	t=get_template('RedTieIndex.html')
 	FQUERY={'d':int(DAY),'m':int(MONTH),'y':int(YEAR)}
-	print FQUERY
 	LATEST_NEWS_LIST=wikilib.fnLatestnews()
 	title=''
 	send_list=mc.get('TRENDING_LIST_QUERY')
@@ -589,7 +562,6 @@ def imageMain(request):
 	dateKey=str(YEAR)+"_"+str(MONTH)+"_"+str(DAY)
 	TRENDING_LIST_QUERY=db.imagedaily.find({dateKey:{'$exists':True}}).sort(dateKey,-1).limit(100)
 	for p in TRENDING_LIST_QUERY:
-		print p
 		rec={'title':p['title'],'Hits':p[datekey],'linktitle':p['title'],'id':p['_id']}
 		send_list.append(rec)
 #	mc.set('IMAGE_LIST_QUERY',send_list,1800)
@@ -597,35 +569,7 @@ def imageMain(request):
 	rendered=t.render(c)
 	return HttpResponse(rendered)	
 
-def top3hr(request):
-	DAY, MONTH, YEAR, HOUR,expiretime,MONTHNAME = fnReturnTimes()
-	MONTHNAME=fnCaseMonthName(MONTH)
-	mcHour=mc.get('trendingHour')
-	t=get_template('RedTieIndex.html')
-	LATEST_NEWS_LIST=wikilib.fnLatestnews()
-	title=''
-	send_list=mc.get('THREEHOUR_LIST_QUERY')
-	tw_timeline=GetTimeline() 
-	archive_list=GenArchiveList()
-	if send_list==None:
-		send_list=[]	
-		THREEHOUR_LIST_QUERY=db.threehour.find().sort('place',1)
-		for p in THREEHOUR_LIST_QUERY:
-			rec={'title':p['title'],'place':p['place'],'Avg':p['rollavg'],'linktitle':p['title'],'id':p['id']}
-			send_list.append(rec)
-		mc.set('THREEHOUR_LIST_QUERY',send_list,1800)
-	PAGETITLE="Top Wikipedia pages for "+str(MONTHNAME)+" "+str(DAY)+", "+str(YEAR)
-	c=Context({'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':PAGETITLE,'PageDesc':'A three hour rolling average showing the most popular articles currently','expiretime':expiretime,'tw_timeline':tw_timeline,'archive_list':archive_list})
-	rendered=t.render(c)
-	return HttpResponse(rendered)
-
-def returnLanguage(LANG):
-	if LANG=='ru':
-		return "Russian"
-	elif LANG=='en':
-		return "English"
-
-def indexLang(request,LANG):
+def indexLang(request,LANG='en'):
 	request.encoding='iso-8859-1'
 	DAY, MONTH, YEAR, HOUR,expiretime,MONTHNAME = fnReturnTimes()
 	MONTHNAME=fnCaseMonthName(MONTH)
@@ -646,7 +590,7 @@ def indexLang(request,LANG):
 			rec={'title':urllib2.unquote(tstr),'place':p['place'],'Avg':p['rollavg'],'linktitle':p['title'],'id':p['id'],'LANG':LANG}
 			send_list.append(rec)
 		mc.set(mcVAR,send_list,1800)
-	PAGETITLE="Top "+returnLanguage(LANG)+" Wikipedia pages for "+str(MONTHNAME)+" "+str(DAY)+", "+str(YEAR)
+	PAGETITLE="Top "+wikilib.fnReturnLanguageName(LANG)+" Wikipedia pages for "+str(MONTHNAME)+" "+str(DAY)+", "+str(YEAR)
 	c=Context({'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':PAGETITLE,'PageDesc':'A three hour rolling average showing the most popular articles currently','expiretime':expiretime,'tw_timeline':tw_timeline,'archive_list':archive_list,'LANGUAGE':LANG})
 	rendered=t.render(c)
 	return HttpResponse(rendered)
@@ -660,9 +604,6 @@ def cold(request):
 	tw_timeline=GetTimeline() 
  	send_list=[]
 	title=''
-#	for p in COLD_LIST_QUERY:
-#		rec={'title':p['title'],'place':p['place'],'Hits':p['Hits'],'linktitle':p['linktitle'],'id':p['id']}
-#		send_list.append(rec)
 	c=Context({'latest_hits_list':COLD_LIST_QUERY,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':'WikiTrends.Info - Cooling','PageDesc':'The pages with the biggest drop in standings from yesterday to today.','expiretime':expiretime,'tw_timeline':tw_timeline})
 	rendered=t.render(c)
 	return HttpResponse(rendered)

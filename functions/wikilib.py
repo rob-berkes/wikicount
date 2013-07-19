@@ -1,4 +1,4 @@
-import syslog
+
 import urllib2
 import os
 import string
@@ -21,37 +21,68 @@ def fnReturnLanguageName(LANG):
 		return 'English'
 	elif LANG=='ja':
 		return 'Japanese'
-def fnDrawGraph(type,id):
+	elif LANG=='zh':
+		return 'Chinese'
+	elif LANG=='es':
+		return 'Spanish'
+	elif LANG=='fr':
+		return 'French'
+	elif LANG=='pl':
+		return 'Polish'
+	elif LANG=='pt':
+		return 'Portugese'
+	elif LANG=='it':
+		return 'Italian'
+	elif LANG=='de':
+		return 'German'
+	elif LANG=='ro':
+		return 'Romanian'
+	elif LANG=='eo':
+		return 'Esperanto'
+	elif LANG=='hr':
+		return 'Croatian'
+	elif LANG=='ar':
+		return 'Arabic'
+	elif LANG=='la':
+		return 'Latin'
+	elif LANG=='sw':
+		return 'Swahili'
+	elif LANG=='simple':
+		return 'Simple English'
+def getLanguageList():
+	LLIST=['ru','en','ja','zh','es','fr','pl','pt','it','de','ro','eo','hr','ar','la','sw','simple']
+	return LLIST
+def fnDrawGraph(type,id,LANG):
 	TESTNUM=random.randint(1,20)
-        if type==250:
-                OUTFILENAME='/tmp/django/wikicount/static/images/t250k/'+str(id)+'.png' 
+        if type==25:
+                OUTFILENAME='/tmp/django/wikicount/static/images/'+str(LANG)+'/t25/'+str(id)+'.png' 
                 if not os.path.lexists(OUTFILENAME) or TESTNUM==12:
-                        subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.250k"])
-                        SFILE='/tmp/top250k.png'
+                        subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.25"])
+                        SFILE='/tmp/top25.png'
                         subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
-        elif type==50000:
-                OUTFILENAME='/tmp/django/wikicount/static/images/t50k/'+str(id)+'.png' 
+        elif type==50:
+                OUTFILENAME='/tmp/django/wikicount/static/images/'+str(LANG)+'/t50/'+str(id)+'.png' 
                 if not os.path.lexists(OUTFILENAME) or TESTNUM==11:
-                        subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.50k"])
-                        SFILE='/tmp/top50k.png'
+                        subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.50"])
+                        SFILE='/tmp/top50.png'
                         subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
-        elif type==5000:
-                OUTFILENAME='/tmp/django/wikicount/static/images/t5k/'+str(id)+'.png' 
+        elif type==100:
+                OUTFILENAME='/tmp/django/wikicount/static/images/'+str(LANG)+'/t100/'+str(id)+'.png' 
                 if not os.path.lexists(OUTFILENAME) or TESTNUM==10:
-                        subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.5k"])
-                        SFILE='/tmp/top5k.png'
+                        subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.100"])
+                        SFILE='/tmp/top100.png'
                         subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
         elif type==500:
-                OUTFILENAME='/tmp/django/wikicount/static/images/t500/'+str(id)+'.png' 
+                OUTFILENAME='/tmp/django/wikicount/static/images/'+str(LANG)+'/t500/'+str(id)+'.png' 
                 if not os.path.lexists(OUTFILENAME) or TESTNUM==13:
                         subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.500"])
                         SFILE='/tmp/top500.png'
                         subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
-        elif type==50:
-                OUTFILENAME='/tmp/django/wikicount/static/images/t50/'+str(id)+'.png' 
+        elif type==1000:
+                OUTFILENAME='/tmp/django/wikicount/static/images/'+str(LANG)+'/t1k/'+str(id)+'.png' 
                 if not os.path.lexists(OUTFILENAME) or TESTNUM==14:
-                        subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.50"])
-                        SFILE='/tmp/top50.png'
+                        subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.1k"])
+                        SFILE='/tmp/top1k.png'
                         subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
 	elif type==365:
 		OUTFILENAME='/tmp/django/wikicount/static/images/daily/'+str(id)+'.png'
@@ -87,10 +118,10 @@ def fnFindImage(id):
 
         return title, utitle
 
-def fnFindName(id):
+def fnFindName(LANG,id):
         QUERY={'id':id}
-        MAPQ=db.hitsdaily.find({'_id':id})
-        latest_news_list = fnLatestnews()
+	CNAME=str(LANG)+"_hitsdaily"
+        MAPQ=db[CNAME].find({'_id':id})
         title=''
         utitle=''
         for name in MAPQ:
@@ -105,14 +136,29 @@ def fnFormatName(title):
         t_title=s_title.encode('utf-8')
         utitle=urllib2.unquote(t_title)
         return title, utitle
+def fnReturnStringDate(DAY,MONTH,YEAR):
+        DAY='%02d' % (DAY,)
+        MONTH='%02d' % (MONTH,)
+        RETSTR=str(YEAR)+"_"+str(MONTH)+"_"+str(DAY)
+        return RETSTR
 
-def fnGenTableArchive(TABLENAME,id,place):
+def fnGenTableArchive(id,place,LANG):
 	send_list=[];
-	QUERY={'id':id,'place':{'$lt':place}}
-	FINDQ=db[TABLENAME].find(QUERY)
-	for result in FINDQ:
-		rec=str(result['y'])+'/'+str(result['m'])+'/'+str(result['d'])+' '+str(result['place'])+'\n'
-        	send_list.append(rec)
+	CNAME=str(LANG)+'_mapPlace'
+	QUERY={'_id':id}
+	FINDQ=db[CNAME].find_one(QUERY)
+	year=2013
+	for month in range(1,13):
+		for day in range(1,32):
+			RETSTR=fnReturnStringDate(day,month,year)
+			try:
+				if FINDQ[RETSTR]>0 and FINDQ[RETSTR]<place:
+					rec=str(str(year)+'/'+str(month)+'/'+str(day)+' '+str(FINDQ[RETSTR]))
+					send_list.append(rec)
+			except KeyError:
+				continue
+			except TypeError:
+				continue
 	return send_list
 
 def fnGetDate():
@@ -179,10 +225,10 @@ def fnMinusHour(HOUR):
         elif HOUR==-7:
                 HOUR=17
         return HOUR
-def fnAppendSitemap(id):
+def fnAppendSitemap(id,LANG):
 	out=open("/tmp/sitemap.xml","a")
 	out.write("<url>\n")
-	out.write("     <loc>http://www.wikitrends.info/infoview/"+str(id)+"</loc>\n")
+	out.write("     <loc>http://www.wikitrends.info/'+str(LANG)+'/infoview/"+str(id)+"</loc>\n")
 	out.write("     <changefreq>daily</changefreq>\n")
 	out.write("	<priority>0.5</priority>\n")
 	out.write("</url>\n")
@@ -218,62 +264,75 @@ def GenInfoDailyGraph(id):
 	fnDrawGraph(365,id)
 				
 	return
-def GenInfoPage(id):
-	GenInfoDailyGraph(id)
-	fnAppendSitemap(id)
-	INFOVIEW_KEY='infoview_'+str(id)
-	INFOVIEWLT_KEY='infoviewlt_'+str(id)
-	INFOVIEWLT5K_KEY='infoviewlt5k_'+str(id)
-	INFOVIEWLT500_KEY='infoviewlt500_'+str(id)
-	INFOVIEWLT50_KEY='infoviewlt50_'+str(id)
-	MONTHLIST=['tophits','tophits2013February','tophits2013March']
-	send_list=[]
-	info_lt50k_list=[]
-	info_lt5k_list=[]
-	info_lt500_list=[]
-	info_lt50_list=[]
-	for MONTH in MONTHLIST:
-		send_list+=fnGenTableArchive(MONTH,id,250001)
-		info_lt50k_list+=fnGenTableArchive(MONTH,id,50001)        
-		info_lt5k_list+=fnGenTableArchive(MONTH,id,5001)        
-		info_lt500_list+=fnGenTableArchive(MONTH,id,501)        
-		info_lt50_list+=fnGenTableArchive(MONTH,id,51)        
+def GenInfoPage(id,LANG='en'):
+	HOURGRAPHDIRECTORY='http://www.wikitrends.info/static/images/'+str(LANG)+'/hourly/'
+        DAILYGRAPHDIRECTORY='http://www.wikitrends.info/static/images/'+str(LANG)+'/daily/'
+        T25GRAPHDIRECTORY='http://www.wikitrends.info/static/images/'+str(LANG)+'/t25/'
+        T50GRAPHDIRECTORY='http://www.wikitrends.info/static/images/'+str(LANG)+'/t50/'
+        T100GRAPHDIRECTORY='http://www.wikitrends.info/static/images/'+str(LANG)+'/t100/'
+        T500GRAPHDIRECTORY='http://www.wikitrends.info/static/images/'+str(LANG)+'/t500/'
+        T1KGRAPHDIRECTORY='http://www.wikitrends.info/static/images/'+str(LANG)+'/t1k/'
 
-	T50KFILE=open('/tmp/t50k.log','w')
-	T250FILE=open('/tmp/t250k.log','w')
-	T50FILE=open('/tmp/t50.log','w')
-	T500FILE=open('/tmp/t500.log','w')
-	T5KFILE=open('/tmp/t5k.log','w')
+        if not os.path.exists(HOURGRAPHDIRECTORY):
+                os.makedirs(HOURGRAPHDIRECTORY)
+        if not os.path.exists(DAILYGRAPHDIRECTORY):
+                os.makedirs(DAILYGRAPHDIRECTORY)
+        if not os.path.exists(T25GRAPHDIRECTORY):
+                os.makedirs(T25GRAPHDIRECTORY)
+        if not os.path.exists(T50GRAPHDIRECTORY):
+                os.makedirs(T50GRAPHDIRECTORY)
+        if not os.path.exists(T100GRAPHDIRECTORY):
+                os.makedirs(T100GRAPHDIRECTORY)
+        if not os.path.exists(T500GRAPHDIRECTORY):
+                os.makedirs(T500GRAPHDIRECTORY)
+        if not os.path.exists(T1KGRAPHDIRECTORY):
+                os.makedirs(T1KGRAPHDIRECTORY)
 
-	for item in send_list:
-		T250FILE.write(item)
-	for item in info_lt50k_list:
-		T50KFILE.write(item)
-	for item in info_lt5k_list:
-		T5KFILE.write(item)
-	for item in info_lt500_list:
-		T500FILE.write(item)
-	for item in info_lt50_list:
-		T50FILE.write(item)
+	#GenInfoDailyGraph(id)
+	fnAppendSitemap(id,LANG)
 	
-	T50KFILE.close()
-	T5KFILE.close()
-	T500FILE.close()
-	T50FILE.close()
-	T250FILE.close()
+	info_lt_25_list=[]
+	info_lt_50_list=[]
+	info_lt_100_list=[]
+	info_lt_500_list=[]
+	info_lt_1000_list=[]
+	
+	info_lt_25_list=fnGenTableArchive(id,26,LANG)
+	info_lt_50_list=fnGenTableArchive(id,51,LANG)        
+	info_lt_100_list=fnGenTableArchive(id,101,LANG)        
+	info_lt_500_list=fnGenTableArchive(id,501,LANG)        
+	info_lt_1000_list=fnGenTableArchive(id,1001,LANG)        
 
-	fnDrawGraph(50000,id)
-	fnDrawGraph(5000,id)
-	fnDrawGraph(500,id)
-	fnDrawGraph(50,id)
-	fnDrawGraph(250,id)
+	T25FILE=open('/tmp/t25.log','w')
+	T50FILE=open('/tmp/t50.log','w')
+	T100FILE=open('/tmp/t100.log','w')
+	T500FILE=open('/tmp/t500.log','w')
+	T1KFILE=open('/tmp/t1k.log','w')
+
+	for item in info_lt_25_list:
+		T25FILE.write(item)
+	for item in info_lt_50_list:
+		T50FILE.write(item)
+	for item in info_lt_100_list:
+		T100FILE.write(item)
+	for item in info_lt_500_list:
+		T500FILE.write(item)
+	for item in info_lt_1000_list:
+		T1KFILE.write(item)
+	
+	T25FILE.close()
+	T50FILE.close()
+	T100FILE.close()
+	T500FILE.close()
+	T1KFILE.close()
+
+	fnDrawGraph(25,id,LANG)
+	fnDrawGraph(50,id,LANG)
+	fnDrawGraph(100,id,LANG)
+	fnDrawGraph(500,id,LANG)
+	fnDrawGraph(1000,id,LANG)
 
 		
-#        fnSetMemcache(INFOVIEW_KEY,send_list,60*60*12)
-#	fnSetMemcache(INFOVIEWLT_KEY,info_lt50k_list,60*60*12)
-#	fnSetMemcache(INFOVIEWLT5K_KEY,info_lt5k_list,60*60*12)
-#	fnSetMemcache(INFOVIEWLT500_KEY,info_lt500_list,60*60*12)
-#	fnSetMemcache(INFOVIEWLT50_KEY,info_lt50_list,60*60*12)
 	return
 
 
