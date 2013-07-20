@@ -40,7 +40,7 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 				</div>
 			</div>
 			<div id="submenu">
-					{% include 'menu_list.html' %}
+					{% include 'menu_listI18.html' %}
 			</div>
 			<div id="contenttext2">
 				<div style="padding:10px">
@@ -61,8 +61,18 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 					{% include 'hour_graph.html'%}
 					</td>
 					<td>
+					<div align="center">Days in the top 25</div>
+					{% include '25_graph.html' %}
+					</td>
+					</tr>
+					<tr>
+					<td>
 					<div align="center">Days in the top 50</div>
 					{% include '50_graph.html' %}
+					</td>
+					<td>
+					<div align="center">Days in the top 100</div>
+					{% include '100_graph.html' %}
 					</td>
 					</tr>
 					<tr>
@@ -71,18 +81,8 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 					{% include '500_graph.html' %}
 					</td>
 					<td>
-					<div align="center">Days in the top 5000</div>
-					{% include '5k_graph.html' %}
-					</td>
-					</tr>
-					<tr>
-					<td>
-					<div align="center">Days in the top 50,000</div>
-					{% include '50k_graph.html' %}
-					</td>
-					<td>
-					<div align="center">Days in the top 250,000</div>
-					{% include '250k_graph.html' %}
+					<div align="center">Days in the top 1000</div>
+					{% include '1000_graph.html' %}
 					</td>
 					</tr>
 					</table>
@@ -107,6 +107,9 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 				<div align="justify" class="graypanel">
 					<span class="smalltitle">News</span><br /><br />
 					{% include 'news_list.html' %}
+				</div>
+				<div align="justify" class="graypanel">
+				<iframe scrolling="no" style="border: 0; width: 200px; height: 200px;" src="http://coinurl.com/get.php?id=14562"></iframe>
 				</div>
 			</div>
 			<div id="leftpanel">

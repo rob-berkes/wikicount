@@ -33,7 +33,6 @@ for lang in LANGUAGES:
 		rec={'title':p['title'],'place':p['place'],'Avg':p['rollavg'],'linktitle':p['title'],'id':p['id']}
 		wikilib.GenInfoPage(p['id'],lang)
        	 	send_list.append(rec)
-	wikilib.fnSetMemcache('THREEHOUR_LIST_QUERY',send_list,60*60) 
 
 
 #wikilib.fnLaunchNextJob('set_threehour')

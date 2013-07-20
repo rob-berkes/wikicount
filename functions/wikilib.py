@@ -153,7 +153,7 @@ def fnGenTableArchive(id,place,LANG):
 			RETSTR=fnReturnStringDate(day,month,year)
 			try:
 				if FINDQ[RETSTR]>0 and FINDQ[RETSTR]<place:
-					rec=str(str(year)+'/'+str(month)+'/'+str(day)+' '+str(FINDQ[RETSTR]))
+					rec=str(str(year)+'/'+str(month)+'/'+str(day)+' '+str(FINDQ[RETSTR])+'\n')
 					send_list.append(rec)
 			except KeyError:
 				continue

@@ -148,8 +148,9 @@ def returnHourString(hour):
         HOUR='%02d' % (hour,)
         return HOUR
 
-def GenHourlyGraph(id):
-        RESULT1=db.hitshourly.find_one({"_id":str(id)})
+def GenHourlyGraph(id,LANG):
+	CNAME=str(LANG)+'_hitshourly'
+        RESULT1=db[CNAME].find_one({"_id":str(id)})
         OFILE=open('output.log','w')
         try:
                 for i in range(0,24):
@@ -162,30 +163,31 @@ def GenHourlyGraph(id):
                 pass
         OFILE.close()
         subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.plot"])
-        OUTFILENAME='/tmp/django/wikicount/static/images/hourly/'+str(id)+'.png'
+        OUTFILENAME='/tmp/django/wikicount/static/images/'+str(LANG)+'/hourly/'+str(id)+'.png'
         SFILE='/tmp/django/wikicount/introduction.png'
         subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
         return
-def GenDailyGraph(id):
+def GenDailyGraph(id,LANG):
+	CNAME=str(LANG)+'_hitsdaily'
 	DAY,MONTH,YEAR,HOUR,expiretime,MONTHNAME=fnReturnTimes()
 	ENDMONTH=MONTH
 	ENDDAY=DAY
 	ENDYEAR=YEAR
         OFILE=open('/tmp/daily.log','w')
 	for MONTH in range(1,ENDMONTH):
-		for DAY in range(0,31):
-			strDAY=returnHourString(DAY)
-			strMONTH=returnHourString(MONTH)
-			DATESEARCH="2013_"+str(strMONTH)+"_"+str(DAY)
-			DATEOUTPUT="2013/"+str(strMONTH)+"/"+str(DAY)
-			RESULT=db.hitsdaily.find_one({"_id":str(id),DATESEARCH:{"$gt":0}})
+		for DAY in range(1,32):
+			DATESEARCH=wikilib.fnReturnStringDate(DAY,MONTH,YEAR)
+			DATEOUTPUT="2013/"+str(MONTH)+"/"+str(DAY)
+			RESULT=db[CNAME].find_one({"_id":str(id)})
 			try:
 	                        OFILE.write(str(DATEOUTPUT)+' '+str(RESULT[DATESEARCH])+'\n')
 			except TypeError:
 				pass
+			except KeyError:
+				pass
         OFILE.close()
         subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.daily"])
-        OUTFILENAME='/tmp/django/wikicount/static/images/daily/'+str(id)+'.png'
+        OUTFILENAME='/tmp/django/wikicount/static/images/'+str(LANG)+'/daily/'+str(id)+'.png'
         SFILE='/tmp/daily.png'
         subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
         return
@@ -330,7 +332,7 @@ def listtopI18(request,LANG,YEAR,MONTH,DAY):
 	latest_news_list=wikilib.fnLatestnews()
 	if send_list==None: 
 		send_list=[]
-		RESULTSET=db[DAYKEY].find({RETSTR:{"$lt":101}}).sort(RETSTR,1).limit(100)
+		RESULTSET=db[HITSKEY].find().sort(RETSTR,-1).limit(100)
 		PLACE=1
 		for row in RESULTSET:
 			title=''
@@ -341,7 +343,7 @@ def listtopI18(request,LANG,YEAR,MONTH,DAY):
 			except KeyError:
 				pass
 			HITS=db[HITSKEY].find_one({'_id':row['_id']})
-			rec={'place':row[RETSTR],'Hits':HITS[RETSTR],'title':utitle ,'id':str(row['_id']),'linktitle':title.encode('utf-8'),'LANG':LANG}
+			rec={'place':PLACE,'Hits':HITS[RETSTR],'title':utitle ,'id':str(row['_id']),'linktitle':title.encode('utf-8'),'LANG':LANG}
 			PLACE+=1
 			send_list.append(rec)
 		mc.set('DAYKEY',send_list,7200)
@@ -363,12 +365,13 @@ def debug(request):
 	return HttpResponse(rendered)
 
 def infoviewI18(request,LANG,id):
-	GenHourlyGraph(id)
-	GenDailyGraph(id)
+	GenHourlyGraph(id,LANG)
+	GenDailyGraph(id,LANG)
 	DAY,MONTH,YEAR,HOUR,expiretime,MONTHNAME=fnReturnTimes()
 	latest_news_list=wikilib.fnLatestnews()
 	tw_timeline=GetTimeline()
 
+	t=get_template('InfoviewIndex.htm')
 	title,utitle=wikilib.fnFindName(LANG,id)
 	HOURGRAPHDIRECTORY='http://www.wikitrends.info/static/images/'+str(LANG)+'/hourly/'
 	DAILYGRAPHDIRECTORY='http://www.wikitrends.info/static/images/'+str(LANG)+'/daily/'
@@ -377,6 +380,15 @@ def infoviewI18(request,LANG,id):
 	T100GRAPHDIRECTORY='http://www.wikitrends.info/static/images/'+str(LANG)+'/t100/'
 	T500GRAPHDIRECTORY='http://www.wikitrends.info/static/images/'+str(LANG)+'/t500/'
 	T1KGRAPHDIRECTORY='http://www.wikitrends.info/static/images/'+str(LANG)+'/t1k/'
+
+	HOURLYGRAPHFILENAME=HOURGRAPHDIRECTORY+str(id)+'.png'
+	DAILYGRAPHFILENAME=DAILYGRAPHDIRECTORY+str(id)+'.png'
+	T25GRAPHFILENAME=T25GRAPHDIRECTORY+str(id)+'.png'
+	T50GRAPHFILENAME=T50GRAPHDIRECTORY+str(id)+'.png'
+	T100GRAPHFILENAME=T100GRAPHDIRECTORY+str(id)+'.png'
+	T500GRAPHFILENAME=T500GRAPHDIRECTORY+str(id)+'.png'
+	T1KGRAPHFILENAME=T1KGRAPHDIRECTORY+str(id)+'.png'
+
 
 	if not os.path.exists(HOURGRAPHDIRECTORY):
 		os.makedirs(HOURGRAPHDIRECTORY)
@@ -395,94 +407,38 @@ def infoviewI18(request,LANG,id):
 	
 	
 	try:
-		T25GRAPHFILESIZE=os.path.getsize('/tmp/django/wikilib/static/images/'+str(LANG)+'/t25/'+str(id)+'.png')
+		T25GRAPHFILESIZE=os.path.getsize(T25GRAPHFILENAME)
 	except OSError:
 		T25GRAPHFILESIZE=0
 		wikilib.fnDrawGraph(25,id,LANG)
 
 	try:
-		T50GRAPHFILESIZE=os.path.getsize('/tmp/django/wikilib/static/images/'+str(LANG)+'/t50/'+str(id)+'.png')
+		T50GRAPHFILESIZE=os.path.getsize(T50GRAPHFILENAME)
 	except OSError:
 		T50GRAPHFILESIZE=0
 		wikilib.fnDrawGraph(50,id,LANG)
 	
 	try:
-		T100GRAPHFILESIZE=os.path.getsize('/tmp/django/wikilib/static/images/'+str(LANG)+'/t100/'+str(id)+'.png')
+		T100GRAPHFILESIZE=os.path.getsize(T100GRAPHFILENAME)
 	except OSError:
 		T100GRAPHFILESIZE=0
 		wikilib.fnDrawGraph(100,id,LANG)
 	
 	try:
-		T500GRAPHFILESIZE=os.path.getsize('/tmp/django/wikilib/static/images/'+str(LANG)+'/t500/'+str(id)+'.png')
+		T500GRAPHFILESIZE=os.path.getsize(T500GRAPHFILENAME)
 	except OSError:
 		T500GRAPHFILESIZE=0
 		wikilib.fnDrawGraph(500,id,LANG)
 
 	try:
-		T1KGRAPHFILESIZE=os.path.getsize('/tmp/django/wikilib/static/images/'+str(LANG)+'/t1k/'+str(id)+'.png')
+		T1KGRAPHFILESIZE=os.path.getsize(T1KGRAPHFILENAME)
 	except OSError:
 		T1KGRAPHFILESIZE=0
-		wikilib.fnDrawGraph(100,id,LANG)
+		wikilib.fnDrawGraph(1000,id,LANG)
 
-	c=Context({'PageDesc':'Click above to go the Wikipedia page.','latest_news_list':latest_news_list,'PageTitle':utitle,'expiretime':expiretime,'linktitle':title,'tw_timeline':tw_timeline,'DAILYGRAPHFILENAME':T25GRAPHFILENAME,'HOURGRAPHFILENAME':T500GRAPHFILENAME,'T500GRAPHFILENAME':T500GRAPHFILENAME,'T5KGRAPHFILENAME':T50GRAPHFILENAME,'T50KGRAPHFILENAME':T25GRAPHFILENAME,'T250KGRAPHFILENAME':T1KGRAPHFILENAME,'T50GRAPHFILENAME':T50GRAPHFILENAME,'T50GRAPHFILESIZE':T50GRAPHFILESIZE,'T5KGRAPHFILESIZE':T50GRAPHFILESIZE,'T500GRAPHFILESIZE':T500GRAPHFILESIZE,'T1KGRAPHFILESIZE':T1KGRAPHFILESIZE})
+	c=Context({'PageDesc':'Click above to go the Wikipedia page.','latest_news_list':latest_news_list,'PageTitle':utitle,'expiretime':expiretime,'linktitle':title,'tw_timeline':tw_timeline,'DAILYGRAPHFILENAME':DAILYGRAPHFILENAME,'HOURGRAPHFILENAME':HOURLYGRAPHFILENAME,'T25GRAPHFILENAME':T25GRAPHFILENAME,'T50GRAPHFILENAME':T50GRAPHFILENAME,'T100GRAPHFILENAME':T100GRAPHFILENAME,'T500GRAPHFILENAME':T500GRAPHFILENAME,'T1KGRAPHFILENAME':T1KGRAPHFILENAME})
 	rendered=t.render(c)
 
-	return HttpResponse(rendered)
-
-
-def infoview(request,id):
-	GenHourlyGraph(id)
-	GenDailyGraph(id)
-	DAY, MONTH, YEAR, HOUR,expiretime,MONTHNAME = fnReturnTimes()
-
-        QUERY={'id':str(id)}
-	syslog.syslog("Infoview - Query by "+str(request['REMOTE_ADDR'])+" for "+str(QUERY))
-
-
-	latest_news_list = wikilib.fnLatestnews()
-	
-	tw_timeline=GetTimeline()
-
-	title, utitle = wikilib.fnFindName(id)
-	if title=='':
-		title,utitle = wikilib.fnFindCategory(id)
-	if title=='':
-		title,utitle = wikilib.fnFindImage(id)
-	t=get_template('InfoviewIndex.htm')
-	HOURGRAPHFILENAME='http://www.wikitrends.info/static/images/hourly/'+str(id)+'.png'
-	DAILYGRAPHFILENAME='http://www.wikitrends.info/static/images/daily/'+str(id)+'.png'
-	T500GRAPHFILENAME='http://www.wikitrends.info/static/images/t500/'+str(id)+'.png'
-	T5KGRAPHFILENAME='http://www.wikitrends.info/static/images/t5k/'+str(id)+'.png'
-	T50KGRAPHFILENAME='http://www.wikitrends.info/static/images/t50k/'+str(id)+'.png'
-	T250KGRAPHFILENAME='http://www.wikitrends.info/static/images/t250k/'+str(id)+'.png'
-	T50GRAPHFILENAME='http://www.wikitrends.info/static/images/t50/'+str(id)+'.png'
-	try:
-		HOURGRAPHFILESIZE=os.path.getsize('/tmp/django/wikilib/static/images/hourly/'+str(id)+'.png')
-	except OSError:
-		HOURGRAPHFILESIZE=0
-		wikilib.fnDrawGraph(250,id)
-	try:
-		DAILYGRAPHFILESIZE=os.path.getsize('/tmp/django/wikilib/static/images/t50/'+str(id)+'.png')
-	except OSError:
-		T50GRAPHFILESIZE=0
-		wikilib.fnDrawGraph(50,id)
-	try:
-		T5KGRAPHFILESIZE=os.path.getsize('/tmp/django/wikilib/static/images/t5k/'+str(id)+'.png')
-	except OSError:
-		T5KGRAPHFILESIZE=0
-		wikilib.fnDrawGraph(5000,id)
-	try:
-		T500GRAPHFILESIZE=os.path.getsize('/tmp/django/wikilib/static/images/t500/'+str(id)+'.png')
-	except OSError:
-		T500GRAPHFILESIZE=0
-		wikilib.fnDrawGraph(500,id)
-	try:
-		T50KGRAPHFILESIZE=os.path.getsize('/tmp/django/wikilib/static/images/t50k/'+str(id)+'.png')
-	except OSError:
-		T50KGRAPHFILESIZE=0
-		wikilib.fnDrawGraph(50000,id)
-	c=Context({'PageDesc':'Click above to go the Wikipedia page.','latest_news_list':latest_news_list,'PageTitle':utitle,'expiretime':expiretime,'linktitle':title,'tw_timeline':tw_timeline,'DAILYGRAPHFILENAME':DAILYGRAPHFILENAME,'HOURGRAPHFILENAME':HOURGRAPHFILENAME,'T500GRAPHFILENAME':T500GRAPHFILENAME,'T5KGRAPHFILENAME':T5KGRAPHFILENAME,'T50KGRAPHFILENAME':T50KGRAPHFILENAME,'T250KGRAPHFILENAME':T250KGRAPHFILENAME,'T50GRAPHFILENAME':T50GRAPHFILENAME,'T50GRAPHFILESIZE':T50GRAPHFILESIZE,'T5KGRAPHFILESIZE':T5KGRAPHFILESIZE,'T500GRAPHFILESIZE':T500GRAPHFILESIZE,'T50KGRAPHFILESIZE':T50KGRAPHFILESIZE})
-	rendered=t.render(c)
 	return HttpResponse(rendered)
 
 
