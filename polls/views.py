@@ -343,9 +343,12 @@ def listtopI18(request,LANG,YEAR,MONTH,DAY):
 			except KeyError:
 				pass
 			HITS=db[HITSKEY].find_one({'_id':row['_id']})
-			rec={'place':PLACE,'Hits':HITS[RETSTR],'title':utitle ,'id':str(row['_id']),'linktitle':title.encode('utf-8'),'LANG':LANG}
+			try:
+				rec={'place':PLACE,'Hits':HITS[RETSTR],'title':utitle ,'id':str(row['_id']),'linktitle':title.encode('utf-8'),'LANG':LANG}
+				send_list.append(rec)
+			except KeyError:
+				continue
 			PLACE+=1
-			send_list.append(rec)
 		mc.set('DAYKEY',send_list,7200)
 	LANGSTR=wikilib.fnReturnLanguageName(LANG)
 	PageTitle='Top Articles for '+str(LANGSTR)+' Wikipedia on '+str(YEAR)+'/'+str(MONTH)+'/'+str(DAY)+'.'

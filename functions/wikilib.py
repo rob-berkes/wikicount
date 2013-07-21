@@ -47,10 +47,12 @@ def fnReturnLanguageName(LANG):
 		return 'Latin'
 	elif LANG=='sw':
 		return 'Swahili'
+	elif LANG=='af':
+		return 'Afrikaans'
 	elif LANG=='simple':
 		return 'Simple English'
 def getLanguageList():
-	LLIST=['ru','en','ja','zh','es','fr','pl','pt','it','de','ro','eo','hr','ar','la','sw','simple']
+	LLIST=['ru','en','ja','zh','es','fr','pl','pt','it','de','ro','eo','hr','ar','la','sw','simple','af']
 	return LLIST
 def fnDrawGraph(type,id,LANG):
 	TESTNUM=random.randint(1,20)
