@@ -11,6 +11,7 @@ import random
 import datetime
 import hashlib
 import memcache
+import redis
 from wsgiref.handlers import format_date_time
 from time import mktime
 import time
@@ -439,7 +440,7 @@ def infoviewI18(request,LANG,id):
 		T1KGRAPHFILESIZE=0
 		wikilib.fnDrawGraph(1000,id,LANG)
 
-	c=Context({'PageDesc':'Click above to go the Wikipedia page.','latest_news_list':latest_news_list,'PageTitle':utitle,'expiretime':expiretime,'linktitle':title,'tw_timeline':tw_timeline,'DAILYGRAPHFILENAME':DAILYGRAPHFILENAME,'HOURGRAPHFILENAME':HOURLYGRAPHFILENAME,'T25GRAPHFILENAME':T25GRAPHFILENAME,'T50GRAPHFILENAME':T50GRAPHFILENAME,'T100GRAPHFILENAME':T100GRAPHFILENAME,'T500GRAPHFILENAME':T500GRAPHFILENAME,'T1KGRAPHFILENAME':T1KGRAPHFILENAME})
+	c=Context({'PageDesc':'Click above to go the Wikipedia page.','latest_news_list':latest_news_list,'PageTitle':utitle,'expiretime':expiretime,'linktitle':title,'tw_timeline':tw_timeline,'DAILYGRAPHFILENAME':DAILYGRAPHFILENAME,'HOURGRAPHFILENAME':HOURLYGRAPHFILENAME,'T25GRAPHFILENAME':T25GRAPHFILENAME,'T50GRAPHFILENAME':T50GRAPHFILENAME,'T100GRAPHFILENAME':T100GRAPHFILENAME,'T500GRAPHFILENAME':T500GRAPHFILENAME,'T1KGRAPHFILENAME':T1KGRAPHFILENAME,'LANG':str(LANG)})
 	rendered=t.render(c)
 
 	return HttpResponse(rendered)
@@ -532,23 +533,79 @@ def indexLang(request,LANG='en'):
 	request.encoding='iso-8859-1'
 	DAY, MONTH, YEAR, HOUR,expiretime,MONTHNAME = fnReturnTimes()
 	MONTHNAME=fnCaseMonthName(MONTH)
-	mcHour=mc.get('trendingHour')
 	t=get_template('RedTieIndexI18.html')
 	LATEST_NEWS_LIST=wikilib.fnLatestnews()
 	title=''
 	tw_timeline=GetTimeline() 
 	archive_list=GenArchiveListI18(LANG)
+	PLACE=1
+	REDIS_TITLE_KEY=str(LANG)+'_'+str(PLACE)+'_'+'TITLE'
+	REDIS_PLACE_KEY=str(LANG)+'_'+str(PLACE)+'_'+'PLACE'
+	REDIS_AVG_KEY=str(LANG)+'_'+str(PLACE)+'_'+'AVG'
+	REDIS_LINKTITLE_KEY=str(LANG)+'_'+str(PLACE)+'_'+'LINKTITLE'
+	REDIS_ID_KEY=str(LANG)+'_'+str(PLACE)+'_'+'ID'
 	mcVAR=str(LANG)+"_THREEHOUR"
-	send_list=mc.get(mcVAR)
-	if send_list==None:
-		send_list=[]	
+	rc=redis.Redis('localhost')
+	send_list=[]	
+	try:
+		aTITLE=str(rc.rpop(REDIS_TITLE_KEY))
+	except:
+		aTITLE='None'
+	if aTITLE=='None':
+		REDIS_TITLE_KEY=str(LANG)+'_'+str(PLACE)+'_'+'TITLE'
+		REDIS_PLACE_KEY=str(LANG)+'_'+str(PLACE)+'_'+'PLACE'
+		REDIS_AVG_KEY=str(LANG)+'_'+str(PLACE)+'_'+'AVG'
+		REDIS_LINKTITLE_KEY=str(LANG)+'_'+str(PLACE)+'_'+'LINKTITLE'
+		REDIS_ID_KEY=str(LANG)+'_'+str(PLACE)+'_'+'ID'
 		COLLNAME=str(LANG)+"_threehour"
 		THREEHOUR_LIST_QUERY=db[COLLNAME].find().sort('place',1)
 		for p in THREEHOUR_LIST_QUERY:
 			tstr=str(p['title'])
 			rec={'title':urllib2.unquote(tstr),'place':p['place'],'Avg':p['rollavg'],'linktitle':p['title'],'id':p['id'],'LANG':LANG}
+		#	print rec
 			send_list.append(rec)
-		mc.set(mcVAR,send_list,1800)
+		#rc.set(REDIS_TITLE_KEY,urllib2.unquote(tstr))
+	#	rc.set(REDIS_PLACE_KEY,p['place'])
+#		rc.set(REDIS_AVG_KEY,p['rollavg'])
+#		rc.set(REDIS_LINKTITLE_KEY,p['title'])
+#		rc.set(REDIS_ID_KEY,p['id'])
+		PLACE+=1
+	else:
+		aTITLE=rc.rpop(REDIS_TITLE_KEY)
+		aPLACE=rc.rpop(REDIS_PLACE_KEY)
+		aAVG=rc.rpop(REDIS_AVG_KEY)
+		aLINKTITLE=rc.rpop(REDIS_LINKTITLE_KEY)
+		aID=rc.rpop(REDIS_ID_KEY)
+		send_list=[]
+		tstr=str(aTITLE)
+		rec={'title':urllib2.unquote(tstr),'place':aPLACE,'Avg':aAVG,'linktitle':aLINKTITLE,'id':aID,'LANG':str(LANG)}
+		aTITLE=1
+		send_list.append(rec)
+		PLACE=0
+		while aTITLE!="None":
+			PLACE+=1
+			aPLACE=rc.rpop(REDIS_PLACE_KEY)
+			aAVG=rc.rpop(REDIS_AVG_KEY)
+			aLINKTITLE=rc.rpop(REDIS_LINKTITLE_KEY)
+			aID=rc.rpop(REDIS_ID_KEY)
+			tstr=str(aTITLE)
+			rec={'title':urllib2.unquote(tstr),'place':aPLACE,'Avg':aAVG,'linktitle':aLINKTITLE,'id':aID,'LANG':str(LANG)}
+			send_list.append(rec)
+			rc.rpush(REDIS_TITLE_KEY,aTITLE)
+			rc.rpush(REDIS_PLACE_KEY,aPLACE)
+			rc.rpush(REDIS_AVG_KEY,aAVG)
+			rc.rpush(REDIS_LINKTITLE_KEY,aLINKTITLE)
+			rc.rpush(REDIS_ID_KEY,aID)
+			REDIS_TITLE_KEY=str(LANG)+'_'+str(PLACE)+'_'+'TITLE'
+			REDIS_PLACE_KEY=str(LANG)+'_'+str(PLACE)+'_'+'PLACE'
+			REDIS_AVG_KEY=str(LANG)+'_'+str(PLACE)+'_'+'AVG'
+			REDIS_LINKTITLE_KEY=str(LANG)+'_'+str(PLACE)+'_'+'LINKTITLE'
+			REDIS_ID_KEY=str(LANG)+'_'+str(PLACE)+'_'+'ID'
+			aTITLE=rc.rpop(REDIS_TITLE_KEY)
+			aPLACE=rc.rpop(REDIS_PLACE_KEY)
+			aAVG=rc.rpop(REDIS_AVG_KEY)
+			aLINKTITLE=rc.rpop(REDIS_LINKTITLE_KEY)
+			aID=rc.rpop(REDIS_ID_KEY)
 	PAGETITLE="Top "+wikilib.fnReturnLanguageName(LANG)+" Wikipedia pages for "+str(MONTHNAME)+" "+str(DAY)+", "+str(YEAR)
 	c=Context({'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':PAGETITLE,'PageDesc':'A three hour rolling average showing the most popular articles currently','expiretime':expiretime,'tw_timeline':tw_timeline,'archive_list':archive_list,'LANGUAGE':LANG})
 	rendered=t.render(c)

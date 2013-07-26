@@ -1,8 +1,7 @@
 #!/usr/bin/python
-import memcache 
+import redis
 import string 
 import urllib2
-import random
 from pymongo import Connection
 from datetime import date
 from datetime import time
@@ -14,27 +13,36 @@ import os
 
 conn=Connection('10.37.11.218')
 db=conn.wc
-mc=memcache.Client(['127.0.0.1:11211'],debug=0)
 
 LANGUAGES=wikilib.getLanguageList()
 
-
+Cli=redis.Redis('localhost')
 
 
 send_list=[]
-THREEHOUR_QUERY=db.threehour.find().sort('place',1)
-syslog.syslog('memcache-threehour:  count: '+str(THREEHOUR_QUERY.count()))
 
 for lang in LANGUAGES:
 	collNAME=str(lang)+'_threehour'
 	keyNAME=str(lang)+'_THREEHOUR'
 	THREEHOUR_QUERY=db[collNAME].find().sort('place',1)
+	PLACEMENT=0
 	for p in THREEHOUR_QUERY:
-		rec={'title':p['title'],'place':p['place'],'Avg':p['rollavg'],'linktitle':p['title'],'id':p['id']}
+		PLACEMENT+=1
+		tstr=str(p['title'])
+		REDIS_TITLE_KEY=str(lang)+'_'+str(PLACEMENT)+'_'+'TITLE'
+		REDIS_PLACE_KEY=str(lang)+'_'+str(PLACEMENT)+'_'+'PLACE'
+		REDIS_AVG_KEY=str(lang)+'_'+str(PLACEMENT)+'_'+'AVG'
+		REDIS_LINKTITLE_KEY=str(lang)+'_'+str(PLACEMENT)+'_'+'LINKTITLE'
+		REDIS_ID_KEY=str(lang)+'_'+str(PLACEMENT)+'_'+'ID'
+		REDIS_LANG_KEY=str(lang)+'_'+str(PLACEMENT)+'_'+'LANG'
+		rec={'title':urllib2.unquote(tstr),'place':p['place'],'Avg':p['rollavg'],'linktitle':p['title'],'id':p['id'],'LANG':str(lang)}
 		wikilib.GenInfoPage(p['id'],lang)
-       	 	send_list.append(rec)
+      	 	Cli.rpush(REDIS_TITLE_KEY,urllib2.unquote(tstr))
+		Cli.rpush(REDIS_PLACE_KEY,p['place'])
+		Cli.rpush(REDIS_AVG_KEY,p['rollavg'])
+		Cli.rpush(REDIS_LINKTITLE_KEY,p['title'])
+		Cli.rpush(REDIS_ID_KEY,p['id'])
 
 
-#wikilib.fnLaunchNextJob('set_threehour')
 
 
