@@ -1,5 +1,5 @@
 #!/usr/bin/python
-import redis
+#import redis
 import string 
 import urllib2
 from pymongo import Connection
@@ -16,7 +16,7 @@ db=conn.wc
 
 LANGUAGES=wikilib.getLanguageList()
 
-Cli=redis.Redis('localhost')
+#Cli=redis.Redis('localhost')
 
 
 send_list=[]
@@ -29,19 +29,19 @@ for lang in LANGUAGES:
 	for p in THREEHOUR_QUERY:
 		PLACEMENT+=1
 		tstr=str(p['title'])
-		REDIS_TITLE_KEY=str(lang)+'_'+str(PLACEMENT)+'_'+'TITLE'
-		REDIS_PLACE_KEY=str(lang)+'_'+str(PLACEMENT)+'_'+'PLACE'
-		REDIS_AVG_KEY=str(lang)+'_'+str(PLACEMENT)+'_'+'AVG'
-		REDIS_LINKTITLE_KEY=str(lang)+'_'+str(PLACEMENT)+'_'+'LINKTITLE'
-		REDIS_ID_KEY=str(lang)+'_'+str(PLACEMENT)+'_'+'ID'
-		REDIS_LANG_KEY=str(lang)+'_'+str(PLACEMENT)+'_'+'LANG'
+#		REDIS_TITLE_KEY=str(lang)+'_'+str(PLACEMENT)+'_'+'TITLE'
+#		REDIS_PLACE_KEY=str(lang)+'_'+str(PLACEMENT)+'_'+'PLACE'
+#		REDIS_AVG_KEY=str(lang)+'_'+str(PLACEMENT)+'_'+'AVG'
+#		REDIS_LINKTITLE_KEY=str(lang)+'_'+str(PLACEMENT)+'_'+'LINKTITLE'
+#		REDIS_ID_KEY=str(lang)+'_'+str(PLACEMENT)+'_'+'ID'
+#		REDIS_LANG_KEY=str(lang)+'_'+str(PLACEMENT)+'_'+'LANG'
 		rec={'title':urllib2.unquote(tstr),'place':p['place'],'Avg':p['rollavg'],'linktitle':p['title'],'id':p['id'],'LANG':str(lang)}
 		wikilib.GenInfoPage(p['id'],lang)
-      	 	Cli.rpush(REDIS_TITLE_KEY,urllib2.unquote(tstr))
-		Cli.rpush(REDIS_PLACE_KEY,p['place'])
-		Cli.rpush(REDIS_AVG_KEY,p['rollavg'])
-		Cli.rpush(REDIS_LINKTITLE_KEY,p['title'])
-		Cli.rpush(REDIS_ID_KEY,p['id'])
+ #     	 	Cli.rpush(REDIS_TITLE_KEY,urllib2.unquote(tstr))
+#		Cli.rpush(REDIS_PLACE_KEY,p['place'])
+#		Cli.rpush(REDIS_AVG_KEY,p['rollavg'])
+#		Cli.rpush(REDIS_LINKTITLE_KEY,p['title'])
+#		Cli.rpush(REDIS_ID_KEY,p['id'])
 
 
 
