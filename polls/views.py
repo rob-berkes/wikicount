@@ -322,7 +322,10 @@ def dailypageI18(request,LANG='en',YEAR=2013,MONTH=7):
 
 def listtopI18(request,LANG,YEAR,MONTH,DAY):
 	MONTHNAME=fnCaseMonthName(int(MONTH))
-	t=get_template('IndexTopListI18.html')
+	if str(LANG).endswith('.b'):
+		t=get_template('IndexTopListBooksI18.html')
+	else:
+		t=get_template('IndexTopListI18.html')
 	send_list=[]
 	RETSTR=fnReturnStringDate(int(DAY),int(MONTH),YEAR)
 	DAYKEY=str(LANG)+'_mapPlace'
@@ -345,7 +348,7 @@ def listtopI18(request,LANG,YEAR,MONTH,DAY):
 				pass
 			HITS=db[HITSKEY].find_one({'_id':row['_id']})
 			try:
-				rec={'place':PLACE,'Hits':HITS[RETSTR],'title':utitle ,'id':str(row['_id']),'linktitle':title.encode('utf-8'),'LANG':LANG}
+				rec={'place':PLACE,'Hits':HITS[RETSTR],'title':utitle ,'id':str(row['_id']),'linktitle':title.encode('utf-8'),'LANG':LANG,'LANGSUB':LANG[0:2]}
 				send_list.append(rec)
 			except KeyError:
 				continue
@@ -533,7 +536,10 @@ def indexLang(request,LANG='en'):
 	request.encoding='iso-8859-1'
 	DAY, MONTH, YEAR, HOUR,expiretime,MONTHNAME = fnReturnTimes()
 	MONTHNAME=fnCaseMonthName(MONTH)
-	t=get_template('RedTieIndexI18.html')
+	if str(LANG).endswith('.b'):
+		t=get_template('RedTieIndexBooksI18.html')
+	else:
+		t=get_template('RedTieIndexI18.html')
 	LATEST_NEWS_LIST=wikilib.fnLatestnews()
 	title=''
 	tw_timeline=GetTimeline() 
@@ -561,7 +567,7 @@ def indexLang(request,LANG='en'):
 		THREEHOUR_LIST_QUERY=db[COLLNAME].find().sort('place',1)
 		for p in THREEHOUR_LIST_QUERY:
 			tstr=str(p['title'])
-			rec={'title':urllib2.unquote(tstr),'place':p['place'],'Avg':p['rollavg'],'linktitle':p['title'],'id':p['id'],'LANG':LANG}
+			rec={'title':urllib2.unquote(tstr),'place':p['place'],'Avg':p['rollavg'],'linktitle':p['title'],'id':p['id'],'LANG':LANG,'LANGSUB':LANG[0:2]}
 		#	print rec
 			send_list.append(rec)
 		#rc.set(REDIS_TITLE_KEY,urllib2.unquote(tstr))
