@@ -11,7 +11,7 @@ body {
 #topheader{float:right; width:960px; height:200px; background-color:#F0F0F0; position:relative}
 #toplinks{position:absolute; right:10px; top:10px;}
 #menu{float:right; width:526px; height:32px; background-image:url(bg_menu.gif); background-repeat:repeat-x;}
-#submenu{float:right; width:800px; height:48px; background-image:url(bg_submenu.gif); background-position:top; background-repeat:repeat-x;}
+#submenu{float:right; width:900px; height:72px; background-image:url(bg_submenu.gif); background-position:top; background-repeat:repeat-x;}
 #contenttext{float:right; width:470px;}
 #contenttext2{float:right; width:748px;}
 #leftpanel{float:left; width:274px;}

@@ -538,6 +538,10 @@ def indexLang(request,LANG='en'):
 	MONTHNAME=fnCaseMonthName(MONTH)
 	if str(LANG).endswith('.b'):
 		t=get_template('RedTieIndexBooksI18.html')
+	elif str(LANG).endswith('.s'):
+		t=get_template('RedTieIndexSourceI18.html')
+	elif str(LANG).endswith('.q'):
+		t=get_template('RedTieIndexQuoteI18.html')
 	else:
 		t=get_template('RedTieIndexI18.html')
 	LATEST_NEWS_LIST=wikilib.fnLatestnews()
