@@ -53,12 +53,20 @@ def fnReturnLanguageName(LANG):
 		return 'Simple English'
 	elif LANG=='en.b':
 		return 'English Wikibooks'
+	elif LANG=='en.q':
+		return 'English Quotations'
+	elif LANG=='en.s':
+		return 'English Wikisource'
+	elif LANG=='en.d':
+		return 'English Wiktionary'
+	elif LANG=='en.voy':
+		return 'English Voyages'
 
 def getLanguageList():
-	LLIST=['ru','en','ja','zh','es','fr','pl','pt','it','de','ro','eo','hr','ar','la','sw','simple','af','en.b']
+	LLIST=['ru','en','ja','zh','es','fr','pl','pt','it','de','ro','eo','hr','ar','la','sw','simple','af','en.b','en.q','en.s','en.d','en.voy','fr.d','fr.b','ja.b','it.b','de.b','sv','commons.m']
 	return LLIST
 def fnDrawGraph(type,id,LANG):
-	TESTNUM=random.randint(1,20)
+	TESTNUM=random.randint(10,16)
         if type==25:
                 OUTFILENAME='/tmp/django/wikicount/static/images/'+str(LANG)+'/t25/'+str(id)+'.png' 
                 if not os.path.lexists(OUTFILENAME) or TESTNUM==12:
@@ -86,6 +94,7 @@ def fnDrawGraph(type,id,LANG):
         elif type==1000:
                 OUTFILENAME='/tmp/django/wikicount/static/images/'+str(LANG)+'/t1k/'+str(id)+'.png' 
                 if not os.path.lexists(OUTFILENAME) or TESTNUM==14:
+			print LANG,id
                         subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.1k"])
                         SFILE='/tmp/top1k.png'
                         subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
@@ -94,6 +103,12 @@ def fnDrawGraph(type,id,LANG):
 		if not os.path.lexists(OUTFILENAME) or TESTNUM==15:
 			subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.daily"])
 			SFILE='/tmp/daily.png'
+			subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
+	elif type==24:
+		OUTFILENAME='/tmp/django/wikicount/static/images/'+str(LANG)+'/hourly/'+str(id)+'.png'
+		if not os.path.lexists(OUTFILENAME) or TESTNUM==15:
+			subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.plot"])
+			SFILE='/tmp/django/wikicount/introduction.png'
 			subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
         return
 
@@ -251,8 +266,9 @@ def fnSetMemcache(KEYNAME,send_list,exptime):
 	syslog.syslog('setting memcache key '+str(KEYNAME))
 	mc1.set(KEYNAME,send_list,exptime)
 	return
-def GenInfoDailyGraph(id):
+def GenInfoDailyGraph(id,LANG):
 	DAY,MONTH,YEAR=fnGetDate()
+	COLLNAME=str(LANG)+"_hitsdaily"
 	OFILE=open("/tmp/daily.log","w")
 	for aMONTH in range(1,MONTH+1):
 		for aDAY in range(1,31):
@@ -260,7 +276,7 @@ def GenInfoDailyGraph(id):
 			strMONTH=fnGetHourString(aMONTH)
 			SEARCHDATE="2013_"+str(strMONTH)+"_"+str(strDAY)
 			OUTDATE="2013/"+str(strMONTH)+"/"+str(strDAY)
-			RESULT=db.hitsdaily.find_one({"_id":id,SEARCHDATE:{"$gt":0}})
+			RESULT=db[COLLNAME].find_one({"_id":id,SEARCHDATE:{"$gt":0}})
 			try:
 				OFILE.write(str(OUTDATE)+" "+str(RESULT[SEARCHDATE])+"\n")
 			except TypeError:
@@ -293,7 +309,7 @@ def GenInfoPage(id,LANG='en'):
         if not os.path.exists(T1KGRAPHDIRECTORY):
                 os.makedirs(T1KGRAPHDIRECTORY)
 
-	#GenInfoDailyGraph(id)
+	#GenInfoDailyGraph(id,LANG)
 	fnAppendSitemap(id,LANG)
 	
 	info_lt_25_list=[]
@@ -313,7 +329,7 @@ def GenInfoPage(id,LANG='en'):
 	T100FILE=open('/tmp/t100.log','w')
 	T500FILE=open('/tmp/t500.log','w')
 	T1KFILE=open('/tmp/t1k.log','w')
-
+	THFILE=open('/tmp/output.log','w')
 	for item in info_lt_25_list:
 		T25FILE.write(item)
 	for item in info_lt_50_list:
@@ -324,13 +340,23 @@ def GenInfoPage(id,LANG='en'):
 		T500FILE.write(item)
 	for item in info_lt_1000_list:
 		T1KFILE.write(item)
-	
+	HC=str(LANG)+'_hitshourly'
+	RETSTR=db[HC].find_one({"_id":str(id)})
+	for a in range(0,24):
+		HOUR=fnGetHourString(a)
+		try:
+			THFILE.write(HOUR+' '+str(RETSTR[HOUR])+'\n')
+		except KeyError:
+			pass
+		
 	T25FILE.close()
 	T50FILE.close()
 	T100FILE.close()
 	T500FILE.close()
 	T1KFILE.close()
+	THFILE.close()
 
+	fnDrawGraph(24,id,LANG)
 	fnDrawGraph(25,id,LANG)
 	fnDrawGraph(50,id,LANG)
 	fnDrawGraph(100,id,LANG)
