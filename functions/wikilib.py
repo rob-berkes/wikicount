@@ -57,9 +57,13 @@ def fnReturnLanguageName(LANG):
 		return 'English Quotations'
 	elif LANG=='en.s':
 		return 'English Wikisource'
+	elif LANG=='en.d':
+		return 'English Wiktionary'
+	elif LANG=='en.voy':
+		return 'English Voyages'
 
 def getLanguageList():
-	LLIST=['ru','en','ja','zh','es','fr','pl','pt','it','de','ro','eo','hr','ar','la','sw','simple','af','en.b','en.q','en.s']
+	LLIST=['ru','en','ja','zh','es','fr','pl','pt','it','de','ro','eo','hr','ar','la','sw','simple','af','en.b','en.q','en.s','en.d','en.voy']
 	return LLIST
 def fnDrawGraph(type,id,LANG):
 	TESTNUM=random.randint(1,20)

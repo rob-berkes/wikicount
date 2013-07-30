@@ -542,6 +542,8 @@ def indexLang(request,LANG='en'):
 		t=get_template('RedTieIndexSourceI18.html')
 	elif str(LANG).endswith('.q'):
 		t=get_template('RedTieIndexQuoteI18.html')
+	elif str(LANG).endswith('.d'):
+		t=get_template('RedTieIndexDictI18.html')
 	else:
 		t=get_template('RedTieIndexI18.html')
 	LATEST_NEWS_LIST=wikilib.fnLatestnews()
