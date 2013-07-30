@@ -546,6 +546,8 @@ def indexLang(request,LANG='en'):
 		t=get_template('RedTieIndexDictI18.html')
 	elif str(LANG).endswith('.voy'):
 		t=get_template('RedTieIndexVoyI18.html')
+	elif str(LANG)=='commons':
+		t=get_template('RedTieIndexComI18.html')
 	else:
 		t=get_template('RedTieIndexI18.html')
 	LATEST_NEWS_LIST=wikilib.fnLatestnews()
@@ -573,9 +575,12 @@ def indexLang(request,LANG='en'):
 		REDIS_ID_KEY=str(LANG)+'_'+str(PLACE)+'_'+'ID'
 		COLLNAME=str(LANG)+"_threehour"
 		THREEHOUR_LIST_QUERY=db[COLLNAME].find().sort('place',1)
+		LANGSUB=LANG[0:2]
+		if str(LANG)=='commons':
+			LANGSUB='commons'
 		for p in THREEHOUR_LIST_QUERY:
 			tstr=str(p['title'])
-			rec={'title':urllib2.unquote(tstr),'place':p['place'],'Avg':p['rollavg'],'linktitle':p['title'],'id':p['id'],'LANG':LANG,'LANGSUB':LANG[0:2]}
+			rec={'title':urllib2.unquote(tstr),'place':p['place'],'Avg':p['rollavg'],'linktitle':p['title'],'id':p['id'],'LANG':LANG,'LANGSUB':LANGSUB}
 		#	print rec
 			send_list.append(rec)
 		#rc.set(REDIS_TITLE_KEY,urllib2.unquote(tstr))

@@ -75,9 +75,11 @@ def fnReturnLanguageName(LANG):
 		return 'German Wikibooks'
 	elif LANG=='en.voy':
 		return 'English Travel'
+	elif LANG=='commons.m'
+		return 'Wikimedia Commons'
 
 def getLanguageList():
-	LLIST=['ru','en','ja','zh','es','fr','pl','pt','it','de','ro','eo','hr','ar','la','sw','simple','af','en.b','en.q','en.s','en.d','en.voy','fr.d','fr.b','sv','ja.b','it.b','de.b']
+	LLIST=['ru','en','ja','zh','es','fr','pl','pt','it','de','ro','eo','hr','ar','la','sw','simple','af','en.b','en.q','en.s','en.d','en.voy','fr.d','fr.b','sv','ja.b','it.b','de.b','commons.m']
 	return LLIST
 def fnDrawGraph(type,id,LANG):
 	TESTNUM=random.randint(1,20)
