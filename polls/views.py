@@ -544,6 +544,8 @@ def indexLang(request,LANG='en'):
 		t=get_template('RedTieIndexQuoteI18.html')
 	elif str(LANG).endswith('.d'):
 		t=get_template('RedTieIndexDictI18.html')
+	elif str(LANG).endswith('.voy'):
+		t=get_template('RedTieIndexVoyI18.html')
 	else:
 		t=get_template('RedTieIndexI18.html')
 	LATEST_NEWS_LIST=wikilib.fnLatestnews()
@@ -618,7 +620,7 @@ def indexLang(request,LANG='en'):
 			aAVG=rc.rpop(REDIS_AVG_KEY)
 			aLINKTITLE=rc.rpop(REDIS_LINKTITLE_KEY)
 			aID=rc.rpop(REDIS_ID_KEY)
-	PAGETITLE="Top "+wikilib.fnReturnLanguageName(LANG)+" Wikipedia pages for "+str(MONTHNAME)+" "+str(DAY)+", "+str(YEAR)
+	PAGETITLE="Top "+wikilib.fnReturnLanguageName(LANG)+" pages for "+str(MONTHNAME)+" "+str(DAY)+", "+str(YEAR)
 	c=Context({'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':PAGETITLE,'PageDesc':'A three hour rolling average showing the most popular articles currently','expiretime':expiretime,'tw_timeline':tw_timeline,'archive_list':archive_list,'LANGUAGE':LANG})
 	rendered=t.render(c)
 	return HttpResponse(rendered)

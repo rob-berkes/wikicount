@@ -16,41 +16,41 @@ db=conn.wc
 
 def fnReturnLanguageName(LANG):
 	if LANG=='ru':
-		return 'Russian'
+		return 'Russian Wikipedia'
 	elif LANG=='en':
-		return 'English'
+		return 'English Wikipedia'
 	elif LANG=='ja':
-		return 'Japanese'
+		return 'Japanese Wikipedia'
 	elif LANG=='zh':
-		return 'Chinese'
+		return 'Chinese Wikipedia'
 	elif LANG=='es':
-		return 'Spanish'
+		return 'Spanish Wikipedia'
 	elif LANG=='fr':
-		return 'French'
+		return 'French Wikipedia'
 	elif LANG=='pl':
-		return 'Polish'
+		return 'Polish Wikipedia'
 	elif LANG=='pt':
-		return 'Portugese'
+		return 'Portugese Wikipedia'
 	elif LANG=='it':
-		return 'Italian'
+		return 'Italian Wikipedia'
 	elif LANG=='de':
-		return 'German'
+		return 'German Wikipedia'
 	elif LANG=='ro':
-		return 'Romanian'
+		return 'Romanian Wikipedia'
 	elif LANG=='eo':
-		return 'Esperanto'
+		return 'Esperanto Wikipedia'
 	elif LANG=='hr':
-		return 'Croatian'
+		return 'Croatian Wikipedia'
 	elif LANG=='ar':
-		return 'Arabic'
+		return 'Arabic Wikipedia'
 	elif LANG=='la':
-		return 'Latin'
+		return 'Latin Wikipedia'
 	elif LANG=='sw':
-		return 'Swahili'
+		return 'Swahili Wikipedia'
 	elif LANG=='af':
-		return 'Afrikaans'
+		return 'Afrikaans Wikipedia'
 	elif LANG=='simple':
-		return 'Simple English'
+		return 'Simple English Wikipedia'
 	elif LANG=='en.b':
 		return 'English Wikibooks'
 	elif LANG=='en.q':
@@ -61,9 +61,23 @@ def fnReturnLanguageName(LANG):
 		return 'English Wiktionary'
 	elif LANG=='en.voy':
 		return 'English Voyages'
+	elif LANG=='fr.d':
+		return 'French Wiktionary'
+	elif LANG=='fr.b':
+		return 'French Wikibooks'
+	elif LANG=='sv':
+		return 'Svenska Wikipedia'
+	elif LANG=='ja.b':
+		return 'Japanese Wikibooks'
+	elif LANG=='it.b':
+		return 'Italian Wikibooks'
+	elif LANG=='de.b':
+		return 'German Wikibooks'
+	elif LANG=='en.voy':
+		return 'English Travel'
 
 def getLanguageList():
-	LLIST=['ru','en','ja','zh','es','fr','pl','pt','it','de','ro','eo','hr','ar','la','sw','simple','af','en.b','en.q','en.s','en.d','en.voy']
+	LLIST=['ru','en','ja','zh','es','fr','pl','pt','it','de','ro','eo','hr','ar','la','sw','simple','af','en.b','en.q','en.s','en.d','en.voy','fr.d','fr.b','sv','ja.b','it.b','de.b']
 	return LLIST
 def fnDrawGraph(type,id,LANG):
 	TESTNUM=random.randint(1,20)
