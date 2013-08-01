@@ -75,7 +75,7 @@ def fnReturnLanguageName(LANG):
 		return 'German Wikibooks'
 	elif LANG=='en.voy':
 		return 'English Travel'
-	elif LANG=='commons.m'
+	elif LANG=='commons.m':
 		return 'Wikimedia Commons'
 
 def getLanguageList():

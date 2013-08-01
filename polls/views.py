@@ -78,6 +78,13 @@ def fnReturnTimes():
 	MONTHNAME=datetime.datetime.now().strftime("%B")
 	return DAY, MONTH, YEAR,HOUR, expiretime,MONTHNAME
 
+
+
+DAY, MONTH, YEAR, HOUR,expiretime,MONTHNAME = fnReturnTimes()
+
+
+
+
 def fnReturnStringDate(DAY,MONTH,YEAR):
 	DAY='%02d' % (DAY,)	
 	MONTH='%02d' % (MONTH,)	
@@ -149,60 +156,6 @@ def returnHourString(hour):
         HOUR='%02d' % (hour,)
         return HOUR
 
-def GenHourlyGraph(id,LANG):
-	CNAME=str(LANG)+'_hitshourly'
-        RESULT1=db[CNAME].find_one({"_id":str(id)})
-        OFILE=open('output.log','w')
-        try:
-                for i in range(0,24):
-                        HOUR=returnHourString(i)
-                        try:
-                                OFILE.write(str(HOUR)+' '+str(RESULT1[HOUR])+'\n')
-                        except TypeError:
-                                pass
-        except KeyError:
-                pass
-        OFILE.close()
-        subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.plot"])
-        OUTFILENAME='/tmp/django/wikicount/static/images/'+str(LANG)+'/hourly/'+str(id)+'.png'
-        SFILE='/tmp/django/wikicount/introduction.png'
-        subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
-        return
-def GenDailyGraph(id,LANG):
-	CNAME=str(LANG)+'_hitsdaily'
-	DAY,MONTH,YEAR,HOUR,expiretime,MONTHNAME=fnReturnTimes()
-	ENDMONTH=MONTH
-	ENDDAY=DAY
-	ENDYEAR=YEAR
-        OFILE=open('/tmp/daily.log','w')
-	for MONTH in range(1,ENDMONTH):
-		for DAY in range(1,32):
-			DATESEARCH=wikilib.fnReturnStringDate(DAY,MONTH,YEAR)
-			DATEOUTPUT="2013/"+str(MONTH)+"/"+str(DAY)
-			RESULT=db[CNAME].find_one({"_id":str(id)})
-			try:
-	                        OFILE.write(str(DATEOUTPUT)+' '+str(RESULT[DATESEARCH])+'\n')
-			except TypeError:
-				pass
-			except KeyError:
-				pass
-        OFILE.close()
-        subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.daily"])
-        OUTFILENAME='/tmp/django/wikicount/static/images/'+str(LANG)+'/daily/'+str(id)+'.png'
-        SFILE='/tmp/daily.png'
-        subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
-        return
-def adjustHourforLastHour(HOUR):
-	SEARCH_HOUR=int(HOUR)
-        if SEARCH_HOUR == 27:
-                SEARCH_HOUR = 3  
-        elif SEARCH_HOUR == 26:
-                SEARCH_HOUR = 2
-        elif SEARCH_HOUR == 25:
-                SEARCH_HOUR = 1
-	elif SEARCH_HOUR == 24:
-		SEARCH_HOUR = 0
-	return SEARCH_HOUR
 
 def fnCaseMonthName(MONTH):
 	if MONTH==1:
@@ -237,7 +190,6 @@ def fnCaseMonthName(MONTH):
 #Begin application functions
 
 def listLastHour(request):
-	DAY,MONTH,YEAR,HOUR,expiretime,MONTHNAME=fnReturnTimes()
 	tw_timeline=GetTimeline()
 	t=get_template('IndexListLast.html')
 	latest_news_list=wikilib.fnLatestnews()
@@ -256,7 +208,6 @@ def searchResults(request):
 		stitle=string.replace(etitle,' ','_')
 	else:
 		message="You submitted an empty query"
-	DAY,MONTH,YEAR,HOUR,expiretime,MONTHNAME=fnReturnTimes()
 	hd=ReturnHexDigest(stitle)
 	title,utitle=wikilib.fnFindName(hd)
 	t=get_template('IndexSearchResults.html')
@@ -274,7 +225,6 @@ def searchResults(request):
 	
 
 def searchForm(request):
-	DAY,MONTH,YEAR,HOUR,expiretime,MONTHNAME=fnReturnTimes()
 	t=get_template('IndexSearch.html')
 	send_list=[]
 	c=Context({expiretime:expiretime})
@@ -283,7 +233,6 @@ def searchForm(request):
 
 
 def blog(request):
-	DAY,MONTH,YEAR,HOUR,expiretime,MONTHNAME=fnReturnTimes()
 	BLOGQUERY=db.blog.find().sort('date',-1).limit(10)
 	t=get_template('IndexBlog.html')
 	send_list=[]
@@ -298,7 +247,6 @@ def blog(request):
 
 
 def dailypageI18(request,LANG='en',YEAR=2013,MONTH=7):
-	DAY,m,y,HOUR,expiretime,MONTHNAME=fnReturnTimes()
 	syslog.syslog('dailypageI18: Req made, lang :'+str(LANG)+' Y: '+str(YEAR)+' M: '+str(MONTH))
 	t=get_template('IndexDailyI18.html')
 	MEMCACHEDAYLIST=str(LANG)+"_mcdpDaysList"+str(MONTH)+str(YEAR)
@@ -372,9 +320,6 @@ def debug(request):
 	return HttpResponse(rendered)
 
 def infoviewI18(request,LANG,id):
-	GenHourlyGraph(id,LANG)
-	GenDailyGraph(id,LANG)
-	DAY,MONTH,YEAR,HOUR,expiretime,MONTHNAME=fnReturnTimes()
 	latest_news_list=wikilib.fnLatestnews()
 	tw_timeline=GetTimeline()
 
@@ -397,51 +342,30 @@ def infoviewI18(request,LANG,id):
 	T1KGRAPHFILENAME=T1KGRAPHDIRECTORY+str(id)+'.png'
 
 
-	if not os.path.exists(HOURGRAPHDIRECTORY):
-		os.makedirs(HOURGRAPHDIRECTORY)
-	if not os.path.exists(DAILYGRAPHDIRECTORY):
-		os.makedirs(DAILYGRAPHDIRECTORY)
-	if not os.path.exists(T25GRAPHDIRECTORY):
-		os.makedirs(T25GRAPHDIRECTORY)
-	if not os.path.exists(T50GRAPHDIRECTORY):
-		os.makedirs(T50GRAPHDIRECTORY)
-	if not os.path.exists(T100GRAPHDIRECTORY):
-		os.makedirs(T100GRAPHDIRECTORY)
-	if not os.path.exists(T500GRAPHDIRECTORY):
-		os.makedirs(T500GRAPHDIRECTORY)
-	if not os.path.exists(T1KGRAPHDIRECTORY):
-		os.makedirs(T1KGRAPHDIRECTORY)
-	
-	
 	try:
 		T25GRAPHFILESIZE=os.path.getsize(T25GRAPHFILENAME)
 	except OSError:
 		T25GRAPHFILESIZE=0
-		wikilib.fnDrawGraph(25,id,LANG)
 
 	try:
 		T50GRAPHFILESIZE=os.path.getsize(T50GRAPHFILENAME)
 	except OSError:
 		T50GRAPHFILESIZE=0
-		wikilib.fnDrawGraph(50,id,LANG)
 	
 	try:
 		T100GRAPHFILESIZE=os.path.getsize(T100GRAPHFILENAME)
 	except OSError:
 		T100GRAPHFILESIZE=0
-		wikilib.fnDrawGraph(100,id,LANG)
 	
 	try:
 		T500GRAPHFILESIZE=os.path.getsize(T500GRAPHFILENAME)
 	except OSError:
 		T500GRAPHFILESIZE=0
-		wikilib.fnDrawGraph(500,id,LANG)
 
 	try:
 		T1KGRAPHFILESIZE=os.path.getsize(T1KGRAPHFILENAME)
 	except OSError:
 		T1KGRAPHFILESIZE=0
-		wikilib.fnDrawGraph(1000,id,LANG)
 
 	c=Context({'PageDesc':'Click above to go the Wikipedia page.','latest_news_list':latest_news_list,'PageTitle':utitle,'expiretime':expiretime,'linktitle':title,'tw_timeline':tw_timeline,'DAILYGRAPHFILENAME':DAILYGRAPHFILENAME,'HOURGRAPHFILENAME':HOURLYGRAPHFILENAME,'T25GRAPHFILENAME':T25GRAPHFILENAME,'T50GRAPHFILENAME':T50GRAPHFILENAME,'T100GRAPHFILENAME':T100GRAPHFILENAME,'T500GRAPHFILENAME':T500GRAPHFILENAME,'T1KGRAPHFILENAME':T1KGRAPHFILENAME,'LANG':str(LANG)})
 	rendered=t.render(c)
@@ -449,34 +373,8 @@ def infoviewI18(request,LANG,id):
 	return HttpResponse(rendered)
 
 
-def trending(request):
-	DAY, MONTH, YEAR, HOUR,expiretime,MONTHNAME = fnReturnTimes()
-	mcHour=mc.get('trendingHour')
-	t=get_template('RedTieIndex.html')
-	FQUERY={'d':int(DAY),'m':int(MONTH),'y':int(YEAR)}
-	LATEST_NEWS_LIST=wikilib.fnLatestnews()
-	title=''
-	send_list=mc.get('TRENDING_LIST_QUERY')
-	tw_timeline=GetTimeline()
-	try:
-		LENGTH_SEND=len(send_list)
-	except TypeError:
-		LENGTH_SEND=0
-	if LENGTH_SEND > 0:
-		pass
-	else:	
-		send_list=[]	
-		TRENDING_LIST_QUERY=db.prodtrend.find().sort('Hits',-1).limit(100)
-		for p in TRENDING_LIST_QUERY:
-			rec={'title':p['title'],'place':p['place'],'Hits':p['Hits']%1000,'linktitle':p['linktitle'],'id':p['id']}
-			send_list.append(rec)
-		mc.set('TRENDING_LIST_QUERY',send_list,1800)
-	c=Context({'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':'WikiTrends.Info - Trending','PageDesc':'Today\'s hottest articles','expiretime':expiretime,'tw_timeline':tw_timeline})
-	rendered=t.render(c)
-	return HttpResponse(rendered)	
 
 def category_trending(request):
-	DAY, MONTH, YEAR, HOUR,expiretime,MONTHNAME = fnReturnTimes()
 	mcHour=mc.get('trendingHour')
 	t=get_template('RedTieIndex.html')
 	FQUERY={'d':int(DAY),'m':int(MONTH),'y':int(YEAR)}
@@ -498,7 +396,6 @@ def category_trending(request):
 	rendered=t.render(c)
 	return HttpResponse(rendered)	
 def file_trending(request):
-	DAY, MONTH, YEAR, HOUR,expiretime,MONTHNAME = fnReturnTimes()
 	t=get_template('RedTieIndex.html')
 	FQUERY={'d':int(DAY),'m':int(MONTH),'y':int(YEAR)}
 	LATEST_NEWS_LIST=wikilib.fnLatestnews()
@@ -515,26 +412,8 @@ def file_trending(request):
 	rendered=t.render(c)
 	return HttpResponse(rendered)	
 
-def imageMain(request):
-	DAY, MONTH, YEAR, HOUR,expiretime,MONTHNAME = fnReturnTimes()
-	t=get_template('RedTieIndex.html')
-	LATEST_NEWS_LIST=wikilib.fnLatestnews()
-	title=''
-	tw_timeline=GetTimeline() 
-	send_list=[]	
-	dateKey=str(YEAR)+"_"+str(MONTH)+"_"+str(DAY)
-	TRENDING_LIST_QUERY=db.imagedaily.find({dateKey:{'$exists':True}}).sort(dateKey,-1).limit(100)
-	for p in TRENDING_LIST_QUERY:
-		rec={'title':p['title'],'Hits':p[datekey],'linktitle':p['title'],'id':p['_id']}
-		send_list.append(rec)
-#	mc.set('IMAGE_LIST_QUERY',send_list,1800)
-	c=Context({'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':'Wikipedias most popular Images','PageDesc':'Tracking direct links to images','expiretime':expiretime,'tw_timeline':tw_timeline})
-	rendered=t.render(c)
-	return HttpResponse(rendered)	
-
 def indexLang(request,LANG='en'):
 	request.encoding='iso-8859-1'
-	DAY, MONTH, YEAR, HOUR,expiretime,MONTHNAME = fnReturnTimes()
 	MONTHNAME=fnCaseMonthName(MONTH)
 	if str(LANG).endswith('.b'):
 		t=get_template('RedTieIndexBooksI18.html')
@@ -548,6 +427,7 @@ def indexLang(request,LANG='en'):
 		t=get_template('RedTieIndexVoyI18.html')
 	elif str(LANG)=='commons':
 		t=get_template('RedTieIndexComI18.html')
+		LANG='commons.m'
 	else:
 		t=get_template('RedTieIndexI18.html')
 	LATEST_NEWS_LIST=wikilib.fnLatestnews()
@@ -576,7 +456,7 @@ def indexLang(request,LANG='en'):
 		COLLNAME=str(LANG)+"_threehour"
 		THREEHOUR_LIST_QUERY=db[COLLNAME].find().sort('place',1)
 		LANGSUB=LANG[0:2]
-		if str(LANG)=='commons':
+		if str(LANG)=='commons.m':
 			LANGSUB='commons'
 		for p in THREEHOUR_LIST_QUERY:
 			tstr=str(p['title'])
@@ -625,13 +505,12 @@ def indexLang(request,LANG='en'):
 			aAVG=rc.rpop(REDIS_AVG_KEY)
 			aLINKTITLE=rc.rpop(REDIS_LINKTITLE_KEY)
 			aID=rc.rpop(REDIS_ID_KEY)
-	PAGETITLE="Top "+wikilib.fnReturnLanguageName(LANG)+" pages for "+str(MONTHNAME)+" "+str(DAY)+", "+str(YEAR)
+	PAGETITLE="Top "+str(wikilib.fnReturnLanguageName(LANG))+" pages for "+str(MONTHNAME)+" "+str(DAY)+", "+str(YEAR)
 	c=Context({'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':PAGETITLE,'PageDesc':'A three hour rolling average showing the most popular articles currently','expiretime':expiretime,'tw_timeline':tw_timeline,'archive_list':archive_list,'LANGUAGE':LANG})
 	rendered=t.render(c)
 	return HttpResponse(rendered)
 
 def cold(request):
-	DAY, MONTH, YEAR, HOUR,expiretime,MONTHNAME = fnReturnTimes()
 	t=get_template('RedTieIndex.html')
 	FQUERY={'d':int(DAY),'m':int(MONTH),'y':int(YEAR)}
 	COLD_LIST_QUERY=mc.get('COLD_LIST_QUERY')
@@ -645,7 +524,6 @@ def cold(request):
 
 
 def randPage(request):
-	DAY, MONTH, YEAR, HOUR,expiretime,MONTHNAME = fnReturnTimes()
 	TODAY=date.today()
 	now=datetime.datetime.now()
 	half=now+datetime.timedelta(minutes=45)
@@ -681,7 +559,6 @@ def randPage(request):
 
 
 def debuts(request):
-	DAY, MONTH, YEAR, HOUR,expiretime,MONTHNAME = fnReturnTimes()
 	TODAY=date.today()
 	now=datetime.datetime.now()
 	half=now+datetime.timedelta(minutes=45)
