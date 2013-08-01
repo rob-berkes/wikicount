@@ -67,7 +67,26 @@ def getLanguageList():
 	return LLIST
 def fnDrawGraph(type,id,LANG):
 	TESTNUM=random.randint(10,16)
-        if type==25:
+	if type==24:
+		OFILE=open("/tmp/daily.log","w")
+		ENDMONTH=MONTH
+        	for mo in range(1,ENDMONTH):
+                	for day in range(1,32):
+                        	DATESEARCH=fnReturnStringDate(DAY,MONTH,YEAR)
+	                        DATEOUTPUT=str(YEAR)+"/"+str(MONTH)+"/"+str(DAY)
+	                        RESULT=db[CNAME].find_one({"_id":str(id)})
+				try:
+					OFILE.write(str(DATEOUTPUT)+' '+str(RESULT[DATESEARCH])+'\n')
+				except TypeError:
+					pass
+				except KeyError:
+					pass
+		OFILE.close()
+		subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.daily"])
+		OUTFILENAME='/tmp/django/wikicount/static/images/'+str(LANG)+'/daily/'+str(id)+'.png'
+	        SFILE='/tmp/daily.png'
+	        subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
+        elif type==25:
                 OUTFILENAME='/tmp/django/wikicount/static/images/'+str(LANG)+'/t25/'+str(id)+'.png' 
                 if not os.path.lexists(OUTFILENAME) or TESTNUM==12:
                         subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.25"])
@@ -308,6 +327,13 @@ def GenInfoPage(id,LANG='en'):
                 os.makedirs(T500GRAPHDIRECTORY)
         if not os.path.exists(T1KGRAPHDIRECTORY):
                 os.makedirs(T1KGRAPHDIRECTORY)
+	
+	ENDMONTH=MONTH
+	for mo in range(1,ENDMONTH):
+		for day in range(1,32):
+			DATESEARCH=fnReturnStringDate(DAY,MONTH,YEAR)
+			DATEOUTPUT=str(YEAR)+"/"+str(MONTH)+"/"+str(DAY)
+			RESULT=db[CNAME].find_one({"_id":str(id)})
 
 	#GenInfoDailyGraph(id,LANG)
 	fnAppendSitemap(id,LANG)
@@ -345,7 +371,7 @@ def GenInfoPage(id,LANG='en'):
 	for a in range(0,24):
 		HOUR=fnGetHourString(a)
 		try:
-			THFILE.write(HOUR+' '+str(RETSTR[HOUR])+'\n')
+			THFILE.write(str(HOUR)+' '+str(RETSTR[HOUR])+'\n')
 		except KeyError:
 			pass
 		

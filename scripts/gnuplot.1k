@@ -4,6 +4,7 @@ set ylabel "Place (of 1000)"
 #set xrange["2012/12/1":"2013/3/1"]
 set xdata time
 set timefmt "%Y/%m/%d"
+set timestamp
 set terminal png size 350,262
 set output "/tmp/top1k.png" 
 set xtics format "%b %d"

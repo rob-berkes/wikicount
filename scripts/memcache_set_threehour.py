@@ -20,7 +20,7 @@ LANGUAGES=wikilib.getLanguageList()
 
 
 send_list=[]
-
+syslog.syslog("3hr: Starting threehour.py with "+str(len(LANGUAGES))+" languages.")
 for lang in LANGUAGES:
 	collNAME=str(lang)+'_threehour'
 	keyNAME=str(lang)+'_THREEHOUR'
@@ -42,6 +42,9 @@ for lang in LANGUAGES:
 #		Cli.rpush(REDIS_AVG_KEY,p['rollavg'])
 #		Cli.rpush(REDIS_LINKTITLE_KEY,p['title'])
 #		Cli.rpush(REDIS_ID_KEY,p['id'])
+	syslog.syslog('3hr: Finished '+str(lang)+' , onto next language.')
+
+syslog.syslog('3hr: finished altogether with threehour.py')
 
 
 
