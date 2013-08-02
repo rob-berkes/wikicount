@@ -61,19 +61,29 @@ def fnReturnLanguageName(LANG):
 		return 'English Wiktionary'
 	elif LANG=='en.voy':
 		return 'English Voyages'
+	elif LANG=='it.q':
+		return 'Italian Wikiquote'
+	elif LANG=='pl.q':
+		return 'Polish Wikiquote'
+	elif LANG=='zh.q':
+		return 'Chinese Wikiquote'
+	elif LANG=='ru.q':
+		return 'Russian Wikiquote'
 
 def getLanguageList():
-	LLIST=['ru','en','ja','zh','es','fr','pl','pt','it','de','ro','eo','hr','ar','la','sw','simple','af','en.b','en.q','en.s','en.d','en.voy','fr.d','fr.b','ja.b','it.b','de.b','sv','commons.m']
+	LLIST=['ru','en','ja','zh','es','fr','pl','pt','it','de','ro','eo','hr','ar','la','sw','simple','af','en.b','en.q','en.s','en.d','en.voy','fr.d','fr.b','ja.b','it.b','de.b','sv','commons.m','it.q','pl.q','zh.q','ru.q']
 	return LLIST
 def fnDrawGraph(type,id,LANG):
 	TESTNUM=random.randint(10,16)
 	if type==24:
 		OFILE=open("/tmp/daily.log","w")
+		DAY,MONTH,YEAR=fnGetDate()
 		ENDMONTH=MONTH
+		CNAME=str(LANG)+"_hitsdaily"
         	for mo in range(1,ENDMONTH):
                 	for day in range(1,32):
                         	DATESEARCH=fnReturnStringDate(DAY,MONTH,YEAR)
-	                        DATEOUTPUT=str(YEAR)+"/"+str(MONTH)+"/"+str(DAY)
+	                        DATEOUTPUT=str(YEAR)+"/"+str(mo)+"/"+str(DAY)
 	                        RESULT=db[CNAME].find_one({"_id":str(id)})
 				try:
 					OFILE.write(str(DATEOUTPUT)+' '+str(RESULT[DATESEARCH])+'\n')
@@ -285,23 +295,6 @@ def fnSetMemcache(KEYNAME,send_list,exptime):
 	syslog.syslog('setting memcache key '+str(KEYNAME))
 	mc1.set(KEYNAME,send_list,exptime)
 	return
-def GenInfoDailyGraph(id,LANG):
-	DAY,MONTH,YEAR=fnGetDate()
-	COLLNAME=str(LANG)+"_hitsdaily"
-	OFILE=open("/tmp/daily.log","w")
-	for aMONTH in range(1,MONTH+1):
-		for aDAY in range(1,31):
-			strDAY=fnGetHourString(aDAY)
-			strMONTH=fnGetHourString(aMONTH)
-			SEARCHDATE="2013_"+str(strMONTH)+"_"+str(strDAY)
-			OUTDATE="2013/"+str(strMONTH)+"/"+str(strDAY)
-			RESULT=db[COLLNAME].find_one({"_id":id,SEARCHDATE:{"$gt":0}})
-			try:
-				OFILE.write(str(OUTDATE)+" "+str(RESULT[SEARCHDATE])+"\n")
-			except TypeError:
-				pass
-	OFILE.close()
-	fnDrawGraph(365,id)
 				
 	return
 def GenInfoPage(id,LANG='en'):
@@ -327,15 +320,15 @@ def GenInfoPage(id,LANG='en'):
                 os.makedirs(T500GRAPHDIRECTORY)
         if not os.path.exists(T1KGRAPHDIRECTORY):
                 os.makedirs(T1KGRAPHDIRECTORY)
-	
+	DAY,MONTH,YEAR=fnGetDate()	
 	ENDMONTH=MONTH
+	CNAME=str(LANG)+"_hitsdaily"
 	for mo in range(1,ENDMONTH):
 		for day in range(1,32):
 			DATESEARCH=fnReturnStringDate(DAY,MONTH,YEAR)
 			DATEOUTPUT=str(YEAR)+"/"+str(MONTH)+"/"+str(DAY)
 			RESULT=db[CNAME].find_one({"_id":str(id)})
 
-	#GenInfoDailyGraph(id,LANG)
 	fnAppendSitemap(id,LANG)
 	
 	info_lt_25_list=[]
