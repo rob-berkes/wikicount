@@ -120,6 +120,11 @@ def GenArchiveListI18(LANG='en'):
 	may13={'text':'May 2013','d': '28','m':'5','y':'2013','lang':LANG}
 	jun13={'text':'Jun 2013','d': '30','m':'6','y':'2013','lang':LANG}
 	jul13={'text':'Jul 2013','d': '31','m':'7','y':'2013','lang':LANG}
+	aug13={'text':'Aug 2013','d': '31','m':'8','y':'2013','lang':LANG}
+	sept13={'text':'Sept 2013','d': '30','m':'9','y':'2013','lang':LANG}
+	oct13={'text':'Oct 2013','d': '31','m':'10','y':'2013','lang':LANG}
+	nov13={'text':'Nov 2013','d': '31','m':'11','y':'2013','lang':LANG}
+	dec13={'text':'Dec 2013','d': '31','m':'12','y':'2013','lang':LANG}
 	
 	for a in range(1,32):
 		CNAME=fnReturnStringDate(a,1,2013)
@@ -150,6 +155,26 @@ def GenArchiveListI18(LANG='en'):
 		if db[PLACECOLL].find({CNAME:{"$gt":0}}).count() > 1 and not m7:
 			m7=True
 			archive_list.append(jul13)
+		CNAME=fnReturnStringDate(a,8,2013)
+		if db[PLACECOLL].find({CNAME:{"$gt":0}}).count() > 1 and not m8:
+			m8=True
+			archive_list.append(aug13)
+		CNAME=fnReturnStringDate(a,9,2013)
+		if db[PLACECOLL].find({CNAME:{"$gt":0}}).count() > 1 and not m9:
+			m9=True
+			archive_list.append(sept13)
+		CNAME=fnReturnStringDate(a,10,2013)
+		if db[PLACECOLL].find({CNAME:{"$gt":0}}).count() > 1 and not m10:
+			m10=True
+			archive_list.append(oct13)
+		CNAME=fnReturnStringDate(a,11,2013)
+		if db[PLACECOLL].find({CNAME:{"$gt":0}}).count() > 1 and not m11:
+			m11=True
+			archive_list.append(nov13)
+		CNAME=fnReturnStringDate(a,12,2013)
+		if db[PLACECOLL].find({CNAME:{"$gt":0}}).count() > 1 and not m12:
+			m12=True
+			archive_list.append(dec13)
 	return archive_list
 
 def returnHourString(hour):
@@ -413,6 +438,7 @@ def file_trending(request):
 	return HttpResponse(rendered)	
 
 def indexLang(request,LANG='en'):
+	DAY, MONTH, YEAR, HOUR,expiretime,MONTHNAME = fnReturnTimes()
 	request.encoding='iso-8859-1'
 	MONTHNAME=fnCaseMonthName(MONTH)
 	if str(LANG).endswith('.b'):
@@ -435,24 +461,16 @@ def indexLang(request,LANG='en'):
 	tw_timeline=GetTimeline() 
 	archive_list=GenArchiveListI18(LANG)
 	PLACE=1
-	REDIS_TITLE_KEY=str(LANG)+'_'+str(PLACE)+'_'+'TITLE'
-	REDIS_PLACE_KEY=str(LANG)+'_'+str(PLACE)+'_'+'PLACE'
-	REDIS_AVG_KEY=str(LANG)+'_'+str(PLACE)+'_'+'AVG'
-	REDIS_LINKTITLE_KEY=str(LANG)+'_'+str(PLACE)+'_'+'LINKTITLE'
 	REDIS_ID_KEY=str(LANG)+'_'+str(PLACE)+'_'+'ID'
 	mcVAR=str(LANG)+"_THREEHOUR"
 	rc=redis.Redis('localhost')
 	send_list=[]	
 	try:
-		aTITLE=str(rc.rpop(REDIS_TITLE_KEY))
+		aTITLE=str(rc.get(REDIS_ID_KEY))
+		artID=aTITLE
 	except:
 		aTITLE='None'
-	if aTITLE=='None':
-		REDIS_TITLE_KEY=str(LANG)+'_'+str(PLACE)+'_'+'TITLE'
-		REDIS_PLACE_KEY=str(LANG)+'_'+str(PLACE)+'_'+'PLACE'
-		REDIS_AVG_KEY=str(LANG)+'_'+str(PLACE)+'_'+'AVG'
-		REDIS_LINKTITLE_KEY=str(LANG)+'_'+str(PLACE)+'_'+'LINKTITLE'
-		REDIS_ID_KEY=str(LANG)+'_'+str(PLACE)+'_'+'ID'
+	if aTITLE=='None' or aTITLE=='':
 		COLLNAME=str(LANG)+"_threehour"
 		THREEHOUR_LIST_QUERY=db[COLLNAME].find().sort('place',1)
 		LANGSUB=LANG[0:2]
@@ -461,50 +479,31 @@ def indexLang(request,LANG='en'):
 		for p in THREEHOUR_LIST_QUERY:
 			tstr=str(p['title'])
 			rec={'title':urllib2.unquote(tstr),'place':p['place'],'Avg':p['rollavg'],'linktitle':p['title'],'id':p['id'],'LANG':LANG,'LANGSUB':LANGSUB}
-		#	print rec
 			send_list.append(rec)
-		#rc.set(REDIS_TITLE_KEY,urllib2.unquote(tstr))
-	#	rc.set(REDIS_PLACE_KEY,p['place'])
-#		rc.set(REDIS_AVG_KEY,p['rollavg'])
-#		rc.set(REDIS_LINKTITLE_KEY,p['title'])
-#		rc.set(REDIS_ID_KEY,p['id'])
 		PLACE+=1
 	else:
-		aTITLE=rc.rpop(REDIS_TITLE_KEY)
-		aPLACE=rc.rpop(REDIS_PLACE_KEY)
-		aAVG=rc.rpop(REDIS_AVG_KEY)
-		aLINKTITLE=rc.rpop(REDIS_LINKTITLE_KEY)
-		aID=rc.rpop(REDIS_ID_KEY)
+		print "found in cache, using redis"
+		rc.set(REDIS_ID_KEY,str(aTITLE))
 		send_list=[]
-		tstr=str(aTITLE)
-		rec={'title':urllib2.unquote(tstr),'place':aPLACE,'Avg':aAVG,'linktitle':aLINKTITLE,'id':aID,'LANG':str(LANG)}
-		aTITLE=1
-		send_list.append(rec)
-		PLACE=0
-		while aTITLE!="None":
-			PLACE+=1
-			aPLACE=rc.rpop(REDIS_PLACE_KEY)
-			aAVG=rc.rpop(REDIS_AVG_KEY)
-			aLINKTITLE=rc.rpop(REDIS_LINKTITLE_KEY)
-			aID=rc.rpop(REDIS_ID_KEY)
-			tstr=str(aTITLE)
-			rec={'title':urllib2.unquote(tstr),'place':aPLACE,'Avg':aAVG,'linktitle':aLINKTITLE,'id':aID,'LANG':str(LANG)}
+		PLACE=1
+		while artID!="None" and artID!='' and PLACE<100:
+			REDIS_TITLE_KEY=str(LANG)+'_'+str(artID)+'_'+'TITLE'
+			REDIS_AVG_KEY=str(LANG)+'_'+str(artID)+'_'+'AVG'
+			REDIS_LINKTITLE_KEY=str(LANG)+'_'+str(artID)+'_'+'LINKTITLE'
+			aaTITLE=rc.get(REDIS_TITLE_KEY)
+			aAVG=rc.get(REDIS_AVG_KEY)
+			aLINKTITLE=rc.get(REDIS_LINKTITLE_KEY)
+			aID=rc.get(REDIS_ID_KEY)
+			tstr=str(aaTITLE)
+			rec={'title':urllib2.unquote(tstr),'place':PLACE,'Avg':aAVG,'linktitle':aLINKTITLE,'id':aID,'LANG':str(LANG)}
 			send_list.append(rec)
-			rc.rpush(REDIS_TITLE_KEY,aTITLE)
-			rc.rpush(REDIS_PLACE_KEY,aPLACE)
-			rc.rpush(REDIS_AVG_KEY,aAVG)
-			rc.rpush(REDIS_LINKTITLE_KEY,aLINKTITLE)
-			rc.rpush(REDIS_ID_KEY,aID)
-			REDIS_TITLE_KEY=str(LANG)+'_'+str(PLACE)+'_'+'TITLE'
-			REDIS_PLACE_KEY=str(LANG)+'_'+str(PLACE)+'_'+'PLACE'
-			REDIS_AVG_KEY=str(LANG)+'_'+str(PLACE)+'_'+'AVG'
-			REDIS_LINKTITLE_KEY=str(LANG)+'_'+str(PLACE)+'_'+'LINKTITLE'
-			REDIS_ID_KEY=str(LANG)+'_'+str(PLACE)+'_'+'ID'
-			aTITLE=rc.rpop(REDIS_TITLE_KEY)
-			aPLACE=rc.rpop(REDIS_PLACE_KEY)
-			aAVG=rc.rpop(REDIS_AVG_KEY)
-			aLINKTITLE=rc.rpop(REDIS_LINKTITLE_KEY)
-			aID=rc.rpop(REDIS_ID_KEY)
+			rc.set(REDIS_TITLE_KEY,aaTITLE)
+			rc.set(REDIS_AVG_KEY,aAVG)
+			rc.set(REDIS_LINKTITLE_KEY,aLINKTITLE)
+			rc.set(REDIS_ID_KEY,aID)
+			PLACE+=1
+			REDIS_ID_KEY=str(LANG)+'_'+str(PLACE)+'_ID'
+			artID=rc.get(REDIS_ID_KEY)
 	PAGETITLE="Top "+str(wikilib.fnReturnLanguageName(LANG))+" pages for "+str(MONTHNAME)+" "+str(DAY)+", "+str(YEAR)
 	c=Context({'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':PAGETITLE,'PageDesc':'A three hour rolling average showing the most popular articles currently','expiretime':expiretime,'tw_timeline':tw_timeline,'archive_list':archive_list,'LANGUAGE':LANG})
 	rendered=t.render(c)
