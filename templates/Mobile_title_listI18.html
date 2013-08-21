@@ -1,0 +1,8 @@
+{% autoescape off %}
+{% for item in latest_hits_list %}
+                <li>{{ item.place }}.<a href="http://{{item.LANG}}.wikipedia.org/wiki/{{item.linktitle}}"> {{ item.title }} </a>
+		<span class="bodymenutext"><a href="infoview/{{item.id}}">Page Stats</a>{{ item.Hits }}</span></li>
+		<hr>
+<br>
+{% endfor %}
+{% endautoescape %}

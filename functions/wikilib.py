@@ -13,7 +13,8 @@ import random
 
 conn=Connection('10.37.11.218')
 db=conn.wc
-
+def fnRangeCount(value):
+	return [v+1 for v in range(0,value)]
 def fnReturnLanguageName(LANG):
 	if LANG=='ru':
 		return 'Russian Wikipedia'
