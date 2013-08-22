@@ -1,2 +1,0 @@
-0 */3 * * * /bin/bash -c "/usr/bin/python /tmp/django/wikicount/copy_twitter.py"
-31 * * * * /bin/bash -c "/usr/bin/python /tmp/django/wikicount/scripts/memcache_set_day.py"

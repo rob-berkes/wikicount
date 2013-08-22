@@ -11,7 +11,7 @@ import subprocess
 import syslog
 import random
 
-conn=Connection('10.37.11.218')
+conn=Connection('10.164.95.114')
 db=conn.wc
 def fnRangeCount(value):
 	return [v+1 for v in range(0,value)]

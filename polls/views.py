@@ -25,7 +25,7 @@ import HTMLParser
 _htmlparser=HTMLParser.HTMLParser()
 unescape=_htmlparser.unescape
 
-conn=Connection('10.37.11.218')
+conn=Connection('10.164.95.114')
 db=conn.wc
 api=tweepy.api
 RECORDSPERPAGE=50
@@ -344,6 +344,15 @@ def debug(request):
 	rendered=t.render(c)
 	return HttpResponse(rendered)
 
+def Mobile_Hourly(request,LANG,id):
+
+	t=get_template('MobileHourly.htm')
+	title,utitle=wikilib.fnFindName(LANG,id)
+
+	c=Context({'expiretime':expiretime,'PageTitle':utitle,'linktitle':title,'HOURGRAPHFILENAME':str(id),'LANG':str(LANG)})
+	rendered=t.render(c)
+
+	return HttpResponse(rendered)
 def Mobile_infoviewI18(request,LANG,id):
 	tw_timeline=GetTimeline()
 
@@ -357,7 +366,7 @@ def Mobile_infoviewI18(request,LANG,id):
 	T500GRAPHDIRECTORY='http://www.wikitrends.info/static/images/'+str(LANG)+'/t500/'
 	T1KGRAPHDIRECTORY='http://www.wikitrends.info/static/images/'+str(LANG)+'/t1k/'
 
-	HOURLYGRAPHFILENAME=HOURGRAPHDIRECTORY+str(id)+'.png'
+	HOURLYGRAPHFILENAME=str(id)
 	DAILYGRAPHFILENAME=DAILYGRAPHDIRECTORY+str(id)+'.png'
 	T25GRAPHFILENAME=T25GRAPHDIRECTORY+str(id)+'.png'
 	T50GRAPHFILENAME=T50GRAPHDIRECTORY+str(id)+'.png'

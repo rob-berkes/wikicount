@@ -1,9 +1,9 @@
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 	<meta name="author" content="" />
 	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 	{% include 'meta_expires.html' %}
 	<link rel="stylesheet" href="{{ STATIC_URL}}/style.css" type="text/css" />
 	<title>Wikitrends.info</title>
@@ -11,7 +11,7 @@
 <body>
 	{% include 'analytics.html' %}
 	<div id="page" align="center">
-		<div id="content" style="width:960px">
+		<div id="content" >
 			<div id="logo">
 				<div style="margin-top:70px" class="whitetitle">Wikitrends.Info</div>
 			</div>
@@ -28,8 +28,10 @@
 					</tr>
 					<tr>
 					<td>
-					<div align="center">Hits by Hour</div>
+					<a href="http://www.wikitrends.info/mG/{{LANG}}/{{HOURGRAPHFILENAME}}"><div align="center">Hits by Hour</div></A>
 					</td>
+					</tr>
+					<tr>
 					<td>
 					<div align="center">Days in the top 25</div>
 					</td>
@@ -38,6 +40,8 @@
 					<td>
 					<div align="center">Days in the top 50</div>
 					</td>
+					</tr>
+					<tr>
 					<td>
 					<div align="center">Days in the top 100</div>
 					</td>
@@ -46,6 +50,8 @@
 					<td>
 					<div align="center">Days in the top 500</div>
 					</td>
+					</tr>
+					<tr>
 					<td>
 					<div align="center">Days in the top 1000</div>
 					</td>

@@ -10,7 +10,7 @@ import subprocess
 import syslog
 import os
 
-conn=Connection('10.37.11.218')
+conn=Connection('10.164.95.114')
 db=conn.wc
 mc=memcache.Client(['127.0.0.1:11211'],debug=0)
 TODAY=date.today()
