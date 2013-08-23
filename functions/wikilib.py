@@ -13,121 +13,64 @@ import random
 
 conn=Connection('10.164.95.114')
 db=conn.wc
+
+LLIST={ 'ru':'Russian Wikipedia',
+	'en':'English Wikipedia',
+	'ja':'Japanese Wikipedia',
+	'zh':'Chinese Wikipedia',
+	'es':'Spanish Wikipedia',
+	'fr':'French Wikipedia',
+	'pl':'Polish Wikipedia',
+	'pt':'Portugese Wikipedia',
+	'it':'Italian Wikipedia',
+	'de':'German Wikipedia',
+	'ro':'Romanian Wikipedia',
+	'eo':'Esperanto Wikipedia',
+	'hr':'Croatian Wikipedia',
+	'ar':'Arabic Wikipedia',
+	'la':'Latin Wikipedia',
+	'sw':'Swahili Wikipedia',
+	'simple':'SimpleEnglish Wikipedia',
+	'af':'Afrikaans Wikipedia',
+	'en.b':'English Wikibooks',
+	'en.q':'English Wikiquote',
+	'en.s':'English Wikisource',
+	'en.d':'Wiktionary',
+	'en.voy':'English Wikivoyage',
+	'fr.d':'French Wiktionary',
+	'fr.b':'French Wikibooks',
+	'sv':'Svenska Wikipedia',
+	'ja.b':'Japanese Wikibooks',
+	'it.b':'Italian Wikibooks',
+	'de.b':'German Wikibooks',
+	'commons.m':'Wikimedia Commons',
+	'it.q':'Italian Wikiquote',
+	'pl.q':'Polish Wikiquote',
+	'ru.q':'Russian Wikiquote',
+	'zh.q':'Chinese Wikiquote',
+	'zh.b':'Chinese Wikibook',
+	'ru.b':'Russian Wikibook'}
+
 def fnRangeCount(value):
 	return [v+1 for v in range(0,value)]
 def fnReturnLanguageName(LANG):
-	if LANG=='ru':
-		return 'Russian Wikipedia'
-	elif LANG=='en':
-		return 'English Wikipedia'
-	elif LANG=='ja':
-		return 'Japanese Wikipedia'
-	elif LANG=='zh':
-		return 'Chinese Wikipedia'
-	elif LANG=='es':
-		return 'Spanish Wikipedia'
-	elif LANG=='fr':
-		return 'French Wikipedia'
-	elif LANG=='pl':
-		return 'Polish Wikipedia'
-	elif LANG=='pt':
-		return 'Portugese Wikipedia'
-	elif LANG=='it':
-		return 'Italian Wikipedia'
-	elif LANG=='de':
-		return 'German Wikipedia'
-	elif LANG=='ro':
-		return 'Romanian Wikipedia'
-	elif LANG=='eo':
-		return 'Esperanto Wikipedia'
-	elif LANG=='hr':
-		return 'Croatian Wikipedia'
-	elif LANG=='ar':
-		return 'Arabic Wikipedia'
-	elif LANG=='la':
-		return 'Latin Wikipedia'
-	elif LANG=='sw':
-		return 'Swahili Wikipedia'
-	elif LANG=='af':
-		return 'Afrikaans Wikipedia'
-	elif LANG=='simple':
-		return 'Simple English Wikipedia'
-	elif LANG=='en.b':
-		return 'English Wikibooks'
-	elif LANG=='en.q':
-		return 'English Quotations'
-	elif LANG=='en.s':
-		return 'English Wikisource'
-	elif LANG=='en.d':
-		return 'English Wiktionary'
-	elif LANG=='en.voy':
-		return 'English Voyages'
-	elif LANG=='fr.d':
-		return 'French Wiktionary'
-	elif LANG=='fr.b':
-		return 'French Wikibooks'
-	elif LANG=='sv':
-		return 'Svenska Wikipedia'
-	elif LANG=='ja.b':
-		return 'Japanese Wikibooks'
-	elif LANG=='it.b':
-		return 'Italian Wikibooks'
-	elif LANG=='de.b':
-		return 'German Wikibooks'
-	elif LANG=='en.voy':
-		return 'English Travel'
-	elif LANG=='commons.m':
-		return 'Wikimedia Commons'
-	elif LANG=='it.q':
-		return 'Italian Wikiquote'
-	elif LANG=='pl.q':
-		return 'Polish Wikiquote'
-	elif LANG=='ru.q':
-		return 'Russian Wikiquote'
-	elif LANG=='zh.q':
-		return 'Chinese Wikiquote'
-
+	return LLIST[LANG]
 def getLanguageList():
-	LLIST=['ru','en','ja','zh','es','fr','pl','pt','it','de','ro','eo','hr','ar','la','sw','simple','af','en.b','en.q','en.s','en.d','en.voy','fr.d','fr.b','sv','ja.b','it.b','de.b','commons.m','it.q','pl.q','ru.q','zh.q']
-	return LLIST
+	return LLIST.keys()
 def fnDrawGraph(type,id,LANG):
 	TESTNUM=random.randint(1,20)
-        if type==25:
-                OUTFILENAME='/tmp/django/wikicount/static/images/'+str(LANG)+'/t25/'+str(id)+'.png' 
-                if not os.path.lexists(OUTFILENAME) or TESTNUM==12:
-                        subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.25"])
-                        SFILE='/tmp/top25.png'
-                        subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
-        elif type==50:
-                OUTFILENAME='/tmp/django/wikicount/static/images/'+str(LANG)+'/t50/'+str(id)+'.png' 
-                if not os.path.lexists(OUTFILENAME) or TESTNUM==11:
-                        subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.50"])
-                        SFILE='/tmp/top50.png'
-                        subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
-        elif type==100:
-                OUTFILENAME='/tmp/django/wikicount/static/images/'+str(LANG)+'/t100/'+str(id)+'.png' 
-                if not os.path.lexists(OUTFILENAME) or TESTNUM==10:
-                        subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.100"])
-                        SFILE='/tmp/top100.png'
-                        subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
-        elif type==500:
-                OUTFILENAME='/tmp/django/wikicount/static/images/'+str(LANG)+'/t500/'+str(id)+'.png' 
-                if not os.path.lexists(OUTFILENAME) or TESTNUM==13:
-                        subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.500"])
-                        SFILE='/tmp/top500.png'
-                        subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
-        elif type==1000:
-                OUTFILENAME='/tmp/django/wikicount/static/images/'+str(LANG)+'/t1k/'+str(id)+'.png' 
-                if not os.path.lexists(OUTFILENAME) or TESTNUM==14:
-                        subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.1k"])
-                        SFILE='/tmp/top1k.png'
-                        subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
-	elif type==365:
-		OUTFILENAME='/tmp/django/wikicount/static/images/daily/'+str(id)+'.png'
-		if not os.path.lexists(OUTFILENAME) or TESTNUM==15:
-			subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.daily"])
-			SFILE='/tmp/daily.png'
-			subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
+	GRAPHDICT={'25':'t25',
+                  '50':'t50',
+                  '100':'t100',
+                  '500':'t500',
+                  '1000':t1k',
+                  '365':'daily'}
+	OUTFILENAME==('/tmp/django/wikicount/static/images/%s/%s/%s.png' % (LANG,GRAPHDICT[LANG]),id))
+        if not os.path.exists(OUTFILENAME):
+                subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot."+str(GRAPHDICT[LANG])])
+                SFILE='/tmp/'+str(GRAPHDICT[LANG])+'.png'
+                subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
+
         return
 
 def fnFindCategory(id):
@@ -222,29 +165,6 @@ def fnLatestnews():
         ARTICLELIMIT=5
         latest_news_list = db.news.find().sort('date',-1).limit(ARTICLELIMIT)
         return latest_news_list
-
-def fnLaunchNextJob(CURJOBNAME):
-	if CURJOBNAME=='set_cold':
-		syslog.syslog('Launching image draw for day...')
-		os.system('/usr/bin/python /tmp/django/wikicount/scripts/memcache_set_day.py')
-	elif CURJOBNAME=='set_day':
-		syslog.syslog('Launching debuts images script...') 
-		os.system('/usr/bin/python /tmp/django/wikicount/scripts/memcache_set_debuts.py')
-	elif CURJOBNAME=='set_debuts':
-		syslog.syslog('Launching last hour memcache  script...')
-		os.system('/usr/bin/python /tmp/django/wikicount/scripts/memcache_set_lasthour.py')
-	elif CURJOBNAME=='set_lasthour':
-		syslog.syslog('Launching memcache random images script...')
-		os.system('/usr/bin/python /tmp/django/wikicount/scripts/memcache_set_random.py')
-	elif CURJOBNAME=='set_random':
-		syslog.syslog('Launching threehour rolling avg script..')
-		os.system('/usr/bin/python /tmp/django/wikicount/scripts/memcache_set_threehour.py')
-	elif CURJOBNAME=='set_threehour':
-		syslog.syslog('Launching trending script....')
-		os.system('/usr/bin/python /tmp/django/wikicount/scripts/memcache_set_trending.py')
-	elif CURJOBNAME=='set_trending':
-		syslog.syslog('All done with memcached for now!')
-	return 
 
 def fnMinusHour(HOUR):
         HOUR-=1

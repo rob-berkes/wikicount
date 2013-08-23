@@ -497,6 +497,21 @@ def file_trending(request):
 	rendered=t.render(c)
 	return HttpResponse(rendered)	
 
+def MobileLanguageList(request,LANG='en'):
+	t=get_template('MobileLangList.html')
+	LANGLIST=wikilib.getLanguageList()
+	DAY, MONTH, YEAR, HOUR,expiretime,MONTHNAME = fnReturnTimes()
+        PAGEDATE=str(MONTHNAME)+" "+str(DAY)+" "+str(YEAR)
+	send_list=[]
+	for lang in LANGLIST:
+		PAGETITLE=str(wikilib.fnReturnLanguageName(lang))
+		record={'LANG':str(lang),'title':PAGETITLE}
+		send_list.append(record)
+	PAGETITLE="Languages"
+	c=Context({'PageDate':PAGEDATE,'PageTitle':PAGETITLE,'expiretime':expiretime,'language_list':send_list})
+	rendered=t.render(c)
+	return HttpResponse(rendered)
+
 def mobileIndexLang(request,LANG='en'):
 	RangeList=wikilib.fnRangeCount(5)
 	DAY, MONTH, YEAR, HOUR,expiretime,MONTHNAME = fnReturnTimes()
@@ -542,15 +557,12 @@ def mobileIndexLang(request,LANG='en'):
 			tstr=str(aaTITLE)
 			rec={'title':urllib2.unquote(tstr),'place':PLACE,'Avg':aAVG,'linktitle':aLINKTITLE,'id':aID,'LANG':str(LANG)}
 			send_list.append(rec)
-			rc.set(REDIS_TITLE_KEY,aaTITLE)
-			rc.set(REDIS_AVG_KEY,aAVG)
-			rc.set(REDIS_LINKTITLE_KEY,aLINKTITLE)
-			rc.set(REDIS_ID_KEY,aID)
 			PLACE+=1
 			REDIS_ID_KEY=str(LANG)+'_'+str(PLACE)+'_ID'
 			artID=rc.get(REDIS_ID_KEY)
-	PAGETITLE=str(wikilib.fnReturnLanguageName(LANG))+"\n"+str(MONTHNAME)+" "+str(DAY)+", "+str(YEAR)
-	c=Context({'RangeList':RangeList,'latest_hits_list':send_list,'PageTitle':PAGETITLE,'expiretime':expiretime,'archive_list':archive_list,'LANGUAGE':LANG})
+	PAGETITLE=str(wikilib.fnReturnLanguageName(LANG))
+	PAGEDATE=str(MONTHNAME)+" "+str(DAY)+" "+str(YEAR)
+	c=Context({'PageDate':PAGEDATE,'RangeList':RangeList,'latest_hits_list':send_list,'PageTitle':PAGETITLE,'expiretime':expiretime,'archive_list':archive_list,'LANGUAGE':LANG})
 	rendered=t.render(c)
 	return HttpResponse(rendered)
 
