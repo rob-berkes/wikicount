@@ -17,7 +17,7 @@ DATABASES = {
         'NAME': 'wc',                      # Or path to database file if using sqlite3.
         'USER': '',                      # Not used with sqlite3.
         'PASSWORD': '',                  # Not used with sqlite3.
-        'HOST': '10.164.95.114',                      # Set to empty string for localhost. Not used with sqlite3.
+        'HOST': '10.170.43.109',                      # Set to empty string for localhost. Not used with sqlite3.4
         'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
     }
 }

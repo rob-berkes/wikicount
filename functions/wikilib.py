@@ -11,7 +11,7 @@ import subprocess
 import syslog
 import random
 
-conn=Connection('10.164.95.114')
+conn=Connection('10.170.43.109')
 db=conn.wc
 
 LLIST={ 'ru':'Russian Wikipedia',
@@ -63,9 +63,9 @@ def fnDrawGraph(type,id,LANG):
                   '50':'t50',
                   '100':'t100',
                   '500':'t500',
-                  '1000':t1k',
+                  '1000':'t1k',
                   '365':'daily'}
-	OUTFILENAME==('/tmp/django/wikicount/static/images/%s/%s/%s.png' % (LANG,GRAPHDICT[LANG]),id))
+	OUTFILENAME="/tmp/django/wikicount/static/images/"+str(LANG)+"/"+str(GRAPHDICT[LANG])+"/"+str(id)+".png" 
         if not os.path.exists(OUTFILENAME):
                 subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot."+str(GRAPHDICT[LANG])])
                 SFILE='/tmp/'+str(GRAPHDICT[LANG])+'.png'

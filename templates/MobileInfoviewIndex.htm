@@ -5,58 +5,38 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
 	<meta name="viewport" content="width=500, initial_scale=1">
 	{% include 'meta_expires.html' %}
-	<link rel="stylesheet" href="{{ STATIC_URL}}/style.css" type="text/css" />
+	<link rel="stylesheet" href="{{STATIC_URL}}/style.css" type="text/css" />
 	<title>Wikitrends.info</title>
 </head>
 <body>
-	{% include 'analytics.html' %}
-	<div id="page" align="center">
-		<div id="content" >
-			<div id="logo">
-				<div style="margin-top:70px" class="whitetitle">Wikitrends.Info</div>
-			</div>
-			<div id="topheader">
-				<div align="center" class="bodytext">
-				<br />
-					<span class="titletext">{% include 'Infotitletext.html' %}</span>
-					<span class="bodytext">{% include 'titledesc.html' %}</span>
-					<table>
-					<tr>
-					<td colspan="2">
-					<div align="center">Hits by Day</div>
-					</td>
-					</tr>
-					<tr>
-					<td>
-					<a href="http://www.wikitrends.info/mG/{{LANG}}/{{HOURGRAPHFILENAME}}"><div align="center">Hits by Hour</div></A>
-					</td>
-					</tr>
-					<tr>
-					<td>
-					<div align="center">Days in the top 25</div>
-					</td>
-					</tr>
-					<tr>
-					<td>
-					<div align="center">Days in the top 50</div>
-					</td>
-					</tr>
-					<tr>
-					<td>
-					<div align="center">Days in the top 100</div>
-					</td>
-					</tr>
-					<tr>
-					<td>
-					<div align="center">Days in the top 500</div>
-					</td>
-					</tr>
-					<tr>
-					<td>
-					<div align="center">Days in the top 1000</div>
-					</td>
-					</tr>
-					</table>
-
+<center>
+<div style="margin-top:10px,margin-left:5px" class="whitetitle">Wikitrends.Info</div>
+<script type="text/javascript"><!--
+google_ad_client = "ca-pub-0382768768507923";
+/* WikitrendsAndroid */
+google_ad_slot = "9778222884";
+google_ad_width = 320;
+google_ad_height = 50;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+<br>
+<span align="center" class="titletext">{% include 'mInfotitletext.html' %}</span>
+		<li>Hits by Day</li>
+		<a href="http://www.wikitrends.info/mG/{{LANG}}/{{HOURGRAPHFILENAME}}"><li>Hits by Hour</li></a>
+		<img src='http://www.wikitrends.info/static/images/{{LANG}}/hourly/{{HOURGRAPHFILENAME}}.png' />
+		<li>Days in the top 25</li>
+		<img src='http://www.wikitrends.info/static/images/{{LANG}}/t25/{{HOURGRAPHFILENAME}}.png' />
+		<li>Days in the top 50</li>
+		<img src='http://www.wikitrends.info/static/images/{{LANG}}/t50/{{HOURGRAPHFILENAME}}.png' />
+		<li>Days in the top 100</li>
+		<img src='http://www.wikitrends.info/static/images/{{LANG}}/t100/{{HOURGRAPHFILENAME}}.png' />
+		<li>Days in the top 500</li>
+		<img src='http://www.wikitrends.info/static/images/{{LANG}}/t500/{{HOURGRAPHFILENAME}}.png' />
+		<li>Days in the top 1000</li>
+		<img src='http://www.wikitrends.info/static/images/{{LANG}}/t1k/{{HOURGRAPHFILENAME}}.png' />
+</center>
 </body>
 </html>

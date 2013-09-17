@@ -25,7 +25,7 @@ import HTMLParser
 _htmlparser=HTMLParser.HTMLParser()
 unescape=_htmlparser.unescape
 
-conn=Connection('10.164.95.114')
+conn=Connection('10.170.43.109')
 db=conn.wc
 api=tweepy.api
 RECORDSPERPAGE=50
@@ -33,6 +33,18 @@ mc=memcache.Client(['127.0.0.1:11211'],debug=0)
 
 #All purpose Functions
 
+def getSiteName(LANG):
+	if '.q' in LANG:
+		SITENAME='wikiquote'
+	elif '.b' in LANG:
+		SITENAME='wikibooks'
+	elif '.d' in LANG:
+		SITENAME='wiktionary'
+	elif '.m' in LANG:
+		SITENAME='wikimedia'
+	else:
+		SITENAME='wikipedia'
+	return SITENAME
 def ReturnHexDigest(article):
 	hd=hashlib.sha1(article).hexdigest()
 	return hd
@@ -534,11 +546,12 @@ def mobileIndexLang(request,LANG='en'):
 		COLLNAME=str(LANG)+"_threehour"
 		THREEHOUR_LIST_QUERY=db[COLLNAME].find().sort('place',1)
 		LANGSUB=LANG[0:2]
+		SITENAME=getSiteName(LANG)
 		if str(LANG)=='commons.m':
 			LANGSUB='commons'
 		for p in THREEHOUR_LIST_QUERY:
 			tstr=str(p['title'])
-			rec={'title':urllib2.unquote(tstr),'place':p['place'],'Avg':p['rollavg'],'linktitle':p['title'],'id':p['id'],'LANG':LANG,'LANGSUB':LANGSUB}
+			rec={'title':urllib2.unquote(tstr),'place':p['place'],'Avg':p['rollavg'],'linktitle':p['title'],'id':p['id'],'LANG':LANG,'LANGSUB':LANGSUB,'SITENAME':SITENAME}
 			send_list.append(rec)
 		PLACE+=1
 	else:
@@ -555,7 +568,11 @@ def mobileIndexLang(request,LANG='en'):
 			aLINKTITLE=rc.get(REDIS_LINKTITLE_KEY)
 			aID=rc.get(REDIS_ID_KEY)
 			tstr=str(aaTITLE)
-			rec={'title':urllib2.unquote(tstr),'place':PLACE,'Avg':aAVG,'linktitle':aLINKTITLE,'id':aID,'LANG':str(LANG)}
+			SITENAME=getSitename(LANG)
+			LANGSUB=LANG[0:2]
+			if 'commons' in LANG:
+				LANGSUB='commons'
+			rec={'LANGSUB':LANGSUB,'SITENAME':SITENAME,'title':urllib2.unquote(tstr),'place':PLACE,'Avg':aAVG,'linktitle':aLINKTITLE,'id':aID,'LANG':str(LANG)}
 			send_list.append(rec)
 			PLACE+=1
 			REDIS_ID_KEY=str(LANG)+'_'+str(PLACE)+'_ID'
