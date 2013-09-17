@@ -11,7 +11,7 @@ import subprocess
 import syslog
 import os
 
-conn=Connection('10.37.11.218')
+conn=Connection('10.170.43.109')
 db=conn.wc
 
 LANGUAGES=wikilib.getLanguageList()

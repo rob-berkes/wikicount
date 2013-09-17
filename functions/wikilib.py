@@ -11,7 +11,7 @@ import subprocess
 import syslog
 import random
 
-conn=Connection('10.37.11.218')
+conn=Connection('10.170.43.109')
 db=conn.wc
 
 def fnReturnLanguageName(LANG):
@@ -92,51 +92,51 @@ def fnDrawGraph(type,id,LANG):
 				except KeyError:
 					pass
 		OFILE.close()
-		subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.daily"])
+		subprocess.call(["gnuplot","/home/ec2-user/wikicount/scripts/gnuplot.daily"])
 		OUTFILENAME='/tmp/django/wikicount/static/images/'+str(LANG)+'/daily/'+str(id)+'.png'
 	        SFILE='/tmp/daily.png'
 	        subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
         elif type==25:
                 OUTFILENAME='/tmp/django/wikicount/static/images/'+str(LANG)+'/t25/'+str(id)+'.png' 
                 if not os.path.lexists(OUTFILENAME) or TESTNUM==12:
-                        subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.25"])
+                        subprocess.call(["gnuplot","/home/ec2-user/wikicount/scripts/gnuplot.25"])
                         SFILE='/tmp/top25.png'
                         subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
         elif type==50:
                 OUTFILENAME='/tmp/django/wikicount/static/images/'+str(LANG)+'/t50/'+str(id)+'.png' 
                 if not os.path.lexists(OUTFILENAME) or TESTNUM==11:
-                        subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.50"])
+                        subprocess.call(["gnuplot","/home/ec2-user/wikicount/scripts/gnuplot.50"])
                         SFILE='/tmp/top50.png'
                         subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
         elif type==100:
                 OUTFILENAME='/tmp/django/wikicount/static/images/'+str(LANG)+'/t100/'+str(id)+'.png' 
                 if not os.path.lexists(OUTFILENAME) or TESTNUM==10:
-                        subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.100"])
+                        subprocess.call(["gnuplot","/home/ec2-user/wikicount/scripts/gnuplot.100"])
                         SFILE='/tmp/top100.png'
                         subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
         elif type==500:
                 OUTFILENAME='/tmp/django/wikicount/static/images/'+str(LANG)+'/t500/'+str(id)+'.png' 
                 if not os.path.lexists(OUTFILENAME) or TESTNUM==13:
-                        subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.500"])
+                        subprocess.call(["gnuplot","/home/ec2-user/wikicount/scripts/gnuplot.500"])
                         SFILE='/tmp/top500.png'
                         subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
         elif type==1000:
                 OUTFILENAME='/tmp/django/wikicount/static/images/'+str(LANG)+'/t1k/'+str(id)+'.png' 
                 if not os.path.lexists(OUTFILENAME) or TESTNUM==14:
 			print LANG,id
-                        subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.1k"])
+                        subprocess.call(["gnuplot","/home/ec2-user/wikicount/scripts/gnuplot.1k"])
                         SFILE='/tmp/top1k.png'
                         subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
 	elif type==365:
 		OUTFILENAME='/tmp/django/wikicount/static/images/daily/'+str(id)+'.png'
 		if not os.path.lexists(OUTFILENAME) or TESTNUM==15:
-			subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.daily"])
+			subprocess.call(["gnuplot","/home/ec2-user/wikicount/scripts/gnuplot.daily"])
 			SFILE='/tmp/daily.png'
 			subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
 	elif type==24:
 		OUTFILENAME='/tmp/django/wikicount/static/images/'+str(LANG)+'/hourly/'+str(id)+'.png'
 		if not os.path.lexists(OUTFILENAME) or TESTNUM==15:
-			subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot.plot"])
+			subprocess.call(["gnuplot","/home/ec2-user/wikicount/scripts/gnuplot.plot"])
 			SFILE='/tmp/django/wikicount/introduction.png'
 			subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
         return
