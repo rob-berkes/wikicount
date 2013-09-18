@@ -17,7 +17,7 @@ DATABASES = {
         'NAME': 'wc',                      # Or path to database file if using sqlite3.
         'USER': '',                      # Not used with sqlite3.
         'PASSWORD': '',                  # Not used with sqlite3.
-        'HOST': '10.170.43.109',                      # Set to empty string for localhost. Not used with sqlite3.4
+        'HOST': '10.170.91.72',                      # Set to empty string for localhost. Not used with sqlite3.4
         'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
     }
 }
@@ -67,7 +67,6 @@ STATIC_URL = 'http://www.wikitrends.info/static/'
 # URL prefix for admin static files -- CSS, JavaScript and images.
 # Make sure to use a trailing slash.
 # Examples: "http://foo.com/static/admin/", "/static/admin/".
-ADMIN_MEDIA_PREFIX = 'http://www.wikitrends.info/static/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (

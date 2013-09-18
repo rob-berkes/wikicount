@@ -10,7 +10,6 @@ import string
 import random
 import datetime
 import hashlib
-import memcache
 import redis
 from wsgiref.handlers import format_date_time
 from time import mktime
@@ -25,11 +24,11 @@ import HTMLParser
 _htmlparser=HTMLParser.HTMLParser()
 unescape=_htmlparser.unescape
 
-conn=Connection('10.170.43.109')
+conn=Connection('10.170.91.72')
 db=conn.wc
 api=tweepy.api
 RECORDSPERPAGE=50
-mc=memcache.Client(['127.0.0.1:11211'],debug=0)
+#mc=memcache.Client(['127.0.0.1:11211'],debug=0)
 
 #All purpose Functions
 

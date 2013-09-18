@@ -5,13 +5,14 @@ import string
 import datetime 
 from datetime import date
 from pymongo import Connection 
-import memcache
 import time
 import subprocess 
 import syslog
 import random
+import Gnuplot, Gnuplot.funcutils
+import pdb 
 
-conn=Connection('10.170.43.109')
+conn=Connection('10.170.91.72')
 db=conn.wc
 
 LLIST={ 'ru':'Russian Wikipedia',
@@ -57,19 +58,34 @@ def fnReturnLanguageName(LANG):
 	return LLIST[LANG]
 def getLanguageList():
 	return LLIST.keys()
-def fnDrawGraph(type,id,LANG):
-	TESTNUM=random.randint(1,20)
+def fnDoGraphDrawing(type,id,LANG,PLACELIST):
 	GRAPHDICT={'25':'t25',
                   '50':'t50',
                   '100':'t100',
                   '500':'t500',
                   '1000':'t1k',
                   '365':'daily'}
-	OUTFILENAME="/tmp/django/wikicount/static/images/"+str(LANG)+"/"+str(GRAPHDICT[LANG])+"/"+str(id)+".png" 
-        if not os.path.exists(OUTFILENAME):
-                subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot."+str(GRAPHDICT[LANG])])
-                SFILE='/tmp/'+str(GRAPHDICT[LANG])+'.png'
-                subprocess.Popen("mv "+str(SFILE)+" "+str(OUTFILENAME),shell=True)
+	OUTFILENAME="/tmp/django/wikicount/static/images/"+str(LANG)+"/"+str(GRAPHDICT[str(type)])+"/"+str(id)+".png" 
+	g=Gnuplot.Gnuplot()
+	title,utitle=fnFindName(LANG,id)
+	g.title(utitle)
+        #SFILE='/tmp/'+str(GRAPHDICT[str(type)])+'.png'
+	g('set output '+'\"'+OUTFILENAME+'\"')
+	g('set xtics format '+'\"'+'%b %d'+'\"')	
+	g('set terminal jpeg size 350,262')	
+	g('set xdata time')
+	for a in PLACELIST:
+		print a,PLACELIST[a]
+		g.plot(a,PLACELIST[a])
+	return
+def fnDrawGraph(type,id,LANG):
+	GRAPHDICT={'25':'t25',
+                  '50':'t50',
+                  '100':'t100',
+                  '500':'t500',
+                  '1000':'t1k',
+                  '365':'daily'}
+        subprocess.call(["gnuplot","/tmp/django/wikicount/scripts/gnuplot."+str(GRAPHDICT[str(type)])])
 
         return
 
@@ -125,7 +141,8 @@ def fnReturnStringDate(DAY,MONTH,YEAR):
 
 def fnGenTableArchive(id,place,LANG):
 	send_list=[];
-	CNAME=str(LANG)+'_mapPlace'
+	test_list={};
+	CNAME=str(LANG)+'_hitsdaily'
 	QUERY={'_id':id}
 	FINDQ=db[CNAME].find_one(QUERY)
 	year=2013
@@ -134,8 +151,9 @@ def fnGenTableArchive(id,place,LANG):
 			RETSTR=fnReturnStringDate(day,month,year)
 			try:
 				if FINDQ[RETSTR]>0 and FINDQ[RETSTR]<place:
-					rec=str(str(year)+'/'+str(month)+'/'+str(day)+' '+str(FINDQ[RETSTR])+'\n')
-					send_list.append(rec)
+					rec=str('\''+str(year)+'/'+str(month)+'/'+str(day)+'\','+str(FINDQ[RETSTR]))
+#					send_list.append(rec)
+					send_list[str(year)+'/'+str(month)+'/'+str(day)]=FINDQ[RETSTR]
 			except KeyError:
 				continue
 			except TypeError:
@@ -200,9 +218,9 @@ def fnOpenSitemap():
 	return
 def fnSetMemcache(KEYNAME,send_list,exptime):
 	MEMCACHE_SERVERS=['127.0.0.1','10.62.13.235']
-	mc1=memcache.Client(['127.0.0.1:11211'],debug=0)
+	#mc=memcache.Client(['127.0.0.1:11211'],debug=0)
 	syslog.syslog('setting memcache key '+str(KEYNAME))
-	mc1.set(KEYNAME,send_list,exptime)
+	#mc1.set(KEYNAME,send_list,exptime)
 	return
 def GenInfoDailyGraph(id):
 	DAY,MONTH,YEAR=fnGetDate()
@@ -223,39 +241,17 @@ def GenInfoDailyGraph(id):
 				
 	return
 def GenInfoPage(id,LANG='en'):
-	HOURGRAPHDIRECTORY='http://www.wikitrends.info/static/images/'+str(LANG)+'/hourly/'
-        DAILYGRAPHDIRECTORY='http://www.wikitrends.info/static/images/'+str(LANG)+'/daily/'
-        T25GRAPHDIRECTORY='http://www.wikitrends.info/static/images/'+str(LANG)+'/t25/'
-        T50GRAPHDIRECTORY='http://www.wikitrends.info/static/images/'+str(LANG)+'/t50/'
-        T100GRAPHDIRECTORY='http://www.wikitrends.info/static/images/'+str(LANG)+'/t100/'
-        T500GRAPHDIRECTORY='http://www.wikitrends.info/static/images/'+str(LANG)+'/t500/'
-        T1KGRAPHDIRECTORY='http://www.wikitrends.info/static/images/'+str(LANG)+'/t1k/'
-
-        if not os.path.exists(HOURGRAPHDIRECTORY):
-                os.makedirs(HOURGRAPHDIRECTORY)
-        if not os.path.exists(DAILYGRAPHDIRECTORY):
-                os.makedirs(DAILYGRAPHDIRECTORY)
-        if not os.path.exists(T25GRAPHDIRECTORY):
-                os.makedirs(T25GRAPHDIRECTORY)
-        if not os.path.exists(T50GRAPHDIRECTORY):
-                os.makedirs(T50GRAPHDIRECTORY)
-        if not os.path.exists(T100GRAPHDIRECTORY):
-                os.makedirs(T100GRAPHDIRECTORY)
-        if not os.path.exists(T500GRAPHDIRECTORY):
-                os.makedirs(T500GRAPHDIRECTORY)
-        if not os.path.exists(T1KGRAPHDIRECTORY):
-                os.makedirs(T1KGRAPHDIRECTORY)
-
+	PID=os.getpid()
 	#GenInfoDailyGraph(id)
 	fnAppendSitemap(id,LANG)
 	
-	info_lt_25_list=[]
+	info_lt25_list=[]
 	info_lt_50_list=[]
 	info_lt_100_list=[]
 	info_lt_500_list=[]
 	info_lt_1000_list=[]
 	
-	info_lt_25_list=fnGenTableArchive(id,26,LANG)
+	info_lt25_list=fnGenTableArchive(id,26,LANG)
 	info_lt_50_list=fnGenTableArchive(id,51,LANG)        
 	info_lt_100_list=fnGenTableArchive(id,101,LANG)        
 	info_lt_500_list=fnGenTableArchive(id,501,LANG)        
@@ -267,16 +263,30 @@ def GenInfoPage(id,LANG='en'):
 	T500FILE=open('/tmp/t500.log','w')
 	T1KFILE=open('/tmp/t1k.log','w')
 
-	for item in info_lt_25_list:
-		T25FILE.write(item)
-	for item in info_lt_50_list:
-		T50FILE.write(item)
-	for item in info_lt_100_list:
-		T100FILE.write(item)
-	for item in info_lt_500_list:
-		T500FILE.write(item)
-	for item in info_lt_1000_list:
-		T1KFILE.write(item)
+	GO25=False
+	GO50=False
+	GO100=False
+	GO500=False
+	GO1K=False
+
+	#for item in info_lt_25_list:
+	#	T25FILE.write(item)
+	#	GO25=True
+	if info_lt25_list:
+		print info_lt25_list
+		fnDoGraphDrawing(25,id,LANG,info_lt25_list)
+#	for item in info_lt_50_list:
+#		T50FILE.write(item)
+#		GO50=True
+#	for item in info_lt_100_list:
+#		GO100=True
+#		T100FILE.write(item)
+#	for item in info_lt_500_list:
+#		GO500=True
+#		T500FILE.write(item)
+#	for item in info_lt_1000_list:
+#		GO1K=True
+#		T1KFILE.write(item)
 	
 	T25FILE.close()
 	T50FILE.close()
@@ -284,11 +294,14 @@ def GenInfoPage(id,LANG='en'):
 	T500FILE.close()
 	T1KFILE.close()
 
-	fnDrawGraph(25,id,LANG)
-	fnDrawGraph(50,id,LANG)
-	fnDrawGraph(100,id,LANG)
-	fnDrawGraph(500,id,LANG)
-	fnDrawGraph(1000,id,LANG)
+#	if GO50:
+#		fnDrawGraph(50,id,LANG)
+#	if GO100:
+#		fnDrawGraph(100,id,LANG)
+#	if GO500:
+#		fnDrawGraph(500,id,LANG)
+#	if GO1K:
+#		fnDrawGraph(1000,id,LANG)
 
 		
 	return
