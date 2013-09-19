@@ -58,26 +58,36 @@ def fnReturnLanguageName(LANG):
 	return LLIST[LANG]
 def getLanguageList():
 	return LLIST.keys()
-def fnDoGraphDrawing(type,id,LANG,PLACELIST):
+def fnDoGraphDrawing(type,id,LANG):
 	GRAPHDICT={'25':'t25',
                   '50':'t50',
                   '100':'t100',
                   '500':'t500',
                   '1000':'t1k',
-                  '365':'daily'}
+                  '24':'daily'}
 	OUTFILENAME="/tmp/django/wikicount/static/images/"+str(LANG)+"/"+str(GRAPHDICT[str(type)])+"/"+str(id)+".png" 
 	g=Gnuplot.Gnuplot()
 	title,utitle=fnFindName(LANG,id)
-	g.title(utitle)
-        #SFILE='/tmp/'+str(GRAPHDICT[str(type)])+'.png'
 	g('set output '+'\"'+OUTFILENAME+'\"')
 	g('set xtics format '+'\"'+'%b %d'+'\"')	
-	g('set terminal jpeg size 350,262')	
-	g('set xdata time')
-	for a in PLACELIST:
-		print a,PLACELIST[a]
-		g.plot(a,PLACELIST[a])
-	return
+	g('set terminal png size 600,300')
+        
+	if type==25:
+		LLIST=fnGenTableArchive(id,25,LANG)
+		g('set style data linespoints')	
+		g('set xdata time')
+		g('set timefmt "%s"')
+		g.plot(Gnuplot.Data(LLIST,using="1:2",title=utitle))
+	elif type==24:
+		LLIST=fnGenTableArchive(id,24,LANG)
+		g('set style data boxes')
+		g('set xdata time')
+		g('set timefmt "%H"')
+		g('set xlabel "Hour of Day(UTC)"')
+		if len(LLIST)>0:
+		#	print LLIST,len(LLIST)
+			g.plot(Gnuplot.Data(LLIST,using="1:2",title=str(utitle)))		
+	return 
 def fnDrawGraph(type,id,LANG):
 	GRAPHDICT={'25':'t25',
                   '50':'t50',
@@ -143,21 +153,36 @@ def fnGenTableArchive(id,place,LANG):
 	send_list=[];
 	test_list={};
 	CNAME=str(LANG)+'_hitsdaily'
-	QUERY={'_id':id}
-	FINDQ=db[CNAME].find_one(QUERY)
+	QUERY={'_id':str(id)}
 	year=2013
-	for month in range(1,13):
-		for day in range(1,32):
-			RETSTR=fnReturnStringDate(day,month,year)
+	if place==25:
+		FINDQ=db[CNAME].find_one(QUERY)
+		for month in range(1,13):
+			for day in range(1,32):
+				RETSTR=fnReturnStringDate(day,month,year)
+				try:
+					if int(FINDQ[RETSTR])>0 :
+						DATEEPOCH=datetime.datetime(int(year),int(month),int(day)).strftime('%s')
+						rec=(DATEEPOCH,int(FINDQ[RETSTR]))
+						send_list.append(rec)
+	#					send_list[str(year)+'/'+str(month)+'/'+str(day)]=FINDQ[RETSTR]
+				except KeyError:
+					continue
+				except TypeError:
+					continue
+	elif place==24:
+		HHDT=str(LANG)+"_hitshourly"
+		FINDLIST=db[HHDT].find_one(QUERY)
+		for a in range(0,24):
 			try:
-				if FINDQ[RETSTR]>0 and FINDQ[RETSTR]<place:
-					rec=str('\''+str(year)+'/'+str(month)+'/'+str(day)+'\','+str(FINDQ[RETSTR]))
-#					send_list.append(rec)
-					send_list[str(year)+'/'+str(month)+'/'+str(day)]=FINDQ[RETSTR]
+				rec=(a, int(FINDLIST[str(a)]))
+				send_list.append(rec)
 			except KeyError:
 				continue
 			except TypeError:
 				continue
+			except IndexError:
+				continue 
 	return send_list
 
 def fnGetDate():
@@ -242,68 +267,11 @@ def GenInfoDailyGraph(id):
 	return
 def GenInfoPage(id,LANG='en'):
 	PID=os.getpid()
-	#GenInfoDailyGraph(id)
 	fnAppendSitemap(id,LANG)
 	
-	info_lt25_list=[]
-	info_lt_50_list=[]
-	info_lt_100_list=[]
-	info_lt_500_list=[]
-	info_lt_1000_list=[]
-	
-	info_lt25_list=fnGenTableArchive(id,26,LANG)
-	info_lt_50_list=fnGenTableArchive(id,51,LANG)        
-	info_lt_100_list=fnGenTableArchive(id,101,LANG)        
-	info_lt_500_list=fnGenTableArchive(id,501,LANG)        
-	info_lt_1000_list=fnGenTableArchive(id,1001,LANG)        
-
-	T25FILE=open('/tmp/t25.log','w')
-	T50FILE=open('/tmp/t50.log','w')
-	T100FILE=open('/tmp/t100.log','w')
-	T500FILE=open('/tmp/t500.log','w')
-	T1KFILE=open('/tmp/t1k.log','w')
-
-	GO25=False
-	GO50=False
-	GO100=False
-	GO500=False
-	GO1K=False
-
-	#for item in info_lt_25_list:
-	#	T25FILE.write(item)
-	#	GO25=True
-	if info_lt25_list:
-		print info_lt25_list
-		fnDoGraphDrawing(25,id,LANG,info_lt25_list)
-#	for item in info_lt_50_list:
-#		T50FILE.write(item)
-#		GO50=True
-#	for item in info_lt_100_list:
-#		GO100=True
-#		T100FILE.write(item)
-#	for item in info_lt_500_list:
-#		GO500=True
-#		T500FILE.write(item)
-#	for item in info_lt_1000_list:
-#		GO1K=True
-#		T1KFILE.write(item)
-	
-	T25FILE.close()
-	T50FILE.close()
-	T100FILE.close()
-	T500FILE.close()
-	T1KFILE.close()
-
-#	if GO50:
-#		fnDrawGraph(50,id,LANG)
-#	if GO100:
-#		fnDrawGraph(100,id,LANG)
-#	if GO500:
-#		fnDrawGraph(500,id,LANG)
-#	if GO1K:
-#		fnDrawGraph(1000,id,LANG)
+	fnDoGraphDrawing(25,id,LANG)
+	fnDoGraphDrawing(24,id,LANG)
 
 		
 	return
-
 
