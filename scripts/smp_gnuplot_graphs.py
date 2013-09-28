@@ -12,7 +12,7 @@ import subprocess
 import syslog
 import os
 
-conn=Connection('10.170.91.72')
+conn=Connection('10.233.11.18')
 db=conn.wc
 def splitLanguageList():
 	LANGUAGES=wikilib.getLanguageList()
@@ -51,7 +51,6 @@ def fnPlotGraphs(LANGUAGES):
 			wikilib.GenInfoPage(p['id'],lang)
 		syslog.syslog('3hr: Finished '+str(lang)+' , onto next language.')
 
-	syslog.syslog('3hr: finished altogether with threehour.py')
 	return
 
 

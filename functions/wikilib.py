@@ -12,7 +12,7 @@ import random
 import Gnuplot, Gnuplot.funcutils
 import pdb 
 
-conn=Connection('10.170.91.72')
+conn=Connection('10.233.11.18')
 db=conn.wc
 
 LLIST={ 'ru':'Russian Wikipedia',
@@ -69,7 +69,7 @@ def fnDoGraphDrawing(type,id,LANG):
 	g=Gnuplot.Gnuplot()
 	title,utitle=fnFindName(LANG,id)
 	g('set output '+'\"'+OUTFILENAME+'\"')
-	g('set xtics format '+'\"'+'%b %d'+'\"')	
+#	g('set xtics format '+'\"'+'%b %d'+'\"')	
 	g('set terminal png size 600,300')
         
 	if type==25:
@@ -82,6 +82,8 @@ def fnDoGraphDrawing(type,id,LANG):
 		LLIST=fnGenTableArchive(id,24,LANG)
 		g('set style data boxes')
 		g('set xdata time')
+		g('set encoding iso_8859_1')
+		g('set xtics format '+'\"'+'%H'+'\"')	
 		g('set timefmt "%H"')
 		g('set xlabel "Hour of Day(UTC)"')
 		if len(LLIST)>0:

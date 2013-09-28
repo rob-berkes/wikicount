@@ -24,7 +24,7 @@ import HTMLParser
 _htmlparser=HTMLParser.HTMLParser()
 unescape=_htmlparser.unescape
 
-conn=Connection('10.170.91.72')
+conn=Connection('10.233.11.18')
 db=conn.wc
 api=tweepy.api
 RECORDSPERPAGE=50
