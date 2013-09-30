@@ -1,0 +1,1 @@
+added templates for daily archive

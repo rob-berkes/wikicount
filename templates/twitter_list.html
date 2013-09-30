@@ -1,0 +1,3 @@
+{% for item in tw_timeline %}
+	<li><span class="bodytext" style="padding:8px">{{item.created_at}}-<a href="http://www.twitter.com/{{item.screen_name}}">{{item.screen_name}}</a> - {{ item.text }}</span></li>
+{% endfor %}

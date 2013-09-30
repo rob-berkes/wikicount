@@ -1,0 +1,7 @@
+{% autoescape off %}
+{% for item in language_list %}
+                <li><a href="http://www.wikitrends.info/m/{{item.LANG}}/index.htm"> {{ item.title }} </a>
+		<hr>
+<br>
+{% endfor %}
+{% endautoescape %}
