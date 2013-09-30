@@ -107,7 +107,6 @@ def fnDoGraphDrawing(type,id,LANG):
 		g('set xlabel "Hour of Day(UTC)"')
 		g('set output '+'\"'+OUTFILENAME+'\"')
 		if len(LLIST)>0:
-		#	print LLIST,len(LLIST)
 			g.plot(Gnuplot.Data(LLIST,using="1:2",title=str(utitle)))		
 	return 
 def fnDrawGraph(type,id,LANG):

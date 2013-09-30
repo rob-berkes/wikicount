@@ -26,7 +26,6 @@ unescape=_htmlparser.unescape
 conn=Connection('10.170.44.106')
 db=conn.wc
 RECORDSPERPAGE=50
-#mc=memcache.Client(['127.0.0.1:11211'],debug=0)
 
 #All purpose Functions
 
