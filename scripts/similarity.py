@@ -4,12 +4,14 @@ from multiprocessing import Process, Pipe
 from lib import sorting
 import math
 import time
+import os
 
 #ID='d0f26dab5386f3b1bfd8d4387bf1b15ad423de92'
 conn=Connection('10.170.44.106')
 db=conn.wc
 lang='en'
 HD=str(lang)+'_hitsdaily'
+SD=str(lang)+'_similarity'
 DATE1="2013_09_29"
 DATE2="2013_09_28"
 DATE3="2013_09_04"
@@ -42,14 +44,21 @@ def scoreList(ID,MATCHLIST,D1SCORE,D2SCORE,D3SCORE,D4SCORE):
         print 'scoring array'
         STIME=time.time()
         NLIST=[]
+	D1RAT=float(D1SCORE-D2SCORE)/D2SCORE*100
+	D2RAT=float(D2SCORE-D3SCORE)/D3SCORE*100
+	print D1RAT,D1SCORE,D2SCORE
+	print 'D1RAT= '+str(D1RAT)
         for m in MATCHLIST:
-                D1DIFF=math.fabs(D1SCORE-m[DATE1])
-                D2DIFF=math.fabs(D2SCORE-m[DATE2])
-                D3DIFF=math.fabs(D3SCORE-m[DATE3])
-                D4DIFF=math.fabs(D4SCORE-m[DATE4])
-                TOTDIFF=math.fabs(D1DIFF+D2DIFF+D3DIFF+D4DIFF)
-                rec={'_id':m['_id'],'title':m['title'],'TOTAL':TOTDIFF}
-                NLIST.append(rec)
+		M1RAT=float(m[DATE1]-m[DATE2])/m[DATE2]*100
+		M2RAT=float(m[DATE2]-m[DATE3])/m[DATE3]*100
+		try:
+			TOTDIFF=math.fabs(float(M1RAT/D1RAT)*1000+float(M2RAT/D2RAT)*1000)
+		except ZeroDivisionError:
+			print 'zde error for '+str(m['title'])
+			continue
+                rec={'_id':m['_id'],'title':m['title'],'TOTAL':float(TOTDIFF)}
+		if m['_id']!=ID:
+	                NLIST.append(rec)
         ETIME=time.time()
         TTIME=ETIME-STIME
         print 'scoring done in '+str(TTIME)+' seconds.'
@@ -157,12 +166,16 @@ for m in ENTHREE:
                 et=time.time()
                 tt=et-st
                 print 'sorting done in '+str(tt)+' seconds.'
-	        OFILE=open('/tmp/django/wikicount/static/images/'+str(lang)+'/similar/'+str(ID)+'.htm','w')
+		try:
+	        	OFILE=open('/tmp/django/wikicount/static/images/'+str(lang)+'/similar/'+str(ID)+'.htm','w')
+		except IOError:
+			os.makedirs('/tmp/django/wikicount/static/images/'+str(lang)+'/similar/')
+			OFILE=open('/tmp/django/wikicount/static/images/'+str(lang)+'/similar/'+str(ID)+'.htm','w')
                 LC=1
                 for rec in SORTLIST:
                         if LC>11:
                                 break
-                        OFILE.write('<li><a href="http://www.wikitrends.info/'+str(lang)+'infoview/'+str(rec[1])+'> '+str(rec[2])+'</a></li><br>')
+                        OFILE.write('<li>('+str(rec[0])+')<a href="http://www.wikitrends.info/'+str(lang)+'infoview/'+str(rec[1])+'> '+str(rec[2])+'</a></li><br>')
                         OFILE.write('\n')
                         LC+=1
                 OFILE.close()
