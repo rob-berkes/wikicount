@@ -363,7 +363,15 @@ def Mobile_Hourly(request,LANG,id):
 	return HttpResponse(rendered)
 def Mobile_infoviewI18(request,LANG,id):
 	tw_timeline=GetTimeline()
-
+	SLIST=[]
+	if LANG=='en':
+		RES=db['en_similarity'].find_one({'_id':id})
+		try:
+			for item in RES['similars']:
+				rec={'_id':item['id'],'title':item['title'],'score':item['score']}
+				SLIST.append(rec)
+		except TypeError:
+			SLIST=[]
 	t=get_template('MobileInfoviewIndex.htm')
 	title,utitle=wikilib.fnFindName(LANG,id)
 	HOURGRAPHDIRECTORY='http://www.wikitrends.info/static/images/'+str(LANG)+'/hourly/'
@@ -409,13 +417,22 @@ def Mobile_infoviewI18(request,LANG,id):
 		T1KGRAPHFILESIZE=0
 
 	SITENAME=getSiteName(LANG)
-	c=Context({'PageDesc':'','PageTitle':utitle,'expiretime':expiretime,'linktitle':title,'tw_timeline':tw_timeline,'DAILYGRAPHFILENAME':DAILYGRAPHFILENAME,'HOURGRAPHFILENAME':HOURLYGRAPHFILENAME,'T25GRAPHFILENAME':T25GRAPHFILENAME,'T50GRAPHFILENAME':T50GRAPHFILENAME,'T100GRAPHFILENAME':T100GRAPHFILENAME,'T500GRAPHFILENAME':T500GRAPHFILENAME,'T1KGRAPHFILENAME':T1KGRAPHFILENAME,'LANG':str(LANG),'SITENAME':SITENAME,'ID':id})
+	c=Context({'PageDesc':'','PageTitle':utitle,'expiretime':expiretime,'linktitle':title,'tw_timeline':tw_timeline,'DAILYGRAPHFILENAME':DAILYGRAPHFILENAME,'HOURGRAPHFILENAME':HOURLYGRAPHFILENAME,'T25GRAPHFILENAME':T25GRAPHFILENAME,'T50GRAPHFILENAME':T50GRAPHFILENAME,'T100GRAPHFILENAME':T100GRAPHFILENAME,'T500GRAPHFILENAME':T500GRAPHFILENAME,'T1KGRAPHFILENAME':T1KGRAPHFILENAME,'LANG':str(LANG),'SITENAME':SITENAME,'ID':id,'SLIST':SLIST})
 	rendered=t.render(c)
 
 	return HttpResponse(rendered)
 def infoviewI18(request,LANG,id):
 	latest_news_list=wikilib.fnLatestnews()
 	tw_timeline=GetTimeline()
+	SLIST=[]
+	if LANG=='en':
+		RES=db['en_similarity'].find_one({'_id':id})
+		try:
+			for item in RES['similars']:
+				rec={'_id':item['_id'],'title':item['title'],'score':item['score']}
+				SLIST.append(rec)
+		except:
+			SLIST=[]
 
 	t=get_template('InfoviewIndex.htm')
 	title,utitle=wikilib.fnFindName(LANG,id)
@@ -461,7 +478,7 @@ def infoviewI18(request,LANG,id):
 	except OSError:
 		T1KGRAPHFILESIZE=0
 
-	c=Context({'PageDesc':'Click above to go the Wikipedia page.','latest_news_list':latest_news_list,'PageTitle':utitle,'expiretime':expiretime,'linktitle':title,'tw_timeline':tw_timeline,'DAILYGRAPHFILENAME':DAILYGRAPHFILENAME,'HOURGRAPHFILENAME':HOURLYGRAPHFILENAME,'T25GRAPHFILENAME':T25GRAPHFILENAME,'T50GRAPHFILENAME':T50GRAPHFILENAME,'T100GRAPHFILENAME':T100GRAPHFILENAME,'T500GRAPHFILENAME':T500GRAPHFILENAME,'T1KGRAPHFILENAME':T1KGRAPHFILENAME,'LANG':str(LANG),'ID':id})
+	c=Context({'PageDesc':'Click above to go the Wikipedia page.','latest_news_list':latest_news_list,'PageTitle':utitle,'expiretime':expiretime,'linktitle':title,'tw_timeline':tw_timeline,'DAILYGRAPHFILENAME':DAILYGRAPHFILENAME,'HOURGRAPHFILENAME':HOURLYGRAPHFILENAME,'T25GRAPHFILENAME':T25GRAPHFILENAME,'T50GRAPHFILENAME':T50GRAPHFILENAME,'T100GRAPHFILENAME':T100GRAPHFILENAME,'T500GRAPHFILENAME':T500GRAPHFILENAME,'T1KGRAPHFILENAME':T1KGRAPHFILENAME,'LANG':str(LANG),'ID':id,'SLIST':SLIST})
 	rendered=t.render(c)
 
 	return HttpResponse(rendered)
