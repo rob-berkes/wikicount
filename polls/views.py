@@ -361,17 +361,22 @@ def Mobile_Hourly(request,LANG,id):
 	rendered=t.render(c)
 
 	return HttpResponse(rendered)
+def returnSimilars(LANG,id):
+	LLIST=[]
+	SD=str(LANG)+'_similarity'
+	RES=db[SD].find_one({'_id':id})
+	try:
+	#	for item in RES['similars']:
+	#		rec={'id':item['id'],'title':item['title'],'score':item['score']}
+	#		LLIST.append(rec)
+		LLIST=RES['similars']
+	except:
+		pass
+ 	print id, len(LLIST)	
+	return LLIST
 def Mobile_infoviewI18(request,LANG,id):
 	tw_timeline=GetTimeline()
-	SLIST=[]
-	if LANG=='en':
-		RES=db['en_similarity'].find_one({'_id':id})
-		try:
-			for item in RES['similars']:
-				rec={'_id':item['id'],'title':item['title'],'score':item['score']}
-				SLIST.append(rec)
-		except TypeError:
-			SLIST=[]
+	SLIST=returnSimilars(LANG,id)
 	t=get_template('MobileInfoviewIndex.htm')
 	title,utitle=wikilib.fnFindName(LANG,id)
 	HOURGRAPHDIRECTORY='http://www.wikitrends.info/static/images/'+str(LANG)+'/hourly/'
@@ -424,16 +429,7 @@ def Mobile_infoviewI18(request,LANG,id):
 def infoviewI18(request,LANG,id):
 	latest_news_list=wikilib.fnLatestnews()
 	tw_timeline=GetTimeline()
-	SLIST=[]
-	if LANG=='en':
-		RES=db['en_similarity'].find_one({'_id':id})
-		try:
-			for item in RES['similars']:
-				rec={'_id':item['_id'],'title':item['title'],'score':item['score']}
-				SLIST.append(rec)
-		except:
-			SLIST=[]
-
+	SLIST=returnSimilars(LANG,id)
 	t=get_template('InfoviewIndex.htm')
 	title,utitle=wikilib.fnFindName(LANG,id)
 	HOURGRAPHDIRECTORY='http://www.wikitrends.info/static/images/'+str(LANG)+'/hourly/'
