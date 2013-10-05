@@ -5,18 +5,14 @@ from lib import sorting
 import math
 import time
 import os
-
-#ID='d0f26dab5386f3b1bfd8d4387bf1b15ad423de92'
+BEGINTIME=time.time()
 conn=Connection('10.170.44.106')
 db=conn.wc
 lang='en'
 HD=str(lang)+'_hitsdaily'
+HH=str(lang)+'_hitshourly'
 SD=str(lang)+'_similarity'
-DATE1="2013_09_30"
-DATE2="2013_09_28"
-DATE3="2013_09_22"
-DATE4="2013_09_21"
-DATE5="2013_10_01"
+DATE1="2013_10_03"
 
 
 def makeArray(LLIST):
@@ -31,43 +27,54 @@ def makeArray(LLIST):
         return NEWARRAY
         
 def getDayList():
-        RSET=db[HD].find({DATE1:{'$gt':75}})
-	RLIST=[]
-        for r in RSET:
-                try:
-                        rec={'_id':r['_id'],'title':r['title'],DATE1:r[DATE1],DATE2:r[DATE2],DATE3:r[DATE3],DATE4:r[DATE4]}
-                        #rec={'_id':r['_id'],DATE1:r[DATE1],DATE2:r[DATE2]}
-                        RLIST.append(rec)
-                except NameError:
-                        pass
-                except KeyError:
-                        pass
-        return RLIST
-def scoreList(ID,MATCHLIST,D1SCORE,D2SCORE,D3SCORE,D4SCORE,D5SCORE):
+	HD=str(lang)+'_hitsdaily'
+	SD=str(lang)+'_similarity'
+	HH=str(lang)+'_hitshourly'
+	DATE1="2013_10_03"
+        RSET=db[HD].find({DATE1:{'$gt':120}},limit=100000)
+        return RSET.limit(100000)
+def scoreList(D1Q,H1Q,HRAT1,HRAT2,MATCHLIST):
         STIME=time.time()
         NLIST=[]
-	D1RAT=float(D1SCORE-D2SCORE)/D2SCORE*100
-	D2RAT=float(D2SCORE-D3SCORE)/D3SCORE*100
-	D3RAT=float(D3SCORE-D4SCORE)/D4SCORE*100
-	D4RAT=float(D4SCORE-D5SCORE)/D5SCORE*100
-	D5RAT=float(D5SCORE-D1SCORE)/D1SCORE*100
+	SCOREGOODS=0
+	SCOREBADS=0
         for m in MATCHLIST:
-		M1RAT=float(m[DATE1]-m[DATE2])/m[DATE2]*100
-		M2RAT=float(m[DATE2]-m[DATE3])/m[DATE3]*100
-		M3RAT=float(m[DATE3]-m[DATE4])/m[DATE4]*100
-		M4RAT=float(m[DATE4]-m[DATE5])/m[DATE5]*100
-		M5RAT=float(m[DATE5]-m[DATE1])/m[DATE1]*100
+		TOTDIFF=0
+		HOURRES=db[HH].find_one({'_id':m['_id']})
 		try:
-			TOTDIFF=math.fabs(math.fabs(M1RAT/D1RAT)+math.fabs(M2RAT/D2RAT)+math.fabs(M3RAT/D3RAT)+math.fabs(M4RAT/D4RAT)+math.fabs(M5RAT/D5RAT))
-		except ZeroDivisionError:
-			print 'zde error for '+str(m['title'])
-			break
-                rec={'_id':m['_id'],'title':m['title'],'TOTAL':float(str(TOTDIFF)[0:5])}
-		if m['_id']!=ID:
+			h1RATIO=float(HOURRES['16'])/float(HOURRES['23'])							
+			SCOREGOODS+=1
+		except:
+			SCOREBADS+=1
+			continue
+		try:
+			h2RATIO=float(HOURRES['08'])/float(HOURRES['16'])
+			SCOREGOODS+=1
+		except:
+			SCOREBADS+=1
+			continue
+		TOTDIFF+=math.fabs(h2RATIO-HRAT2)+math.fabs(h1RATIO-HRAT1)
+		for SLMONTH in range(10,11):
+			for SLDAY in range(2,5):
+				SSLMONTH="%02d" % (SLMONTH,)
+				SSLDAY="%02d" % (SLDAY,)
+				YSSLDAY="%02d" % (SLDAY-1,)
+				STRINGDATE="2013_"+SSLMONTH+"_"+SSLDAY
+				YSTRINGDATE="2013_"+SSLMONTH+"_"+YSSLDAY
+				try:
+					mRATIO=float(m[STRINGDATE])/float(m[YSTRINGDATE])
+					D1QRATIO=float(D1Q[STRINGDATE])/float(D1Q[YSTRINGDATE])
+					TOTDIFF+=math.fabs(D1QRATIO-mRATIO)
+				except ZeroDivisionError:
+					continue
+				except KeyError:
+					continue
+                rec={'_id':m['_id'],'title':m['title'],'TOTAL':TOTDIFF}
+		if m['_id']!=ID and TOTDIFF!=0:
 	                NLIST.append(rec)
         ETIME=time.time()
         TTIME=ETIME-STIME
-        print 'scoring done in '+str(TTIME)+' seconds.'
+        print 'scoring done in '+str(TTIME)+' seconds. ScoreGoods: '+str(SCOREGOODS)+' ScoreBads: '+str(SCOREBADS)
         return NLIST
 
 
@@ -75,57 +82,55 @@ STARTTIME=time.time()
 MATCHLIST=getDayList()
 ENDTIME=time.time()
 TTIME=ENDTIME-STARTTIME
-print "found "+ str(len(MATCHLIST))+" records in "+str(TTIME)+" seconds, now scoring..."
+print "found "+ str(MATCHLIST.count())+" records in "+str(TTIME)+" seconds, now scoring..."
 
-COUNT=0
+COUNT=1
+HOUREXCEPTS=0
+HOURGOODS=0
 ENTHREE=db['en_threehour'].find()
 for m in ENTHREE:
+	MATCHLIST.rewind()
+	print 'record '+str(COUNT)
+	COUNT+=1
         ID=m['id']
         TITLE=m['title']
         D1Q=db[HD].find_one({'_id':ID})
-        try:
-                try:
-			D1SCORE=D1Q[DATE1]
-		except KeyError:
-			D1SCORE=1
-                try:
-			D2SCORE=D1Q[DATE2]
-		except KeyError:
-			D2SCORE=1
-		try:
-	                D3SCORE=D1Q[DATE3]
-		except KeyError:
-			D3SCORE=1
-		try:
-	                D4SCORE=D1Q[DATE4]
-		except KeyError:
-			D4SCORE=1
-		try:
-	                D5SCORE=D1Q[DATE5]
-		except KeyError:
-			D5SCORE=1
+	H1Q=db[HH].find_one({'_id':ID})
+	try:	
+		HRAT1=float(H1Q['16'])/float(H1Q['23'])
+		HOURGOODS+=1
+	except:
+		HOUREXCEPTS+=1
+		HRAT1=0
+	try:
+		HRAT2=float(H1Q['08'])/float(H1Q['16'])
+		HOURGOODS+=1
+	except:
+		HOUREXCEPTS+=1
+		HRAT2=0
+	print 'HRAT1 '+str(HRAT1)+' HRAT2 '+str(HRAT2)
 
-                NEWLIST=scoreList(ID,MATCHLIST,D1SCORE,D2SCORE,D3SCORE,D4SCORE,D5SCORE)
-                NEWARRAY=makeArray(NEWLIST)
+        NEWLIST=scoreList(D1Q,H1Q,HRAT1,HRAT2,MATCHLIST)
+        NEWARRAY=makeArray(NEWLIST)
 	
-		st=time.time()
-                SORTLIST=sorting.QuickSortListArray(NEWARRAY,'asc')
-		et=time.time()
-		tt=et-st
-		print 'list sorted in '+str(tt)+' seconds.'
+	st=time.time()
+        SORTLIST=sorting.QuickSortListArray(NEWARRAY,'asc')
+	et=time.time()
+	tt=et-st
+	print 'list sorted in '+str(tt)+' seconds.'
 
-	        LC=1
-		db[SD].remove({'_id':ID})
-		SDLIST=[]
-	        for rec in SORTLIST:
-	        	if LC>11:
-	                	break
-			nrec={'Pid':str(ID),'id':str(rec[1]),'title':str(rec[2]),'score':str(rec[0])[0:5]}
-        		LC+=1
-			db[SD].insert(nrec)
-        except KeyError:
-                print 'keyError for '+str(TITLE)
+	LC=1
+	db[SD].remove({'_id':ID})
+	SDLIST=[]
+	for rec in SORTLIST:
+	   	if LC>11:
+	               	break
+		nrec={'id':rec[1],'title':rec[2],'score':str(rec[0])[0:5]}
+		SDLIST.append(nrec)
+        	LC+=1
+	IREC={'_id':str(ID),'similars':SDLIST}
+	print IREC
+	db[SD].insert(IREC)
 
-
-
-
+ENDTIME=time.time()
+print 'all done in '+str(ENDTIME-BEGINTIME)+' seconds!'
