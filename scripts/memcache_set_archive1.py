@@ -3,7 +3,7 @@ import memcache
 from datetime import date
 from datetime import time
 import syslog
-from functions import wikilib
+from lib import wikilib
 
 
 conn=Connection('10.164.95.114')

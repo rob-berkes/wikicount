@@ -6,7 +6,7 @@ import random
 from pymongo import Connection
 from datetime import date
 from datetime import time
-from functions import wikilib
+from lib import wikilib
 import datetime
 import subprocess
 import syslog

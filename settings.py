@@ -1,5 +1,6 @@
 # Django settings for wikicount project.
 from django.conf.global_settings import TEMPLATE_CONTEXT_PROCESSORS
+from lib import wikilib
 TEMPLATE_CONTEXT_PROCESSORS+=('django.core.context_processors.static',)
 DEBUG = False
 DEBUG = True
@@ -17,7 +18,7 @@ DATABASES = {
         'NAME': 'wc',                      # Or path to database file if using sqlite3.
         'USER': '',                      # Not used with sqlite3.
         'PASSWORD': '',                  # Not used with sqlite3.
-        'HOST': '10.170.44.106',                      # Set to empty string for localhost. Not used with sqlite3.4
+        'HOST': wikilib.MONGO_IP,                      # Set to empty string for localhost. Not used with sqlite3.4
         'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
     }
 }

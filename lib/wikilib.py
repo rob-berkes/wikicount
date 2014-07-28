@@ -1,4 +1,3 @@
-
 import urllib2
 import os
 import string
@@ -8,14 +7,13 @@ from pymongo import Connection
 import time
 import subprocess 
 import syslog
-import random
 import Gnuplot, Gnuplot.funcutils
-import pdb 
 
-conn=Connection('10.170.44.106')
-db=conn.wc
+MONGO_IP = '10.229.7.169'
+conn = Connection(MONGO_IP)
+db = conn.wc
 
-LLIST={ 'ru':'Russian Wikipedia',
+LLIST = { 'ru':'Russian Wikipedia',
 	'en':'English Wikipedia',
 	'ja':'Japanese Wikipedia',
 	'zh':'Chinese Wikipedia',

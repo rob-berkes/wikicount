@@ -1,18 +1,10 @@
 #!/usr/bin/python
-#import redis
-import string 
 import urllib2
 from pymongo import Connection
-from datetime import date
-from datetime import time
-from functions import wikilib
+from lib import wikilib
 from multiprocessing import Process 
-import datetime
-import subprocess
 import syslog
-import os
-
-conn=Connection('10.170.44.106')
+conn=Connection(wikilib.MONGO_IP)
 db=conn.wc
 def splitLanguageList():
 	LANGUAGES=wikilib.getLanguageList()
@@ -37,7 +29,6 @@ def splitLanguageList():
 	return L1,L2,L3,L4
 
 def fnPlotGraphs(LANGUAGES):
-	send_list=[]
 	syslog.syslog("3hr: Starting threehour.py with "+str(len(LANGUAGES))+" languages.")
 	for lang in LANGUAGES:
 		collNAME=str(lang)+'_threehour'
@@ -47,7 +38,6 @@ def fnPlotGraphs(LANGUAGES):
 		for p in THREEHOUR_QUERY:
 			PLACEMENT+=1
 			tstr=str(p['title'])
-			rec={'title':urllib2.unquote(tstr),'place':p['place'],'Avg':p['rollavg'],'linktitle':p['title'],'id':p['id'],'LANG':str(lang)}
 			wikilib.GenInfoPage(p['id'],lang)
 		syslog.syslog('smp_gnuplot: Finished '+str(PLACEMENT)+' records for '+str(lang)+' , onto next language.')
 

@@ -1,12 +1,12 @@
 from pymongo import Connection
-from functions import wikilib
+from lib import wikilib
 from multiprocessing import Process, Pipe
 from lib import sorting
 import math
 import time
 import os
 BEGINTIME=time.time()
-conn=Connection('10.170.44.106')
+conn=Connection(wikilib.MONGO_IP)
 db=conn.wc
 lang='en'
 HD=str(lang)+'_hitsdaily'
