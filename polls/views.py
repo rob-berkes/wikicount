@@ -1,10 +1,10 @@
 from django.http import HttpResponse
 from django.template.loader import get_template
-from django.template import Context
+from django.template import Context, RequestContext
 from django.views.decorators.cache import cache_page
 from pymongo import Connection
 from datetime import date
-from functions import wikilib
+from lib import wikilib
 import urllib2
 import string
 import random
@@ -20,6 +20,7 @@ import subprocess
 import os
 import calendar
 import HTMLParser 
+from django.shortcuts import render_to_response
 
 _htmlparser=HTMLParser.HTMLParser()
 unescape=_htmlparser.unescape
@@ -462,11 +463,36 @@ def top3hr(request):
 		for p in THREEHOUR_LIST_QUERY:
 			rec={'title':p['title'],'place':p['place'],'Avg':p['rollavg'],'linktitle':p['title'],'id':p['id']}
 			send_list.append(rec)
-		mc.set('THREEHOUR_LIST_QUERY',send_list,1800)
-	PAGETITLE="Wikitrends.Info  for "+str(MONTHNAME)+" "+str(DAY)+", "+str(YEAR)
-	c=Context({'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':PAGETITLE,'PageDesc':'A three hour rolling average showing the most popular articles currently','expiretime':expiretime,'tw_timeline':tw_timeline})
+		PLACE+=1
+	else:
+		print "found in cache, using redis"
+		rc.set(REDIS_ID_KEY,str(aTITLE))
+		send_list=[]
+		PLACE=1
+		while artID!="None" and artID!='' and PLACE<100:
+			REDIS_TITLE_KEY=str(LANG)+'_'+str(artID)+'_'+'TITLE'
+			REDIS_AVG_KEY=str(LANG)+'_'+str(artID)+'_'+'AVG'
+			REDIS_LINKTITLE_KEY=str(LANG)+'_'+str(artID)+'_'+'LINKTITLE'
+			aaTITLE=rc.get(REDIS_TITLE_KEY)
+			aAVG=rc.get(REDIS_AVG_KEY)
+			aLINKTITLE=rc.get(REDIS_LINKTITLE_KEY)
+			aID=rc.get(REDIS_ID_KEY)
+			tstr=str(aaTITLE)
+			rec={'title':urllib2.unquote(tstr),'place':PLACE,'Avg':aAVG,'linktitle':aLINKTITLE,'id':aID,'LANG':str(LANG)}
+			send_list.append(rec)
+			rc.set(REDIS_TITLE_KEY,aaTITLE)
+			rc.set(REDIS_AVG_KEY,aAVG)
+			rc.set(REDIS_LINKTITLE_KEY,aLINKTITLE)
+			rc.set(REDIS_ID_KEY,aID)
+			PLACE+=1
+			REDIS_ID_KEY=str(LANG)+'_'+str(PLACE)+'_ID'
+			artID=rc.get(REDIS_ID_KEY)
+	PAGETITLE="Top "+str(wikilib.fnReturnLanguageName(LANG))+" pages for "+str(MONTHNAME)+" "+str(DAY)+", "+str(YEAR)
+	c=Context({'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':PAGETITLE,'PageDesc':'A three hour rolling average showing the most popular articles currently','expiretime':expiretime,'tw_timeline':tw_timeline,'archive_list':archive_list,'LANGUAGE':LANG})
+	DATADICTIONARY={'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':PAGETITLE,'PageDesc':'A three hour rolling average showing the most popular articles currently','expiretime':expiretime,'tw_timeline':tw_timeline,'archive_list':archive_list,'LANGUAGE':LANG}
 	rendered=t.render(c)
-	return HttpResponse(rendered)
+#	return HttpResponse(rendered)
+	return render_to_response('RedTieIndexI18.html',DATADICTIONARY,context_instance=RequestContext(request))
 
 
 def cold(request):

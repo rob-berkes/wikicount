@@ -1,4 +1,4 @@
-from django.conf.urls.defaults import patterns, include, url
+from django.conf.urls import patterns, include, url
 from django.conf.urls.static import static
 from django.conf import settings
 from django.views.decorators.cache import cache_page
@@ -40,8 +40,8 @@ urlpatterns = patterns('',
      url(r'^search.htm$','polls.views.searchForm'),
      url(r'^search-results/$','polls.views.searchResults'),
      url(r'^debug.htm$','polls.views.debug'),
-     url(r'^static/(?P<path>.*)$','django.views.static.serve',{'document_root':'/tmp/django/wikicount/static/',}),
-     url(r'^([A-Za-z]{2})/static/(?P<path>.*)$','django.views.static.serve',{'document_root':'/tmp/django/wikicount/static/',}),
+     url(r'^static/(?P<path>.*)$','django.views.static.serve',{'document_root':'/home/ubuntu/wikicount/urls/static/',}),
+     url(r'^([A-Za-z]{2})/static/(?P<path>.*)$','django.views.static.serve',{'document_root':'/home/ubuntu/wikicount/urls/static/',}),
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
     # Uncomment the next line to enable the admin:
