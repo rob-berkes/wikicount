@@ -599,6 +599,12 @@ def mobileIndexLang(request,LANG='en'):
 	c=Context({'PageDate':PAGEDATE,'RangeList':RangeList,'latest_hits_list':send_list,'PageTitle':PAGETITLE,'expiretime':expiretime,'archive_list':archive_list,'LANGUAGE':LANG})
 	rendered=t.render(c)
 	return HttpResponse(rendered)
+def spam(request,id):
+	try:
+		db['spam'].insert({'id':id})
+	except:
+		pass
+	return indexLang(request) 
 
 def indexLang(request,LANG='en'):
 	DAY, MONTH, YEAR, HOUR,expiretime,MONTHNAME = fnReturnTimes()

@@ -40,6 +40,7 @@ urlpatterns = patterns('',
      url(r'^search.htm$','polls.views.searchForm'),
      url(r'^search-results/$','polls.views.searchResults'),
      url(r'^debug.htm$','polls.views.debug'),
+     url(r'^spam/(\w+)$','polls.views.spam'),
      url(r'^static/(?P<path>.*)$','django.views.static.serve',{'document_root':'/home/ubuntu/wikicount/urls/static/',}),
      url(r'^([A-Za-z]{2})/static/(?P<path>.*)$','django.views.static.serve',{'document_root':'/home/ubuntu/wikicount/urls/static/',}),
     # Uncomment the admin/doc line below to enable admin documentation:
