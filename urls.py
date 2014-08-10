@@ -31,7 +31,6 @@ urlpatterns = patterns('',
      url(r'^m/([A-Za-z]{2})/infoview/(\w+)$','polls.views.Mobile_infoviewI18'),
      url(r'^m/([A-Za-z.]{4,6})/infoview/(\w+)$','polls.views.Mobile_infoviewI18'),
      url(r'^m/(commons).m/infoview/(\w+)$','polls.views.Mobile_infoviewI18'),
-
      url(r'^mG/([A-Za-z]{2})/(\w+)$','polls.views.Mobile_Hourly'),
      url(r'^(simple)/index.htm$','polls.views.indexLang'),
      url(r'^(simple)/infoview/(\w+)$','polls.views.infoviewI18'),
