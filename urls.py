@@ -15,6 +15,7 @@ post_detail=DetailView.as_view(model=hits)
 urlpatterns = patterns('',
     # Examples:
      url(r'^$','polls.views.indexLang', name='home'),
+     url(r'^topics.htm$','polls.views.indexTopix'),
      url(r'^index.htm$','polls.views.indexLang'),
      url(r'^([A-Za-z]{2})/index.htm$','polls.views.indexLang'),
      url(r'^m/([A-Za-z.]{2})/index.htm$','polls.views.mobileIndexLang'),

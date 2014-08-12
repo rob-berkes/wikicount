@@ -432,16 +432,16 @@ def Mobile_infoviewI18(request,LANG,id):
 	return HttpResponse(rendered)
 
 def infoviewI18(request,LANG,id):
-	latest_news_list=wikilib.fnLatestnews()
-	tw_timeline=GetTimeline()
-	SLIST=returnSimilars(LANG,id)
-	t=get_template('InfoviewIndex.htm')
-	title,utitle=wikilib.fnFindName(LANG,id)
-	HOURGRAPHDIRECTORY='http://www.wikitrends.info/static/images/'+str(LANG)+'/hourly/'
-	DAILYGRAPHDIRECTORY='http://www.wikitrends.info/static/images/'+str(LANG)+'/daily/'
-	T25GRAPHDIRECTORY='http://www.wikitrends.info/static/images/'+str(LANG)+'/t25/'
-        T50GRAPHDIRECTORY='http://www.wikitrends.info/static/images/'+str(LANG)+'/t50/'
-	T100GRAPHDIRECTORY='http://www.wikitrends.info/static/images/'+str(LANG)+'/t100/'
+    latest_news_list=wikilib.fnLatestnews()
+    tw_timeline=GetTimeline()
+    SLIST=returnSimilars(LANG,id)
+    t=get_template('InfoviewIndex.htm')
+    title,utitle=wikilib.fnFindName(LANG,id)
+    HOURGRAPHDIRECTORY='http://www.wikitrends.info/static/images/'+str(LANG)+'/hourly/'
+    DAILYGRAPHDIRECTORY='http://www.wikitrends.info/static/images/'+str(LANG)+'/daily/'
+    T25GRAPHDIRECTORY='http://www.wikitrends.info/static/images/'+str(LANG)+'/t25/'
+    T50GRAPHDIRECTORY='http://www.wikitrends.info/static/images/'+str(LANG)+'/t50/'
+    T100GRAPHDIRECTORY='http://www.wikitrends.info/static/images/'+str(LANG)+'/t100/'
 	T500GRAPHDIRECTORY='http://www.wikitrends.info/static/images/'+str(LANG)+'/t500/'
 	T1KGRAPHDIRECTORY='http://www.wikitrends.info/static/images/'+str(LANG)+'/t1k/'
 
@@ -471,13 +471,13 @@ def infoviewI18(request,LANG,id):
 
 	try:
 		T500GRAPHFILESIZE=os.path.getsize(T500GRAPHFILENAME)
-	except OSError:
+    except OSError:
 		T500GRAPHFILESIZE=0
 
-	try:
-		T1KGRAPHFILESIZE=os.path.getsize(T1KGRAPHFILENAME)
-	except OSError:
-		T1KGRAPHFILESIZE=0
+try:
+    T1KGRAPHFILESIZE=os.path.getsize(T1KGRAPHFILENAME)
+except OSError:
+    T1KGRAPHFILESIZE=0
 
 	c=Context({'PageDesc':'Click above to go the Wikipedia page.','latest_news_list':latest_news_list,'PageTitle':utitle,'expiretime':expiretime,'linktitle':title,'tw_timeline':tw_timeline,'DAILYGRAPHFILENAME':DAILYGRAPHFILENAME,'HOURGRAPHFILENAME':HOURLYGRAPHFILENAME,'T25GRAPHFILENAME':T25GRAPHFILENAME,'T50GRAPHFILENAME':T50GRAPHFILENAME,'T100GRAPHFILENAME':T100GRAPHFILENAME,'T500GRAPHFILENAME':T500GRAPHFILENAME,'T1KGRAPHFILENAME':T1KGRAPHFILENAME,'LANG':str(LANG),'ID':id,'SLIST':SLIST})
 	rendered=t.render(c)
@@ -597,86 +597,160 @@ def mobileIndexLang(request,LANG='en'):
 	c=Context({'PageDate':PAGEDATE,'RangeList':RangeList,'latest_hits_list':send_list,'PageTitle':PAGETITLE,'expiretime':expiretime,'archive_list':archive_list,'LANGUAGE':LANG})
 	rendered=t.render(c)
 	return HttpResponse(rendered)
+
+
 def spam(request,id):
 	try:
 		db['spam'].insert({'_id':id})
 	except:
 		pass
-	return indexLang(request) 
+	return indexLang(request)
+
+def indexTopix(request,LANG='en'):
+    DAY,MONTH, YEAR, HOUR, expiretime, MONTHNAME = fnReturnTimes()
+    request.encoding = 'iso-8859-1'
+    MONTHNAME=fnCaseMonthName(MONTH)
+    if str(LANG).endswith('.b'):
+        t=get_template('RedTieIndexBooksI18.html')
+    elif str(LANG).endswith('.s'):
+        t=get_template('RedTieIndexSourceI18.html')
+    elif str(LANG).endswith('.q'):
+        t=get_template('RedTieIndexQuoteI18.html')
+    elif str(LANG).endswith('.d'):
+        t=get_template('RedTieIndexDictI18.html')
+    elif str(LANG).endswith('.voy'):
+        t=get_template('RedTieIndexVoyI18.html')
+    elif str(LANG)=='commons':
+        t=get_template('RedTieIndexComI18.html')
+        LANG='commons.m'
+    else:
+        t=get_template('RedTieIndexI18.html')
+    LATEST_NEWS_LIST=wikilib.fnLatestnews()
+    title=''
+    tw_timeline=GetTimeline()
+    archive_list=GenArchiveListI18(LANG)
+    PLACE=1
+    REDIS_ID_KEY=str(LANG)+'_'+str(PLACE)+'_'+'ID'
+    mcVAR=str(LANG)+"_THREEHOUR"
+    rc=redis.Redis('localhost')
+    send_list=[]
+    try:
+        aTITLE=str(rc.get(REDIS_ID_KEY))
+        artID=aTITLE
+    except:
+        aTITLE='None'
+    if aTITLE=='None' or aTITLE=='':
+        COLLNAME=str(LANG)+"_threehour"
+        THREEHOUR_LIST_QUERY=db[COLLNAME].find().sort('place',1)
+        LANGSUB=LANG[0:2]
+        if str(LANG)=='commons.m':
+            LANGSUB='commons'
+        for p in THREEHOUR_LIST_QUERY:
+            tstr=str(p['title'])
+            rec={'title':urllib2.unquote(tstr),'place':p['place'],'Avg':p['rollavg'],'linktitle':p['title'],'id':p['id'],'LANG':LANG,'LANGSUB':LANGSUB}
+            send_list.append(rec)
+            PLACE+=1
+    else:
+        rc.set(REDIS_ID_KEY,str(aTITLE))
+        send_list=[]
+        PLACE=1
+        while artID!="None" and artID!='' and PLACE<100:
+            REDIS_TITLE_KEY=str(LANG)+'_'+str(artID)+'_'+'TITLE'
+            REDIS_AVG_KEY=str(LANG)+'_'+str(artID)+'_'+'AVG'
+            REDIS_LINKTITLE_KEY=str(LANG)+'_'+str(artID)+'_'+'LINKTITLE'
+            aaTITLE=rc.get(REDIS_TITLE_KEY)
+            aAVG=rc.get(REDIS_AVG_KEY)
+            aLINKTITLE=rc.get(REDIS_LINKTITLE_KEY)
+            aID=rc.get(REDIS_ID_KEY)
+            tstr=str(aaTITLE)
+            rec={'title':urllib2.unquote(tstr),'place':PLACE,'Avg':aAVG,'linktitle':aLINKTITLE,'id':aID,'LANG':str(LANG)}
+            send_list.append(rec)
+            rc.set(REDIS_TITLE_KEY,aaTITLE)
+            rc.set(REDIS_AVG_KEY,aAVG)
+            rc.set(REDIS_LINKTITLE_KEY,aLINKTITLE)
+            rc.set(REDIS_ID_KEY,aID)
+            PLACE+=1
+            REDIS_ID_KEY=str(LANG)+'_'+str(PLACE)+'_ID'
+            artID=rc.get(REDIS_ID_KEY)
+    PAGETITLE="Top "+str(wikilib.fnReturnLanguageName(LANG))+" pages for "+str(MONTHNAME)+" "+str(DAY)+", "+str(YEAR)
+    c=Context({'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':PAGETITLE,'PageDesc':'Computes the three hour rolling average and find the most popular articles compared to yesterday!','expiretime':expiretime,'tw_timeline':tw_timeline,'archive_list':archive_list,'LANGUAGE':LANG})
+    DATADICTIONARY = {'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':PAGETITLE,'PageDesc':'By three hour rolling average, find the most trending articles at this hour, compared to yesterday. Updated hourly around 20 past!','expiretime':expiretime,'tw_timeline':tw_timeline,'archive_list':archive_list,'LANGUAGE':LANG}
+    return render_to_response('RedTieIndexI18OneCol.html',DATADICTIONARY,context_instance=RequestContext(request))
+
 
 def indexLang(request,LANG='en'):
-	DAY, MONTH, YEAR, HOUR,expiretime,MONTHNAME = fnReturnTimes()
-	request.encoding='iso-8859-1'
-	MONTHNAME=fnCaseMonthName(MONTH)
-	if str(LANG).endswith('.b'):
-		t=get_template('RedTieIndexBooksI18.html')
-	elif str(LANG).endswith('.s'):
-		t=get_template('RedTieIndexSourceI18.html')
-	elif str(LANG).endswith('.q'):
-		t=get_template('RedTieIndexQuoteI18.html')
-	elif str(LANG).endswith('.d'):
-		t=get_template('RedTieIndexDictI18.html')
-	elif str(LANG).endswith('.voy'):
-		t=get_template('RedTieIndexVoyI18.html')
-	elif str(LANG)=='commons':
-		t=get_template('RedTieIndexComI18.html')
-		LANG='commons.m'
-	else:
-		t=get_template('RedTieIndexI18.html')
-	LATEST_NEWS_LIST=wikilib.fnLatestnews()
-	title=''
-	tw_timeline=GetTimeline()
-	archive_list=GenArchiveListI18(LANG)
-	PLACE=1
-	REDIS_ID_KEY=str(LANG)+'_'+str(PLACE)+'_'+'ID'
-	mcVAR=str(LANG)+"_THREEHOUR"
-	rc=redis.Redis('localhost')
-	send_list=[]	
-	try:
-		aTITLE=str(rc.get(REDIS_ID_KEY))
-		artID=aTITLE
-	except:
-		aTITLE='None'
-	if aTITLE=='None' or aTITLE=='':
-		COLLNAME=str(LANG)+"_threehour"
-		THREEHOUR_LIST_QUERY=db[COLLNAME].find().sort('place',1)
-		LANGSUB=LANG[0:2]
-		if str(LANG)=='commons.m':
-			LANGSUB='commons'
-		for p in THREEHOUR_LIST_QUERY:
-			tstr=str(p['title'])
-			rec={'title':urllib2.unquote(tstr),'place':p['place'],'Avg':p['rollavg'],'linktitle':p['title'],'id':p['id'],'LANG':LANG,'LANGSUB':LANGSUB}
-			send_list.append(rec)
-			PLACE+=1
-	else:
-		rc.set(REDIS_ID_KEY,str(aTITLE))
-		send_list=[]
-		PLACE=1
-		while artID!="None" and artID!='' and PLACE<100:
-			REDIS_TITLE_KEY=str(LANG)+'_'+str(artID)+'_'+'TITLE'
-			REDIS_AVG_KEY=str(LANG)+'_'+str(artID)+'_'+'AVG'
-			REDIS_LINKTITLE_KEY=str(LANG)+'_'+str(artID)+'_'+'LINKTITLE'
-			aaTITLE=rc.get(REDIS_TITLE_KEY)
-			aAVG=rc.get(REDIS_AVG_KEY)
-			aLINKTITLE=rc.get(REDIS_LINKTITLE_KEY)
-			aID=rc.get(REDIS_ID_KEY)
-			tstr=str(aaTITLE)
-			rec={'title':urllib2.unquote(tstr),'place':PLACE,'Avg':aAVG,'linktitle':aLINKTITLE,'id':aID,'LANG':str(LANG)}
-			send_list.append(rec)
-			rc.set(REDIS_TITLE_KEY,aaTITLE)
-			rc.set(REDIS_AVG_KEY,aAVG)
-			rc.set(REDIS_LINKTITLE_KEY,aLINKTITLE)
-			rc.set(REDIS_ID_KEY,aID)
-			PLACE+=1
-			REDIS_ID_KEY=str(LANG)+'_'+str(PLACE)+'_ID'
-			artID=rc.get(REDIS_ID_KEY)
-	PAGETITLE="Top "+str(wikilib.fnReturnLanguageName(LANG))+" pages for "+str(MONTHNAME)+" "+str(DAY)+", "+str(YEAR)
-	c=Context({'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':PAGETITLE,'PageDesc':'Computes the three hour rolling average and find the most popular articles compared to yesterday!','expiretime':expiretime,'tw_timeline':tw_timeline,'archive_list':archive_list,'LANGUAGE':LANG})
-	DATADICTIONARY = {'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':PAGETITLE,'PageDesc':'By three hour rolling average, find the most trending articles at this hour, compared to yesterday. Updated hourly around 20 past!','expiretime':expiretime,'tw_timeline':tw_timeline,'archive_list':archive_list,'LANGUAGE':LANG}
-        
-#	rendered=t.render(c)
-#	return HttpResponse(rendered)
-	return render_to_response('RedTieIndexI18.html',DATADICTIONARY,context_instance=RequestContext(request))
+    DAY, MONTH, YEAR, HOUR,expiretime,MONTHNAME = fnReturnTimes()
+    request.encoding='iso-8859-1'
+    MONTHNAME=fnCaseMonthName(MONTH)
+    if str(LANG).endswith('.b'):
+        t=get_template('RedTieIndexBooksI18.html')
+    elif str(LANG).endswith('.s'):
+        t=get_template('RedTieIndexSourceI18.html')
+    elif str(LANG).endswith('.q'):
+        t=get_template('RedTieIndexQuoteI18.html')
+    elif str(LANG).endswith('.d'):
+        t=get_template('RedTieIndexDictI18.html')
+    elif str(LANG).endswith('.voy'):
+        t=get_template('RedTieIndexVoyI18.html')
+    elif str(LANG)=='commons':
+        t=get_template('RedTieIndexComI18.html')
+        LANG='commons.m'
+    else:
+        t=get_template('RedTieIndexI18.html')
+    LATEST_NEWS_LIST=wikilib.fnLatestnews()
+    title=''
+    tw_timeline=GetTimeline()
+    archive_list=GenArchiveListI18(LANG)
+    PLACE=1
+    REDIS_ID_KEY=str(LANG)+'_'+str(PLACE)+'_'+'ID'
+    mcVAR=str(LANG)+"_THREEHOUR"
+    rc=redis.Redis('localhost')
+    send_list=[]
+    try:
+        aTITLE=str(rc.get(REDIS_ID_KEY))
+        artID=aTITLE
+    except:
+        aTITLE='None'
+    if aTITLE=='None' or aTITLE=='':
+        COLLNAME=str(LANG)+"_threehour"
+        THREEHOUR_LIST_QUERY=db[COLLNAME].find().sort('place',1)
+        LANGSUB=LANG[0:2]
+        if str(LANG)=='commons.m':
+            LANGSUB='commons'
+        for p in THREEHOUR_LIST_QUERY:
+            tstr=str(p['title'])
+            rec={'title':urllib2.unquote(tstr),'place':p['place'],'Avg':p['rollavg'],'linktitle':p['title'],'id':p['id'],'LANG':LANG,'LANGSUB':LANGSUB}
+            send_list.append(rec)
+            PLACE+=1
+    else:
+        rc.set(REDIS_ID_KEY,str(aTITLE))
+        send_list=[]
+        PLACE=1
+        while artID!="None" and artID!='' and PLACE<100:
+            REDIS_TITLE_KEY=str(LANG)+'_'+str(artID)+'_'+'TITLE'
+            REDIS_AVG_KEY=str(LANG)+'_'+str(artID)+'_'+'AVG'
+            REDIS_LINKTITLE_KEY=str(LANG)+'_'+str(artID)+'_'+'LINKTITLE'
+            aaTITLE=rc.get(REDIS_TITLE_KEY)
+            aAVG=rc.get(REDIS_AVG_KEY)
+            aLINKTITLE=rc.get(REDIS_LINKTITLE_KEY)
+            aID=rc.get(REDIS_ID_KEY)
+            tstr=str(aaTITLE)
+            rec={'title':urllib2.unquote(tstr),'place':PLACE,'Avg':aAVG,'linktitle':aLINKTITLE,'id':aID,'LANG':str(LANG)}
+            send_list.append(rec)
+            rc.set(REDIS_TITLE_KEY,aaTITLE)
+            rc.set(REDIS_AVG_KEY,aAVG)
+            rc.set(REDIS_LINKTITLE_KEY,aLINKTITLE)
+            rc.set(REDIS_ID_KEY,aID)
+            PLACE+=1
+            REDIS_ID_KEY=str(LANG)+'_'+str(PLACE)+'_ID'
+            artID=rc.get(REDIS_ID_KEY)
+    PAGETITLE="Top "+str(wikilib.fnReturnLanguageName(LANG))+" pages for "+str(MONTHNAME)+" "+str(DAY)+", "+str(YEAR)
+    c=Context({'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':PAGETITLE,'PageDesc':'Computes the three hour rolling average and find the most popular articles compared to yesterday!','expiretime':expiretime,'tw_timeline':tw_timeline,'archive_list':archive_list,'LANGUAGE':LANG})
+    DATADICTIONARY = {'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':PAGETITLE,'PageDesc':'By three hour rolling average, find the most trending articles at this hour, compared to yesterday. Updated hourly around 20 past!','expiretime':expiretime,'tw_timeline':tw_timeline,'archive_list':archive_list,'LANGUAGE':LANG}
+
+    #	rendered=t.render(c)
+    #	return HttpResponse(rendered)
+    return render_to_response('RedTieIndexI18.html',DATADICTIONARY,context_instance=RequestContext(request))
 
 def cold(request):
 	t=get_template('RedTieIndex.html')
