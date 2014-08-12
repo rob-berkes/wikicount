@@ -1,13 +1,11 @@
 from django.http import HttpResponse
 from django.template.loader import get_template
 from django.template import Context
-from django.views.decorators.cache import cache_page
 from pymongo import Connection
 from datetime import date
 from lib import wikilib
 import urllib2
 import string
-import random
 import datetime
 import hashlib
 import redis
@@ -15,9 +13,7 @@ from wsgiref.handlers import format_date_time
 from time import mktime
 import time
 import syslog
-import subprocess
 import os
-import calendar
 import HTMLParser
 from django.shortcuts import render_to_response 
 from django.template import RequestContext
@@ -85,9 +81,9 @@ def fnReturnTimes():
            DAY=31
            MONTH=12
            YEAR-=1
-	HOUR=time.strftime('%H')
-	MONTHNAME=datetime.datetime.now().strftime("%B")
-	return DAY, MONTH, YEAR,HOUR, expiretime,MONTHNAME
+	    HOUR=time.strftime('%H')
+	    MONTHNAME=datetime.datetime.now().strftime("%B")
+	    return DAY, MONTH, YEAR,HOUR, expiretime,MONTHNAME
 
 
 
@@ -102,94 +98,10 @@ def fnReturnStringDate(DAY,MONTH,YEAR):
 	RETSTR=str(YEAR)+"_"+str(MONTH)+"_"+str(DAY)
 	return RETSTR
 
-def GenArchiveListI18(LANG='en'):
-	PLACECOLL=str(LANG)+"_mapPlace"
-	thCOLL=str(LANG)+"_tophits"
-	archive_list=[]
-	m12=False
-	m1=False
-	m2=False
-	m3=False
-	m4=False
-	m5=False
-	m6=False
-	m7=False
-	m8=False
-	m9=False
-	m10=False
-	m11=False
-	dec12={'text':'Dec 2012','d': '31','m':'12','y':'2012'}
-	for a in range(1,32):
-		CNAME=fnReturnStringDate(a,12,2012)
-		if db[CNAME].count() > 1:
-			archive_list.append(dec12)
-			break
-		jan13={'text':'Jan 2013','d': '28','m':'1','y':'2013','lang':LANG}
-		feb13={'text':'Feb 2013','d': '28','m':'2','y':'2013','lang':LANG}
-		mar13={'text':'Mar 2013','d': '28','m':'3','y':'2013','lang':LANG}
-		apr13={'text':'Apr 2013','d': '28','m':'4','y':'2013','lang':LANG}
-		may13={'text':'May 2013','d': '28','m':'5','y':'2013','lang':LANG}
-		jun13={'text':'Jun 2013','d': '30','m':'6','y':'2013','lang':LANG}
-		jul13={'text':'Jul 2013','d': '31','m':'7','y':'2013','lang':LANG}
-		aug13={'text':'Aug 2013','d': '31','m':'8','y':'2013','lang':LANG}
-		sept13={'text':'Sept 2013','d': '30','m':'9','y':'2013','lang':LANG}
-		oct13={'text':'Oct 2013','d': '31','m':'10','y':'2013','lang':LANG}
-		nov13={'text':'Nov 2013','d': '31','m':'11','y':'2013','lang':LANG}
-		dec13={'text':'Dec 2013','d': '31','m':'12','y':'2013','lang':LANG}
-		
-	for a in range(1,32):
-		CNAME=fnReturnStringDate(a,1,2013)
-	if db[PLACECOLL].find({CNAME:{"$gt":0}}).count() > 1 and not m1:
-		m1=True
-		archive_list.append(jan13)
-		CNAME=fnReturnStringDate(a,2,2013)
-	if db[PLACECOLL].find({CNAME:{"$gt":0}}).count() > 1 and not m2:
-		m2=True
-		archive_list.append(feb13)
-		CNAME=fnReturnStringDate(a,3,2013)
-	if db[PLACECOLL].find({CNAME:{"$gt":0}}).count() > 1 and not m3:
-		m3=True
-		archive_list.append(mar13)
-		CNAME=fnReturnStringDate(a,4,2013)
-	if db[PLACECOLL].find({CNAME:{"$gt":0}}).count() > 1 and not m4:
-		m4=True
-		archive_list.append(apr13)
-		CNAME=fnReturnStringDate(a,5,2013)
-	if db[PLACECOLL].find({CNAME:{"$gt":0}}).count() > 1 and not m5:
-		m5=True
-		archive_list.append(may13)
-		CNAME=fnReturnStringDate(a,6,2013)
-	if db[PLACECOLL].find({CNAME:{"$gt":0}}).count() > 1 and not m6:
-		m6=True
-		archive_list.append(jun13)
-		CNAME=fnReturnStringDate(a,7,2013)
-	if db[PLACECOLL].find({CNAME:{"$gt":0}}).count() > 1 and not m7:
-		m7=True
-		archive_list.append(jul13)
-		CNAME=fnReturnStringDate(a,8,2013)
-	if db[PLACECOLL].find({CNAME:{"$gt":0}}).count() > 1 and not m8:
-		m8=True
-		archive_list.append(aug13)
-		CNAME=fnReturnStringDate(a,9,2013)
-	if db[PLACECOLL].find({CNAME:{"$gt":0}}).count() > 1 and not m9:
-		m9=True
-		archive_list.append(sept13)
-		CNAME=fnReturnStringDate(a,10,2013)
-	if db[PLACECOLL].find({CNAME:{"$gt":0}}).count() > 1 and not m10:
-		m10=True
-		archive_list.append(oct13)
-		CNAME=fnReturnStringDate(a,11,2013)
-	if db[PLACECOLL].find({CNAME:{"$gt":0}}).count() > 1 and not m11:
-		m11=True
-		archive_list.append(nov13)
-		CNAME=fnReturnStringDate(a,12,2013)
-	if db[PLACECOLL].find({CNAME:{"$gt":0}}).count() > 1 and not m12:
-		m12=True
-		archive_list.append(dec13)
-	return archive_list
+
 
 def returnHourString(hour):
-        HOUR='%02d' % (hour,)
+    HOUR='%02d' % (hour,)
 	return HOUR
 
 
@@ -304,56 +216,9 @@ def dailypageI18(request,LANG='en',YEAR=2013,MONTH=7):
 	rendered=t.render(c)
 	return HttpResponse(rendered)
 
-def listtopI18(request,LANG,YEAR,MONTH,DAY):
-	MONTHNAME=fnCaseMonthName(int(MONTH))
-	if str(LANG).endswith('.b'):
-		t=get_template('IndexTopListBooksI18.html')
-	else:
-		t=get_template('IndexTopListI18.html')
-	send_list=[]
-	RETSTR=fnReturnStringDate(int(DAY),int(MONTH),YEAR)
-	DAYKEY=str(LANG)+'_mapPlace'
-	HITSKEY=str(LANG)+'_mapHits'
-	syslog.syslog('wikilib-views.py-listtop DAYKEY='+DAYKEY)
-	send_list=mc.get(DAYKEY)
-	tw_timeline=GetTimeline()
-	latest_news_list=wikilib.fnLatestnews()
-	if send_list==None:
-		send_list=[]
-		RESULTSET=db[HITSKEY].find().sort(RETSTR,-1).limit(100)
-	PLACE=1
-	for row in RESULTSET:
-		title=''
-		utitle=''
-	try:
-		ATITLE=fnReturnTitleI18(row['_id'],LANG)
-		title, utitle=wikilib.fnFormatName(ATITLE)
-	except KeyError:
-		pass
-	HITS=db[HITSKEY].find_one({'_id':row['_id']})
-	try:
-		rec={'place':PLACE,'Hits':HITS[RETSTR],'title':utitle ,'id':str(row['_id']),'linktitle':title.encode('utf-8'),'LANG':LANG,'LANGSUB':LANG[0:2]}
-		send_list.append(rec)
-	except KeyError:
-		pass
-	PLACE+=1
-	mc.set('DAYKEY',send_list,7200)
-	LANGSTR=wikilib.fnReturnLanguageName(LANG)
-	PageTitle='Top Articles for '+str(LANGSTR)+' Wikipedia on '+str(YEAR)+'/'+str(MONTH)+'/'+str(DAY)+'.'
-	c=Context({'PageTitle':PageTitle,'latest_hits_list':send_list,'y':YEAR,'m':MONTH,'d':DAY,'tw_timeline':tw_timeline,'latest_news_list':latest_news_list,'LANGUAGE':LANG})
-	rendered=t.render(c)
-	return HttpResponse(rendered)
 
-def debug(request):
-	t=get_template('IndexDebug.html')
-	newCal=calendar.HTMLCalendar(2013)
-	newCalendar=newCal.formatyear(2013,3)
-	SEARCHID=0
-	PageDesc=''
-	sendlist=''
-	c=Context({'Calendar':newCalendar,'ArticleTitle':'1169 Sicily Earthquake','ArticleHash':SEARCHID,'PageDesc':PageDesc,'send_list':sendlist})
-	rendered=t.render(c)
-	return HttpResponse(rendered)
+
+
 
 def Mobile_Hourly(request,LANG,id):
 
@@ -486,44 +351,8 @@ except OSError:
 
 
 
-def category_trending(request):
-	mcHour=mc.get('trendingHour')
-	t=get_template('RedTieIndex.html')
-	FQUERY={'d':int(DAY),'m':int(MONTH),'y':int(YEAR)}
-	LATEST_NEWS_LIST=wikilib.fnLatestnews()
-	title=''
-	send_list=mc.get('CATEGORY_TRENDING_LIST_QUERY')
-	tw_timeline=GetTimeline()
-	DAYKEY=fnReturnStringDate(DAY,MONTH,YEAR)
-	send_list=[]	
-	CATEGORY_TRENDING_LIST_QUERY=db.categorydaily.find().sort(DAYKEY,-1).limit(100)
-	COUNT=0
-	for p in CATEGORY_TRENDING_LIST_QUERY:
-		COUNT+=1
-		r=db.category.find_one({"_id":p["_id"]})
-		rec={'title':r['title'],'place':COUNT,'Hits':p[DAYKEY],'linktitle':r['title'],'id':p['_id']}
-		send_list.append(rec)
-	mc.set('CATEGORY_TRENDING_LIST_QUERY',send_list,1800)
-	c=Context({'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':'Wikipedia\'s most popular categories','PageDesc':'Today\'s hottest categories','expiretime':expiretime,'tw_timeline':tw_timeline})
-	rendered=t.render(c)
-	return HttpResponse(rendered)	
 
-def file_trending(request):
-	t=get_template('RedTieIndex.html')
-	FQUERY={'d':int(DAY),'m':int(MONTH),'y':int(YEAR)}
-	LATEST_NEWS_LIST=wikilib.fnLatestnews()
-	title=''
-	tw_timeline=GetTimeline()
-	DAYKEY=fnReturnStringDate(DAY,MONTH,YEAR)
-	send_list=[]	
-	FILE_TRENDING_LIST_QUERY=db.prodimagetrend.find().sort('Hits',-1).limit(100)
-	for p in FILE_TRENDING_LIST_QUERY:
-		rec={'title':p['title'],'place':p['place'],'Hits':p['Hits'],'linktitle':p['linktitle'],'id':p['id']}
-		send_list.append(rec)
-	mc.set('FILE_TRENDING_LIST_QUERY',send_list,1800)
-	c=Context({'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':'WikiTrends.Info - Trending Files/Images','PageDesc':'The most popular image files of the day','expiretime':expiretime,'tw_timeline':tw_timeline})
-	rendered=t.render(c)
-	return HttpResponse(rendered)	
+
 
 def MobileLanguageList(request,LANG='en'):
 	t=get_template('MobileLangList.html')
@@ -594,37 +423,22 @@ def mobileIndexLang(request,LANG='en'):
 				artID=rc.get(REDIS_ID_KEY)
 				PAGETITLE=str(wikilib.fnReturnLanguageName(LANG))
 				PAGEDATE=str(MONTHNAME)+" "+str(DAY)+" "+str(YEAR)
-	c=Context({'PageDate':PAGEDATE,'RangeList':RangeList,'latest_hits_list':send_list,'PageTitle':PAGETITLE,'expiretime':expiretime,'archive_list':archive_list,'LANGUAGE':LANG})
-	rendered=t.render(c)
-	return HttpResponse(rendered)
+    c=Context({'PageDate':PAGEDATE,'RangeList':RangeList,'latest_hits_list':send_list,'PageTitle':PAGETITLE,'expiretime':expiretime,'archive_list':archive_list,'LANGUAGE':LANG})
+    rendered=t.render(c)
+    return HttpResponse(rendered)
 
 
 def spam(request,id):
-	try:
-		db['spam'].insert({'_id':id})
-	except:
-		pass
-	return indexLang(request)
+    try:
+        db['spam'].insert({'_id':id})
+    except:
+        pass
+  return indexLang(request)
 
 def indexTopix(request,LANG='en'):
     DAY,MONTH, YEAR, HOUR, expiretime, MONTHNAME = fnReturnTimes()
     request.encoding = 'iso-8859-1'
     MONTHNAME=fnCaseMonthName(MONTH)
-    if str(LANG).endswith('.b'):
-        t=get_template('RedTieIndexBooksI18.html')
-    elif str(LANG).endswith('.s'):
-        t=get_template('RedTieIndexSourceI18.html')
-    elif str(LANG).endswith('.q'):
-        t=get_template('RedTieIndexQuoteI18.html')
-    elif str(LANG).endswith('.d'):
-        t=get_template('RedTieIndexDictI18.html')
-    elif str(LANG).endswith('.voy'):
-        t=get_template('RedTieIndexVoyI18.html')
-    elif str(LANG)=='commons':
-        t=get_template('RedTieIndexComI18.html')
-        LANG='commons.m'
-    else:
-        t=get_template('RedTieIndexI18.html')
     LATEST_NEWS_LIST=wikilib.fnLatestnews()
     title=''
     tw_timeline=GetTimeline()
@@ -682,28 +496,11 @@ def indexLang(request,LANG='en'):
     DAY, MONTH, YEAR, HOUR,expiretime,MONTHNAME = fnReturnTimes()
     request.encoding='iso-8859-1'
     MONTHNAME=fnCaseMonthName(MONTH)
-    if str(LANG).endswith('.b'):
-        t=get_template('RedTieIndexBooksI18.html')
-    elif str(LANG).endswith('.s'):
-        t=get_template('RedTieIndexSourceI18.html')
-    elif str(LANG).endswith('.q'):
-        t=get_template('RedTieIndexQuoteI18.html')
-    elif str(LANG).endswith('.d'):
-        t=get_template('RedTieIndexDictI18.html')
-    elif str(LANG).endswith('.voy'):
-        t=get_template('RedTieIndexVoyI18.html')
-    elif str(LANG)=='commons':
-        t=get_template('RedTieIndexComI18.html')
-        LANG='commons.m'
-    else:
-        t=get_template('RedTieIndexI18.html')
     LATEST_NEWS_LIST=wikilib.fnLatestnews()
-    title=''
     tw_timeline=GetTimeline()
     archive_list=GenArchiveListI18(LANG)
     PLACE=1
     REDIS_ID_KEY=str(LANG)+'_'+str(PLACE)+'_'+'ID'
-    mcVAR=str(LANG)+"_THREEHOUR"
     rc=redis.Redis('localhost')
     send_list=[]
     try:
@@ -745,73 +542,12 @@ def indexLang(request,LANG='en'):
             REDIS_ID_KEY=str(LANG)+'_'+str(PLACE)+'_ID'
             artID=rc.get(REDIS_ID_KEY)
     PAGETITLE="Top "+str(wikilib.fnReturnLanguageName(LANG))+" pages for "+str(MONTHNAME)+" "+str(DAY)+", "+str(YEAR)
-    c=Context({'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':PAGETITLE,'PageDesc':'Computes the three hour rolling average and find the most popular articles compared to yesterday!','expiretime':expiretime,'tw_timeline':tw_timeline,'archive_list':archive_list,'LANGUAGE':LANG})
     DATADICTIONARY = {'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':PAGETITLE,'PageDesc':'By three hour rolling average, find the most trending articles at this hour, compared to yesterday. Updated hourly around 20 past!','expiretime':expiretime,'tw_timeline':tw_timeline,'archive_list':archive_list,'LANGUAGE':LANG}
-
-    #	rendered=t.render(c)
-    #	return HttpResponse(rendered)
     return render_to_response('RedTieIndexI18.html',DATADICTIONARY,context_instance=RequestContext(request))
 
-def cold(request):
-	t=get_template('RedTieIndex.html')
-	FQUERY={'d':int(DAY),'m':int(MONTH),'y':int(YEAR)}
-	COLD_LIST_QUERY=mc.get('COLD_LIST_QUERY')
-	LATEST_NEWS_LIST=wikilib.fnLatestnews()
-	tw_timeline=GetTimeline()
-	send_list=[]
-	title=''
-	c=Context({'latest_hits_list':COLD_LIST_QUERY,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':'WikiTrends.Info - Cooling','PageDesc':'The pages with the biggest drop in standings from yesterday to today.','expiretime':expiretime,'tw_timeline':tw_timeline})
-	rendered=t.render(c)
-	return HttpResponse(rendered)
 
 
-def randPage(request):
-	TODAY=date.today()
-	now=datetime.datetime.now()
-	half=now+datetime.timedelta(minutes=45)
-	stamp=mktime(half.timetuple())
-	DAY-=1
-	if DAY==0:
-		DAY=30
-		MONTH-=1
-	if MONTH==0:
-		DAY=31
-		MONTH=12
-		YEAR-=1
-	t=get_template('RedTieIndex.html')
-	send_list=[]
-	title=''
-	utitle='<unknown>'
-	send_list=mc.get('RANDOM_ARTICLES')
-	tw_timeline=GetTimeline()
-	if send_list==None:
-		for a in range(1,50):
-			place=random.randint(1,250000)
-			FQUERY={'d':int(DAY),'m':int(MONTH),'y':int(YEAR),'place':place}
-			RANDOM_LIST_QUERY=db['tophits'+str(YEAR)+MONTHNAME].find(FQUERY)
-			for item in RANDOM_LIST_QUERY:
-				title, utitle=wikilib.fnFormatName(item['title'])
-				rec={'title':utitle,'place':item['place'],'Hits':item['Hits'],'linktitle':title.encode('utf-8'),'id':item['id']}
-				send_list.append(rec)
-				mc.set('RANDOM_ARTICLES',send_list,60*60)
-	LATEST_NEWS_LIST=db.news.find().sort('date',-1).limit(5)
-	c=Context({'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':'WikiTrends.Info - Random','PageDesc':'A random sampling from a quarter million of Wikipedia\'s most popular pages! Refreshes about every 20 minutes.','expiretime':expiretime,'tw_timeline':tw_timeline})
-	rendered=t.render(c)
-	return HttpResponse(rendered)
 
 
-def debuts(request):
-	TODAY=date.today()
-	now=datetime.datetime.now()
-	half=now+datetime.timedelta(minutes=45)
-	stamp=mktime(half.timetuple())
-	t=get_template('RedTieIndex.html')
-	QUERY=db['proddebuts'+str(YEAR)+MONTHNAME].find({'d':int(DAY),'m':int(MONTH),'y':int(YEAR)}).sort('place',1).limit(300)
-	LATEST_NEWS_LIST=db.news.find().sort('date',-1).limit(5)
-	TOTALNEW=0
-	send_list=mc.get('DEBUTS_ARTICLES')
-	tw_timeline=GetTimeline()
-	mc.set('DEBUTS_ARTICLES',send_list,60*60)
-	c=Context({'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':'Wikipedia\'s Debuting Pages','PageDesc':'Articles that have debuted in the most viewed list today','expiretime':expiretime,'tw_timeline':tw_timeline})
-	rendered=t.render(c)
-	return HttpResponse(rendered)
+
+
