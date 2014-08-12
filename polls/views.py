@@ -376,7 +376,6 @@ def returnSimilars(LANG,id):
 		LLIST=RES['similars']
 	except:
 		pass
-	print id, len(LLIST)	
 	return LLIST
 
 def Mobile_infoviewI18(request,LANG,id):
@@ -572,7 +571,6 @@ def mobileIndexLang(request,LANG='en'):
 				send_list.append(rec)
 				PLACE+=1
 		else:
-			print "found in cache, using redis"
 			rc.set(REDIS_ID_KEY,str(aTITLE))
 			send_list=[]
 			PLACE=1
@@ -601,7 +599,7 @@ def mobileIndexLang(request,LANG='en'):
 	return HttpResponse(rendered)
 def spam(request,id):
 	try:
-		db['spam'].insert({'id':id})
+		db['spam'].insert({'_id':id})
 	except:
 		pass
 	return indexLang(request) 
@@ -651,7 +649,6 @@ def indexLang(request,LANG='en'):
 			send_list.append(rec)
 			PLACE+=1
 	else:
-		print "found in cache, using redis"
 		rc.set(REDIS_ID_KEY,str(aTITLE))
 		send_list=[]
 		PLACE=1
@@ -674,8 +671,8 @@ def indexLang(request,LANG='en'):
 			REDIS_ID_KEY=str(LANG)+'_'+str(PLACE)+'_ID'
 			artID=rc.get(REDIS_ID_KEY)
 	PAGETITLE="Top "+str(wikilib.fnReturnLanguageName(LANG))+" pages for "+str(MONTHNAME)+" "+str(DAY)+", "+str(YEAR)
-	c=Context({'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':PAGETITLE,'PageDesc':'A three hour rolling average showing the most popular articles currently','expiretime':expiretime,'tw_timeline':tw_timeline,'archive_list':archive_list,'LANGUAGE':LANG})
-	DATADICTIONARY = {'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':PAGETITLE,'PageDesc':'A three hour rolling average showing the most popular articles currently','expiretime':expiretime,'tw_timeline':tw_timeline,'archive_list':archive_list,'LANGUAGE':LANG}
+	c=Context({'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':PAGETITLE,'PageDesc':'Computes the three hour rolling average and find the most popular articles compared to yesterday!','expiretime':expiretime,'tw_timeline':tw_timeline,'archive_list':archive_list,'LANGUAGE':LANG})
+	DATADICTIONARY = {'latest_hits_list':send_list,'latest_news_list':LATEST_NEWS_LIST,'PageTitle':PAGETITLE,'PageDesc':'By three hour rolling average, find the most trending articles at this hour, compared to yesterday. Updated hourly around 20 past!','expiretime':expiretime,'tw_timeline':tw_timeline,'archive_list':archive_list,'LANGUAGE':LANG}
         
 #	rendered=t.render(c)
 #	return HttpResponse(rendered)
