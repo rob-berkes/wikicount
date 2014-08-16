@@ -15,15 +15,21 @@ import time
 import syslog
 import os
 import HTMLParser
-from django.shortcuts import render_to_response 
+from django.shortcuts import render_to_response,redirect 
 from django.template import RequestContext
-
+from django.db import models
 _htmlparser=HTMLParser.HTMLParser()
 unescape=_htmlparser.unescape
 
 conn=Connection(wikilib.MONGO_IP)
 db=conn.wc
 RECORDSPERPAGE=50
+#Classes
+class MyModel(models.Model):
+  id = ""
+  lang = ""
+  def get_absolute_url(self):
+      return '/spamweb/'+self.id+'/'+self.lang
 
 #All purpose Functions
 
@@ -372,12 +378,8 @@ def mobileIndexLang(request,LANG='en'):
         return HttpResponse(rendered)
 
 
-def spam(request,id):
-    try:
-        db['spam'].insert({'_id':id})
-    except:
-        pass
-    return indexLang(request)
+def spam(request,lang,id):
+    return redirect("http://www.wikitrends.info:8080/spamweb/"+str(lang)+"/"+str(id))
 
 def indexTopix(request,LANG='en'):
     DAY,MONTH, YEAR, HOUR, expiretime, MONTHNAME = fnReturnTimes()
