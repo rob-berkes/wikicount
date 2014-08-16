@@ -6,6 +6,7 @@ from django.views.generic import ListView, DetailView
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
 from polls.models import hits
+from django.views.generic.base import RedirectView
 admin.autodiscover()
 
 post_list=ListView.as_view(model=hits)
@@ -16,6 +17,7 @@ urlpatterns = patterns('',
     # Examples:
      url(r'^$','polls.views.indexLang', name='home'),
      url(r'^topics.htm$','polls.views.indexTopix'),
+     url(r'^spamweb/([A-Za-z]{2})/(\w+)$',RedirectView.as_view(url='http://127.0.0.1:8080',permanent=False)),
      url(r'^index.htm$','polls.views.indexLang'),
      url(r'^([A-Za-z]{2})/index.htm$','polls.views.indexLang'),
      url(r'^m/([A-Za-z.]{2})/index.htm$','polls.views.mobileIndexLang'),
