@@ -462,7 +462,7 @@ def indexLang(request,LANG='en'):
             LANGSUB='commons'
         for p in THREEHOUR_LIST_QUERY:
             tstr=str(p['title'])
-            rec={'title':urllib2.unquote(tstr),'place':p['place'],'Avg':p['rollavg'],'linktitle':p['title'],'id':p['id'],'LANG':LANG,'LANGSUB':LANGSUB}
+            rec={'title':p['title'],'place':p['place'],'Avg':p['rollavg'],'linktitle':urllib.quote(p['title'],safe),'id':p['id'],'LANG':LANG,'LANGSUB':LANGSUB}
             send_list.append(rec)
             PLACE+=1
     else:

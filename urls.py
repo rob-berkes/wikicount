@@ -16,7 +16,7 @@ urlpatterns = patterns('',
     # Examples:
      url(r'^$','polls.views.indexLang', name='home'),
      url(r'^topics.htm$','polls.views.indexTopix'),
-     url(r'^spamfront-0.1/spamweb/([A-Za-z]{2})/(\w+)$','polls.views.spam'),
+     url(r'^spamfront-0.1/spamweb/([A-Za-z]{2})/(\w+)/(\w+)$','polls.views.spam'),
      url(r'^index.htm$','polls.views.indexLang'),
      url(r'^([A-Za-z]{2})/index.htm$','polls.views.indexLang'),
      url(r'^m/([A-Za-z.]{2})/index.htm$','polls.views.mobileIndexLang'),
