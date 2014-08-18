@@ -9,7 +9,7 @@ import subprocess
 import syslog
 import Gnuplot, Gnuplot.funcutils
 
-MONGO_IP = '10.221.135.154'
+MONGO_IP = '10.212.130.84'
 conn = Connection(MONGO_IP)
 db = conn.wc
 
