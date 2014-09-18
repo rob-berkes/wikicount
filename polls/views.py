@@ -1,3 +1,4 @@
+import urllib
 from django.http import HttpResponse
 from django.template.loader import get_template
 from django.template import Context
@@ -377,8 +378,12 @@ def mobileIndexLang(request,LANG='en'):
         rendered=t.render(c)
         return HttpResponse(rendered)
 
+def spam(request,lang,id,linktitle):
+    irec = {'_id':id,'lang':lang,'title':linktitle}
+    db['spam'].insert(irec)
+    return redirect("http://www.wikitrends.info/"+str(lang)+"/index.html")
 
-def spam(request,lang,id):
+def spamrdr(request,lang,id):
     return redirect("http://www.wikitrends.info:8080/spamweb/"+str(lang)+"/"+str(id))
 
 def indexTopix(request,LANG='en'):
@@ -440,7 +445,10 @@ def indexTopix(request,LANG='en'):
 
 def indexLang(request,LANG='en'):
     DAY, MONTH, YEAR, HOUR,expiretime,MONTHNAME = fnReturnTimes()
-    request.encoding='iso-8859-1'
+    try: #keep if function called programmatically
+      request.encoding='iso-8859-1'
+    except:
+      pass
     MONTHNAME=fnCaseMonthName(MONTH)
     LATEST_NEWS_LIST=wikilib.fnLatestnews()
     tw_timeline=GetTimeline()
@@ -462,7 +470,7 @@ def indexLang(request,LANG='en'):
             LANGSUB='commons'
         for p in THREEHOUR_LIST_QUERY:
             tstr=str(p['title'])
-            rec={'title':p['title'],'place':p['place'],'Avg':p['rollavg'],'linktitle':urllib.quote(p['title'],safe),'id':p['id'],'LANG':LANG,'LANGSUB':LANGSUB}
+            rec={'title':p['title'],'place':p['place'],'Avg':p['rollavg'],'linktitle':urllib.quote(p['title']),'id':p['id'],'LANG':LANG,'LANGSUB':LANGSUB}
             send_list.append(rec)
             PLACE+=1
     else:

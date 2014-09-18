@@ -9,7 +9,7 @@ import subprocess
 import syslog
 import Gnuplot, Gnuplot.funcutils
 
-MONGO_IP = '10.220.16.53'
+MONGO_IP = '10.219.8.19'
 conn = Connection(MONGO_IP)
 db = conn.wc
 
@@ -49,7 +49,9 @@ LLIST = { 'ru':'Russian Wikipedia',
 	'ru.q':'Russian Wikiquote',
 	'zh.q':'Chinese Wikiquote',
 	'zh.b':'Chinese Wikibook',
-	'ru.b':'Russian Wikibook'}
+	'ru.b':'Russian Wikibook',
+        'st':'English',
+        'fa':'favicon.ico'}
 
 def fnRangeCount(value):
 	return [v+1 for v in range(0,value)]
